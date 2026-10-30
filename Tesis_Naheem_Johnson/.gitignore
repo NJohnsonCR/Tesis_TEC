@@ -1,0 +1,48 @@
+# ---------------------------------------------------------------------------
+# .gitignore del repositorio de la tesis (LaTeX con pdflatex + bibtex + latexmk)
+# Se ignoran los archivos que se regeneran en cada compilación.
+# Las fuentes (.tex, .bib, sty/, fig/) y .vscode/settings.json sí se versionan.
+# ---------------------------------------------------------------------------
+
+# Auxiliares de LaTeX
+*.aux
+*.toc
+*.lof
+*.lot
+*.loa
+*.lol
+*.out
+
+# Registros de compilación
+*.log
+*.blg
+*.ilg
+
+# Bibliografía (bibtex)
+*.bbl
+
+# Índice y lista de símbolos (makeidx, nomencl)
+*.idx
+*.ind
+*.nlo
+*.nls
+
+# latexmk y SyncTeX
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+*.synctex(busy)
+
+# Salidas intermedias
+*.dvi
+*.xdv
+*-eps-converted-to.pdf
+
+# PDF compilado (se genera con Ctrl+Alt+B).
+# Si querés conservarlo en el repo, borrá o comentá la línea siguiente.
+Tesis_Naheem_Johnson/main.pdf
+
+# Archivos del sistema y de editores
+.DS_Store
+*~
+*.swp
