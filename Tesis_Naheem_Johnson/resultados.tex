@@ -55,7 +55,7 @@ El canal de procesamiento registra por cuadro el tiempo de cada etapa, la latenc
 Una herramienta de evaluación calcula sobre cada sesión el error de trayectoria con alineación rígida, la deriva desde un inicio común y durante cortes simulados del GPS, la escala frente a la Doppler y la rotación frente al giroscopio.
 El error relativo de pose y la utilización de recursos computacionales todavía no forman parte de esa herramienta.
 
-\TODOJ{Actualizar la tabla con los valores validados por el asesor e indicar en qué equipo se exigen los requerimientos temporales.}
+% Pendiente para discutir con la contraparte: Actualizar la tabla con los valores validados por el asesor e indicar en qué equipo se exigen los requerimientos temporales.
 
 \begin{table}[H]
 \centering
@@ -175,7 +175,7 @@ Sus resultados se guardan en una caché indexada por el contenido de la grabaci�
 El modo exclusivamente visual ejecuta la misma grabación sin usar el GPS después del arranque y es la línea base del cuarto objetivo.
 El detalle de los módulos y del protocolo corresponde al documento de arquitectura, entregable del segundo objetivo.
 
-\TODOJ{Incluir el documento de arquitectura (módulos, interfaces y protocolo) como apéndice y referenciarlo aquí.}
+% Pendiente para discutir con la contraparte: Incluir el documento de arquitectura (módulos, interfaces y protocolo) como apéndice y referenciarlo aquí.
 
 % ---------------------------------------------------------------------------
 \subsection{Estimación de la escala métrica}
@@ -352,23 +352,23 @@ El estado es el de la Ecuación~\eqref{eq:estado-rl}, con cada señal discretiza
 Los umbrales de la dispersión y de la innovación normalizada son los terciles de esas señales en las decisiones de la grilla de las seis sesiones, calculados antes de entrenar y sin usar el error; como incluyen la sesión de prueba, constituyen una fuga de información leve, declarada en el protocolo.
 La recompensa es la de la Ecuación~\eqref{eq:rl-covarianzas}, con $c_{\lambda} = 0{,}1$~m; al medirse contra el filtro convencional en el mismo corte, elimina la dificultad propia de cada tramo sin cambiar la política óptima, porque el término que se resta no depende de las acciones.
 
-% \begin{table}[H]
-% \centering
-% \caption{Señales del estado de la política y sus niveles}
-% \label{tab:res-rl-estado}
-% \small
-% \begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{1.6cm}>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}p{4.3cm}@{}}
-% \toprule
-% \textbf{Señal} & \textbf{Descripción} & \textbf{Niveles} \\
-% \midrule
-% $\Delta t^{\mathrm{GPS}}_n$ & Tiempo desde la última solución GPS. & $\le 5$; $\le 15$; $> 15$~s \\
-% $\hat{v}_n$ & Rapidez estimada por el filtro. & $\le 6$; $\le 12$; $> 12$~m/s \\
-% $\sigma^{\mathrm{D/c}}_n$ & Coeficiente de variación del cociente entre la Doppler y la rapidez de la cámara en las últimas 10 soluciones. & $\le 0{,}17$; $\le 0{,}29$; $> 0{,}29$ \\
-% $\bar{\nu}^{2}_{\mathrm{c},n}$ & Innovación normalizada media de las últimas 5 rapideces de la cámara, calculada con el peso del filtro convencional para que siga disponible cuando la medición se descarta. & $\le 0{,}28$; $\le 1{,}03$; $> 1{,}03$ \\
-% $f^{\mathrm{det}}_n$ & Fracción de cuadros marcados como detenidos en los últimos 5~s. & $0$; $\le 0{,}5$; $> 0{,}5$ \\
-% \bottomrule
-% \end{tabularx}
-% \end{table}
+\begin{table}[H]
+\centering
+\caption{Señales del estado de la política y sus niveles}
+\label{tab:res-rl-estado}
+\small
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{1.6cm}>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}p{4.3cm}@{}}
+\toprule
+\textbf{Señal} & \textbf{Descripción} & \textbf{Niveles} \\
+\midrule
+$\Delta t^{\mathrm{GPS}}_n$ & Tiempo desde la última solución GPS. & $\le 5$; $\le 15$; $> 15$~s \\
+$\hat{v}_n$ & Rapidez estimada por el filtro. & $\le 6$; $\le 12$; $> 12$~m/s \\
+$\sigma^{\mathrm{D/c}}_n$ & Coeficiente de variación del cociente entre la Doppler y la rapidez de la cámara en las últimas 10 soluciones. & $\le 0{,}17$; $\le 0{,}29$; $> 0{,}29$ \\
+$\bar{\nu}^{2}_{\mathrm{c},n}$ & Innovación normalizada media de las últimas 5 rapideces de la cámara, calculada con el peso del filtro convencional para que siga disponible cuando la medición se descarta. & $\le 0{,}28$; $\le 1{,}03$; $> 1{,}03$ \\
+$f^{\mathrm{det}}_n$ & Fracción de cuadros marcados como detenidos en los últimos 5~s. & $0$; $\le 0{,}5$; $> 0{,}5$ \\
+\bottomrule
+\end{tabularx}
+\end{table}
 
 \textbf{Entrenamiento.}
 La tabla $Q$ se inicializa en cero y, ante un empate, se elige $\lambda = 1$, de modo que un estado no visitado se comporta como el filtro convencional.
@@ -389,7 +389,7 @@ Por ello se definió una segunda iteración, con su propio protocolo fijado ante
 Como esta iteración se definió después de observar las sesiones de prueba, se declara así al reportarla.
 La política entrenada con las seis sesiones se guarda como una tabla de 14~kB junto con los niveles del estado y las acciones, y su integración en el canal de procesamiento y en la interfaz está pendiente.
 
-\TODOJ{Completar con la integración de la política en el canal y en la ventana, su costo medido por decisión y la iteración que se adopta.}
+% Pendiente para discutir con la contraparte: Completar con la integración de la política en el canal y en la ventana, su costo medido por decisión y la iteración que se adopta.
 
 % ===========================================================================
 \section{Análisis de los resultados obtenidos}
@@ -401,7 +401,7 @@ La política entrenada con las seis sesiones se guarda como una tabla de 14~kB j
 Esta sección analiza los resultados frente a los objetivos específicos, con las siete grabaciones en vehículo de la Tabla~\ref{tab:res-grabaciones}.
 Las cifras provienen de las sesiones en vivo de la prueba de campo, de corridas deterministas sobre las grabaciones y de bancos de prueba construidos sobre ellas, con el código vigente entre el 7 y el 12 de octubre, y son preliminares hasta la corrida final con el código congelado.
 
-\TODOJ{Actualizar las cifras con la corrida final e incorporar el error relativo de pose, la estabilidad y la utilización de recursos.}
+% Pendiente para discutir con la contraparte: Actualizar las cifras con la corrida final e incorporar el error relativo de pose, la estabilidad y la utilización de recursos.
 
 \begin{table}[H]
 \centering
@@ -457,7 +457,7 @@ El cuello de botella es la odometría visual y no la fusión, que cuesta menos d
 Reducir las características ORB a 1000 bajaría la latencia estimada en vivo de la portátil a unos 165~ms, todavía por encima de la referencia, y alteraría la odometría visual verificada, por lo que la prueba de campo se realizó con la configuración vigente.
 El enlace sí determina la latencia por WiFi: el mismo día, con el mismo teléfono y la misma computadora, por WiFi el teléfono no envió el 22,8~\% de los cuadros y la latencia fue de 112/224~ms, frente a ningún cuadro perdido y 97/107~ms por cable; por eso el campo se realizó con anclaje de red por USB.
 
-\TODOJ{Declarar el cumplimiento de RT-1 y RT-2 cuando el asesor valide los valores y el equipo en que se exigen.}
+% Pendiente para discutir con la contraparte: Declarar el cumplimiento de RT-1 y RT-2 cuando el asesor valide los valores y el equipo en que se exigen.
 
 % ---------------------------------------------------------------------------
 \subsection{Prueba de campo}
@@ -553,7 +553,7 @@ La fusión rechaza los saltos sueltos y las ráfagas, con un percentil 95 de 4 a
 El error correlado de tipo multitrayecto, en cambio, no se distingue de un movimiento real y pasa casi intacto.
 Con soluciones escasas el resultado depende otra vez de la escala de la cámara: en la sesión de las 14:55 la fusión queda cerca del GPS solo o lo mejora, mientras que en la de las 15:05, más rápida, queda peor.
 
-\TODOJ{Agregar la comparación formal entre la plataforma híbrida y el modo exclusivamente visual con el código congelado, el error relativo de pose y la estabilidad.}
+% Pendiente para discutir con la contraparte: Agregar la comparación formal entre la plataforma híbrida y el modo exclusivamente visual con el código congelado, el error relativo de pose y la estabilidad.
 
 % ---------------------------------------------------------------------------
 \subsection{Aporte del aprendizaje por refuerzo}
@@ -632,22 +632,22 @@ El análisis de los cortes en que la política pierde más de 20~m mostró que s
 En la grabación de validación no hubo margen a 30~s, ya que el oráculo coincide con el filtro convencional, y tanto la política como la regla empeoraron el percentil 90, aunque la mediana de la política quedó igual o mejor: la política no se traslada a un dominio con otra aplicación y otra cámara.
 Durante los cortes, la política eligió $\lambda = 1$ en el 30 a 55~\% de las decisiones, $\lambda = 4$ en el 16 a 26~\% y el descarte en el 20 a 54~\%, y la tabla final visitó 187 de los 243 estados.
 
-\TODOJ{Agregar los resultados de la segunda iteración y justificar la iteración que se adopta.}
+% Pendiente para discutir con la contraparte: Agregar los resultados de la segunda iteración y justificar la iteración que se adopta.
 
 % ---------------------------------------------------------------------------
 \subsection{Limitaciones de la solución}
 \label{sec:res-limitaciones}
-% CTX §4.25 (5), §4.28 (cortes reales), §4.32 (5).
+% CTX §4.25, §4.31 (punto 5), §4.33.
 
 \begin{itemize}
 \item \textbf{Referencia.} Las grabaciones propias carecen de una trayectoria de referencia de alta precisión.
 El GPS del teléfono, con un error de varios metros, limita las comparaciones finas, aunque es pequeño frente a los errores de decenas de metros que se miden en los cortes.
-\item \textbf{Latencia en la portátil.} La portátil empleada en campo no cumple el percentil 95 de la latencia de referencia; la computadora de escritorio sí.
+\item \textbf{Latencia en la portátil.} La latencia en la computadora portátil empleada en campo es mucho mayor que en la computadora de escritorio: su percentil 95 fue de 167 a 189~ms conectada a la corriente y de 201 a 219~ms con batería, frente a 107~ms, porque su tiempo de procesamiento por cuadro es de dos a tres veces mayor.
 \item \textbf{Escala de la cámara.} Varía con la escena y la rapidez, y se desploma por encima de 12~m/s; domina el error en los cortes de más de 20~s y con soluciones GPS escasas.
-\item \textbf{Condiciones no evaluadas.} No se midieron la operación nocturna, los túneles, las pérdidas reales del GPS, ya que el proveedor fusionado puede seguir entregando posiciones estimadas en lugar de interrumpirse, ni el multitrayecto real; la rapidez máxima registrada fue de 21,7~m/s.
-\item \textbf{Lluvia.} Con gotas en el parabrisas la odometría visual no ve los giros y produce detenciones falsas; la fusión conserva el rumbo gracias al giroscopio.
-\item \textbf{Modo exclusivamente visual en los altos.} Sin GPS, el filtro puede rechazar las detenciones que indica la cámara y adelantarse en los altos largos, lo que debe resolverse antes de usar ese modo como línea base formal.
-\item \textbf{Aprendizaje por refuerzo.} Los datos provienen de seis sesiones de dos días en rutas parecidas; las acciones, la espera de 1,5~s y los niveles fijos se eligieron observando dos de ellas; los terciles incluyen una fuga leve; la política no se traslada a otro dominio y empata en la cola con un peso fijo bien elegido.
+\item \textbf{Aprendizaje por refuerzo.} El aporte de la política es moderado y pierde confiabilidad fuera del dominio en que se entrenó.
+Su limitación principal es que, durante una pérdida del GPS, el estado no distingue si la rapidez de la cámara es errónea o si el vehículo realmente aceleró o frenó.
+En el segundo caso la política baja la confianza en la cámara cuando no debería, lo que equivale a suponer una rapidez constante y empeora ligeramente la estimación: la mediana del error al volver el GPS es de 0,7 a 1,8~m mayor que la del filtro convencional.
+La política evaluada mejora los resultados frente al filtro convencional en los peores casos, pero esta limitación persiste.
 \end{itemize}
 
 %%% Local Variables:

@@ -1,9 +1,9 @@
-PWD /home/njohnson_cr/Documents/Tesis/Tesis_Naheem_Johnson
+PWD /home/njohnson_cr/Documents/Tesis/Tesis_TEC/Tesis_Naheem_Johnson
 INPUT /etc/texmf/web2c/texmf.cnf
 INPUT /usr/share/texmf/web2c/texmf.cnf
 INPUT /usr/share/texlive/texmf-dist/web2c/texmf.cnf
 INPUT /var/lib/texmf/web2c/pdftex/pdflatex.fmt
-INPUT /home/njohnson_cr/Documents/Tesis/Tesis_Naheem_Johnson/main.tex
+INPUT /home/njohnson_cr/Documents/Tesis/Tesis_TEC/Tesis_Naheem_Johnson/main.tex
 OUTPUT main.log
 INPUT /usr/share/texlive/texmf-dist/tex/latex/base/book.cls
 INPUT /usr/share/texlive/texmf-dist/tex/latex/base/book.cls

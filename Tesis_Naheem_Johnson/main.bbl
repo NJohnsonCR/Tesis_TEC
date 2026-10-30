@@ -2,60 +2,49 @@
 
 \bibitem{buttazzo2011realtime}
 Giorgio~C. Buttazzo.
-\newblock {\em Hard Real-Time Computing Systems: Predictable Scheduling
-  Algorithms and Applications}.
+\newblock {\em Hard Real-Time Computing Systems: Predictable Scheduling Algorithms and Applications}.
 \newblock Springer, 3rd edition, 2011.
 \newblock \url{https://doi.org/10.1007/978-1-4614-0676-1}.
 
 \bibitem{cadena2016slam}
-Cesar Cadena, Luca Carlone, Henry Carrillo, Yasir Latif, Davide Scaramuzza,
-  Jos{\'e} Neira, Ian Reid, and John~J. Leonard.
-\newblock Past, present, and future of simultaneous localization and mapping:
-  Toward the robust-perception age.
+Cesar Cadena, Luca Carlone, Henry Carrillo, Yasir Latif, Davide Scaramuzza, Jos{\'e} Neira, Ian Reid, and John~J. Leonard.
+\newblock Past, present, and future of simultaneous localization and mapping: Toward the robust-perception age.
 \newblock {\em {IEEE} {T}ransactions on Robotics}, 32(6):1309--1332, 2016.
 \newblock \url{https://doi.org/10.1109/TRO.2016.2624754}.
 
 \bibitem{chiang2020smartphone}
 Kai-Wei Chiang, Dinh~Thuan Le, Thanh~Trung Duong, and Rui Sun.
-\newblock The performance analysis of {INS/GNSS/V-SLAM} integration scheme
-  using smartphone sensors for land vehicle navigation applications in
-  {GNSS}-challenging environments.
+\newblock The performance analysis of {INS/GNSS/V-SLAM} integration scheme using smartphone sensors for land vehicle navigation applications in {GNSS}-challenging environments.
 \newblock {\em Remote Sensing}, 12(11):1732, 2020.
 \newblock \url{https://doi.org/10.3390/rs12111732}.
 
 \bibitem{fischler1981ransac}
 Martin~A. Fischler and Robert~C. Bolles.
-\newblock Random sample consensus: A paradigm for model fitting with
-  applications to image analysis and automated cartography.
+\newblock Random sample consensus: A paradigm for model fitting with applications to image analysis and automated cartography.
 \newblock {\em Communications of the {ACM}}, 24(6):381--395, 1981.
 \newblock \url{https://doi.org/10.1145/358669.358692}.
 
 \bibitem{gao2020rlakf}
 X.~Gao, H.~Luo, B.~Ning, F.~Zhao, L.~Bao, Y.~Gong, Y.~Xiao, and J.~Jiang.
-\newblock {RL-AKF}: An adaptive {Kalman} filter navigation algorithm based on
-  reinforcement learning for ground vehicles.
+\newblock {RL-AKF}: An adaptive {Kalman} filter navigation algorithm based on reinforcement learning for ground vehicles.
 \newblock {\em Remote Sensing}, 12(11):1704, 2020.
 \newblock \url{https://doi.org/10.3390/rs12111704}.
 
 \bibitem{geiger2012kitti}
 Andreas Geiger, Philip Lenz, and Raquel Urtasun.
-\newblock Are we ready for autonomous driving? the {KITTI} vision benchmark
-  suite.
-\newblock In {\em 2012 {IEEE} Conference on Computer Vision and Pattern
-  Recognition ({CVPR})}, pages 3354--3361, 2012.
+\newblock Are we ready for autonomous driving? the {KITTI} vision benchmark suite.
+\newblock In {\em 2012 {IEEE} Conference on Computer Vision and Pattern Recognition ({CVPR})}, pages 3354--3361, 2012.
 \newblock \url{https://doi.org/10.1109/CVPR.2012.6248074}.
 
 \bibitem{grisetti2010graphslam}
 Giorgio Grisetti, Rainer K{\"u}mmerle, Cyrill Stachniss, and Wolfram Burgard.
 \newblock A tutorial on graph-based {SLAM}.
-\newblock {\em {IEEE} Intelligent Transportation Systems Magazine},
-  2(4):31--43, 2010.
+\newblock {\em {IEEE} Intelligent Transportation Systems Magazine}, 2(4):31--43, 2010.
 \newblock \url{https://doi.org/10.1109/MITS.2010.939925}.
 
 \bibitem{groves2013gnss}
 Paul~D. Groves.
-\newblock {\em Principles of {GNSS}, Inertial, and Multisensor Integrated
-  Navigation Systems}.
+\newblock {\em Principles of {GNSS}, Inertial, and Multisensor Integrated Navigation Systems}.
 \newblock Artech House, 2nd edition, 2013.
 \newblock ISBN 978-1-60807-005-3.
 
@@ -67,24 +56,19 @@ Richard Hartley and Andrew Zisserman.
 
 \bibitem{tec_lineamientos_tfg}
 {Instituto Tecnológico de Costa Rica, Escuela de Ingeniería en Computadores}.
-\newblock Lineamientos para los trabajos finales de graduación, licenciatura
-  en ingeniería en computadores, curso ce-5601.
+\newblock Lineamientos para los trabajos finales de graduación, licenciatura en ingeniería en computadores, curso ce-5601.
 \newblock Versión 4.1, 2024.
 
 \bibitem{jia2021lviofusion}
-Yupeng Jia, Haiyong Luo, Fang Zhao, Guanlin Jiang, Yuhang Li, Jiaquan Yan, and
-  Zhuqing Jiang.
-\newblock {Lvio-Fusion}: A self-adaptive multi-sensor fusion {SLAM} framework
-  using actor-critic method.
-\newblock In {\em 2021 {IEEE/RSJ} International Conference on Intelligent
-  Robots and Systems ({IROS})}, 2021.
+Yupeng Jia, Haiyong Luo, Fang Zhao, Guanlin Jiang, Yuhang Li, Jiaquan Yan, and Zhuqing Jiang.
+\newblock {Lvio-Fusion}: A self-adaptive multi-sensor fusion {SLAM} framework using actor-critic method.
+\newblock In {\em 2021 {IEEE/RSJ} International Conference on Intelligent Robots and Systems ({IROS})}, 2021.
 \newblock \url{https://doi.org/10.1109/IROS51168.2021.9635905}.
 
 \bibitem{kalman1960filtering}
 Rudolph~E. Kalman.
 \newblock A new approach to linear filtering and prediction problems.
-\newblock {\em Transactions of the {ASME} --- Journal of Basic Engineering},
-  82(1):35--45, 1960.
+\newblock {\em Transactions of the {ASME} --- Journal of Basic Engineering}, 82(1):35--45, 1960.
 \newblock \url{https://doi.org/10.1115/1.3662552}.
 
 \bibitem{lowe2004sift}
@@ -114,8 +98,7 @@ Edward Rosten and Tom Drummond.
 \bibitem{rublee2011orb}
 Ethan Rublee, Vincent Rabaud, Kurt Konolige, and Gary Bradski.
 \newblock {ORB}: An efficient alternative to {SIFT} or {SURF}.
-\newblock In {\em 2011 International Conference on Computer Vision ({ICCV})},
-  pages 2564--2571, 2011.
+\newblock In {\em 2011 International Conference on Computer Vision ({ICCV})}, pages 2564--2571, 2011.
 \newblock \url{https://doi.org/10.1109/ICCV.2011.6126544}.
 
 \bibitem{scaramuzza2011vo}
@@ -136,11 +119,9 @@ Ian Sommerville.
 \newblock Pearson, Boston, MA, USA, 10th edition, 2016.
 
 \bibitem{sturm2012benchmark}
-J{\"u}rgen Sturm, Nikolas Engelhard, Felix Endres, Wolfram Burgard, and Daniel
-  Cremers.
+J{\"u}rgen Sturm, Nikolas Engelhard, Felix Endres, Wolfram Burgard, and Daniel Cremers.
 \newblock A benchmark for the evaluation of {RGB-D} {SLAM} systems.
-\newblock In {\em 2012 {IEEE/RSJ} International Conference on Intelligent
-  Robots and Systems ({IROS})}, pages 573--580, 2012.
+\newblock In {\em 2012 {IEEE/RSJ} International Conference on Intelligent Robots and Systems ({IROS})}, pages 573--580, 2012.
 \newblock \url{https://cvg.cit.tum.de/_media/spezial/bib/sturm12iros.pdf}.
 
 \bibitem{sutton2018rl}
@@ -151,24 +132,19 @@ Richard~S. Sutton and Andrew~G. Barto.
 
 \bibitem{sutton1999policygradient}
 Richard~S. Sutton, David McAllester, Satinder Singh, and Yishay Mansour.
-\newblock Policy gradient methods for reinforcement learning with function
-  approximation.
-\newblock In {\em Advances in Neural Information Processing Systems 12 ({NIPS}
-  1999)}, pages 1057--1063, 1999.
-\newblock
-  \url{https://proceedings.neurips.cc/paper_files/paper/1999/file/464d828b85b0bed98e80ade0a5c43b0f-Paper.pdf}.
+\newblock Policy gradient methods for reinforcement learning with function approximation.
+\newblock In {\em Advances in Neural Information Processing Systems 12 ({NIPS} 1999)}, pages 1057--1063, 1999.
+\newblock \url{https://proceedings.neurips.cc/paper_files/paper/1999/file/464d828b85b0bed98e80ade0a5c43b0f-Paper.pdf}.
 
 \bibitem{ingenieria_computadores}
 {TEC: Tecnológico de Costa Rica}.
 \newblock Ingeniería en computadores, 2026.
-\newblock \foreignlanguage{spanish}{[En línea]. Disponible en:}
-  \url{https://www.tec.ac.cr/ingenieria-computadores}.
+\newblock \foreignlanguage{spanish}{[En línea]. Disponible en:} \url{https://www.tec.ac.cr/ingenieria-computadores}.
 
 \bibitem{que_es_el_tec}
 {TEC: Tecnológico de Costa Rica}.
 \newblock Qué es el tec, 2026.
-\newblock \foreignlanguage{spanish}{[En línea]. Disponible en:}
-  \url{https://www.tec.ac.cr/que-es-tec}.
+\newblock \foreignlanguage{spanish}{[En línea]. Disponible en:} \url{https://www.tec.ac.cr/que-es-tec}.
 
 \bibitem{thrun2005probabilistic}
 Sebastian Thrun, Wolfram Burgard, and Dieter Fox.
@@ -178,10 +154,8 @@ Sebastian Thrun, Wolfram Burgard, and Dieter Fox.
 
 \bibitem{umeyama1991alignment}
 Shinji Umeyama.
-\newblock Least-squares estimation of transformation parameters between two
-  point patterns.
-\newblock {\em {IEEE} {T}ransactions on Pattern Analysis and Machine
-  Intelligence}, 13(4):376--380, 1991.
+\newblock Least-squares estimation of transformation parameters between two point patterns.
+\newblock {\em {IEEE} {T}ransactions on Pattern Analysis and Machine Intelligence}, 13(4):376--380, 1991.
 \newblock \url{https://doi.org/10.1109/34.88573}.
 
 \bibitem{watkins1992qlearning}
@@ -192,23 +166,19 @@ Christopher J. C.~H. Watkins and Peter Dayan.
 
 \bibitem{wong2024drlslam}
 Ching-Chang Wong, Hsuan-Ming Feng, and Kun-Lung Kuo.
-\newblock Multi-sensor fusion simultaneous localization mapping based on deep
-  reinforcement learning and multi-model adaptive estimation.
+\newblock Multi-sensor fusion simultaneous localization mapping based on deep reinforcement learning and multi-model adaptive estimation.
 \newblock {\em Sensors}, 24(1):48, 2024.
 \newblock \url{https://doi.org/10.3390/s24010048}.
 
 \bibitem{yang2024depthanything}
-Lihe Yang, Bingyi Kang, Zilong Huang, Zhen Zhao, Xiaogang Xu, Jiashi Feng, and
-  Hengshuang Zhao.
+Lihe Yang, Bingyi Kang, Zilong Huang, Zhen Zhao, Xiaogang Xu, Jiashi Feng, and Hengshuang Zhao.
 \newblock Depth anything {V2}.
-\newblock In {\em Advances in Neural Information Processing Systems
-  ({NeurIPS})}, 2024.
+\newblock In {\em Advances in Neural Information Processing Systems ({NeurIPS})}, 2024.
 \newblock \url{https://doi.org/10.52202/079017-0688}.
 
 \bibitem{zangenehnejad2021smartphone}
 Farzaneh Zangenehnejad and Yang Gao.
-\newblock {GNSS} smartphones positioning: Advances, challenges, opportunities,
-  and future perspectives.
+\newblock {GNSS} smartphones positioning: Advances, challenges, opportunities, and future perspectives.
 \newblock {\em Satellite Navigation}, 2(24), 2021.
 \newblock \url{https://doi.org/10.1186/s43020-021-00054-y}.
 

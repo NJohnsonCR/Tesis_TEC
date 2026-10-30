@@ -66,14 +66,14 @@
 \contentsline {subsection}{\numberline {4.1.2}Arquitectura de la plataforma}{52}{subsection.4.1.2}%
 \contentsline {subsection}{\numberline {4.1.3}Estimación de la escala métrica}{54}{subsection.4.1.3}%
 \contentsline {subsection}{\numberline {4.1.4}Corrección de la odometría visual}{55}{subsection.4.1.4}%
-\contentsline {subsection}{\numberline {4.1.5}Filtro de fusión}{57}{subsection.4.1.5}%
+\contentsline {subsection}{\numberline {4.1.5}Filtro de fusión}{56}{subsection.4.1.5}%
 \contentsline {subsection}{\numberline {4.1.6}Mecanismo de aprendizaje por refuerzo}{59}{subsection.4.1.6}%
 \contentsline {section}{\numberline {4.2}Análisis de los resultados obtenidos}{61}{section.4.2}%
 \contentsline {subsection}{\numberline {4.2.1}Comportamiento en tiempo real}{62}{subsection.4.2.1}%
-\contentsline {subsection}{\numberline {4.2.2}Prueba de campo}{62}{subsection.4.2.2}%
-\contentsline {subsection}{\numberline {4.2.3}Precisión de la localización}{63}{subsection.4.2.3}%
+\contentsline {subsection}{\numberline {4.2.2}Prueba de campo}{63}{subsection.4.2.2}%
+\contentsline {subsection}{\numberline {4.2.3}Precisión de la localización}{64}{subsection.4.2.3}%
 \contentsline {subsection}{\numberline {4.2.4}Aporte del aprendizaje por refuerzo}{65}{subsection.4.2.4}%
-\contentsline {subsection}{\numberline {4.2.5}Limitaciones de la solución}{66}{subsection.4.2.5}%
+\contentsline {subsection}{\numberline {4.2.5}Limitaciones de la solución}{67}{subsection.4.2.5}%
 \contentsline {chapter}{\numberline {5}Conclusiones}{68}{chapter.5}%
 \contentsline {section}{\numberline {5.1}Recomendaciones}{68}{section.5.1}%
 \contentsline {chapter}{Bibliograf\'{\i }a}{69}{chapter*.19}%

@@ -11,12 +11,13 @@
 \contentsline {table}{\numberline {6}{\ignorespaces Requerimientos propuestos para la plataforma}}{52}{table.6}%
 \contentsline {table}{\numberline {7}{\ignorespaces Mediciones y niveles de ruido del filtro}}{57}{table.7}%
 \contentsline {table}{\numberline {8}{\ignorespaces Error al volver el GPS según la variante del filtro}}{58}{table.8}%
-\contentsline {table}{\numberline {9}{\ignorespaces Grabaciones empleadas}}{61}{table.9}%
-\contentsline {table}{\numberline {10}{\ignorespaces Comportamiento temporal en vivo, con el teléfono conectado por cable}}{62}{table.10}%
-\contentsline {table}{\numberline {11}{\ignorespaces Desempeño en vivo durante la prueba de campo}}{63}{table.11}%
-\contentsline {table}{\numberline {12}{\ignorespaces Separación final en el modo exclusivamente visual}}{63}{table.12}%
-\contentsline {table}{\numberline {13}{\ignorespaces Percentil 95 del error con el GPS degradado}}{64}{table.13}%
-\contentsline {table}{\numberline {14}{\ignorespaces Error al volver el GPS con la política de la primera iteración}}{65}{table.14}%
+\contentsline {table}{\numberline {9}{\ignorespaces Señales del estado de la política y sus niveles}}{60}{table.9}%
+\contentsline {table}{\numberline {10}{\ignorespaces Grabaciones empleadas}}{62}{table.10}%
+\contentsline {table}{\numberline {11}{\ignorespaces Comportamiento temporal en vivo, con el teléfono conectado por cable}}{62}{table.11}%
+\contentsline {table}{\numberline {12}{\ignorespaces Desempeño en vivo durante la prueba de campo}}{63}{table.12}%
+\contentsline {table}{\numberline {13}{\ignorespaces Separación final en el modo exclusivamente visual}}{64}{table.13}%
+\contentsline {table}{\numberline {14}{\ignorespaces Percentil 95 del error con el GPS degradado}}{65}{table.14}%
+\contentsline {table}{\numberline {15}{\ignorespaces Error al volver el GPS con la política de la primera iteración}}{65}{table.15}%
 \addvspace {10\p@ }
 \addvspace {10\p@ }
 \addvspace {10\p@ }
