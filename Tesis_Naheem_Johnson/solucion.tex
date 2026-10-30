@@ -1,0 +1,353 @@
+%% ---------------------------------------------------------------------------
+%% solucion.tex
+%%
+%% Capítulo 3: Marco metodológico
+%% Estructura según el Apéndice 3 de los Lineamientos para los Trabajos Finales
+%% de Graduación V4.1, CE-5601 (Opción 1): introducción al capítulo,
+%% explicación y justificación de la estrategia, diagrama de la secuencia del
+%% proceso y tabla de desglose por objetivo específico.
+%%
+%% Convención de escritura: una oración por línea del archivo fuente.
+%% ---------------------------------------------------------------------------
+
+\chapter{Marco metodológico}
+\label{ch:solucion}
+
+% ---------------------------------------------------------------------------
+\section{Introducción}
+% ---------------------------------------------------------------------------
+
+Este capítulo describe la estrategia seguida para desarrollar la plataforma propuesta.
+Se presentan el tipo de trabajo y la justificación de la estrategia elegida, la secuencia del proceso y sus fases, las técnicas y herramientas empleadas, las estrategias de verificación y validación, y los actores que participan en el proceso.
+El propósito es que el lector comprenda cómo se abordó la solución del problema planteado en el Capítulo~\ref{chp:intro}; los resultados de aplicar esta metodología se presentan en el capítulo siguiente.
+
+Al momento de redactar este capítulo, la integración del mecanismo de aprendizaje por refuerzo en la plataforma y la evaluación final se encuentran en curso.
+Para ellas se describe el método seguido, sin anticipar sus resultados.
+
+La Sección~\ref{sec:met-estrategia} justifica el tipo de trabajo y la estrategia incremental.
+La Sección~\ref{sec:met-proceso} presenta la secuencia del proceso y describe cada una de sus fases.
+La Sección~\ref{sec:met-herramientas} reúne las herramientas y los recursos empleados, y la Sección~\ref{sec:met-actores} describe a los actores participantes.
+Por último, la Sección~\ref{sec:met-desglose} resume, para cada objetivo específico, las actividades, los entregables, las herramientas y las estrategias de verificación y validación.
+
+% ---------------------------------------------------------------------------
+\section{Tipo de trabajo y estrategia elegida}
+\label{sec:met-estrategia}
+% ---------------------------------------------------------------------------
+
+El trabajo corresponde a la modalidad de proyecto de graduación definida en los lineamientos de la carrera \cite{tec_lineamientos_tfg}.
+Se clasifica como un proyecto de investigación aplicada con un componente significativo de desarrollo tecnológico.
+La investigación aplicada se manifiesta en el estudio y la evaluación de técnicas de localización basadas en visión computacional, posicionamiento satelital, sensores inerciales y aprendizaje por refuerzo, orientadas a un problema concreto de precisión y robustez en la localización vehicular.
+El desarrollo tecnológico se manifiesta en la construcción de una plataforma funcional que integra esas fuentes de información y opera bajo las restricciones de un sistema de tiempo real.
+
+Para el desarrollo se adoptó una estrategia incremental organizada en cuatro fases: análisis y definición de requerimientos; diseño e implementación de la plataforma; validación experimental y evaluación del desempeño; y análisis de resultados y documentación.
+En el desarrollo incremental el sistema se construye como una serie de versiones, cada una de las cuales agrega funcionalidad a la anterior y puede evaluarse antes de continuar \cite{sommerville2016software}.
+Tres características del proyecto justifican esta elección.
+
+\textbf{Dependencias entre componentes.}
+Cada componente de la plataforma requiere que los anteriores funcionen.
+La fusión necesita la odometría visual, la escala métrica y las fuentes de datos; el mecanismo de aprendizaje por refuerzo necesita un filtro de fusión operativo, que además le sirve de referencia, ya que la acción neutra reproduce el filtro convencional (Sección~\ref{sec:rl-fusion}).
+Construir por incrementos permite que cada versión se compare directamente con la anterior.
+
+\textbf{Incertidumbre técnica.}
+Algunas decisiones, como la fuente de la escala métrica, no podían tomarse de antemano porque dependían del desempeño de cada alternativa con los datos disponibles.
+En esos casos se realizaron sondeos mínimos sobre datos grabados antes de integrar cualquier alternativa en la plataforma, de modo que la decisión se basara en mediciones y no en supuestos.
+
+\textbf{Costo de las pruebas con el equipo real.}
+Las pruebas con el teléfono y el vehículo son costosas en tiempo y difíciles de repetir en condiciones idénticas.
+Por ello la plataforma se diseñó para procesar indistintamente datos en vivo o grabaciones, de modo que la mayor parte del desarrollo y de la verificación se realiza sobre grabaciones, y la prueba de campo se ejecuta con el sistema ya integrado.
+
+Dos principios atraviesan todas las fases.
+El primero es la reproducibilidad: las cifras que se reportan se obtienen en un modo de ejecución determinista, que produce el mismo resultado cada vez que se procesa la misma grabación.
+El segundo es la separación entre el método y la referencia: cuando se dispone de una trayectoria de referencia, esta se utiliza únicamente para evaluar, nunca como entrada del sistema, de manera que lo medido corresponda a lo que la plataforma obtendría en operación real.
+
+% ---------------------------------------------------------------------------
+\section{Secuencia del proceso}
+\label{sec:met-proceso}
+% ---------------------------------------------------------------------------
+
+La Fig.~\ref{fig:met-proceso} muestra la secuencia de las cuatro fases y los incrementos de la fase de diseño e implementación.
+Las flechas discontinuas representan la retroalimentación entre fases: las mediciones obtenidas al implementar refinan los requerimientos, y los resultados de la validación pueden motivar ajustes en la plataforma.
+Las secciones siguientes describen cada fase.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+  font=\footnotesize,
+  fase/.style={draw, thick, rounded corners=3pt, align=center, text width=124mm, inner sep=4pt, fill=black!4},
+  inc/.style={draw, rounded corners=2pt, align=center, text width=26mm, minimum height=11mm, inner sep=2.5pt, fill=white},
+  flecha/.style={-{Stealth[length=2mm]}, thick},
+  retro/.style={-{Stealth[length=2mm]}, thick, dashed},
+  rotulo/.style={font=\scriptsize\itshape, align=center}
+]
+% Fase 2: incrementos
+\node[anchor=west, font=\footnotesize\bfseries] (t2) at (-1.45,0.95) {Fase 2. Diseño e implementación};
+\node[inc] (a1) at (0.0,0.0)  {Plataforma previa\\{\scriptsize (punto de partida)}};
+\node[inc] (a2) at (3.15,0.0) {Canal de tiempo real sobre grabaciones};
+\node[inc] (a3) at (6.3,0.0)  {Escala métrica: sondeos e integración};
+\node[inc, text width=58mm] (b1) at (4.725,-1.55) {Aplicación móvil y protocolo de red\\{\scriptsize (desarrollo en paralelo)}};
+\node[inc] (m1) at (9.45,-0.775) {Integración en escritorio con simulador del teléfono};
+\node[inc] (m2) at (9.45,-3.0) {Fusión de sensores};
+\node[inc] (m3) at (6.3,-3.0)  {Aprendizaje por refuerzo (OE3)};
+\draw[flecha] (a1) -- (a2);
+\draw[flecha] (a2) -- (a3);
+\draw[flecha] (a3.east) -- (m1.north west);
+\draw[flecha] (b1.east) -- (m1.south west);
+\draw[flecha] (m1) -- (m2);
+\draw[flecha] (m2) -- (m3);
+\node[rotulo, anchor=east] at (4.85,-3.0) {cada incremento se verifica\\sobre grabaciones antes del siguiente};
+\begin{scope}[on background layer]
+  \node[draw, thick, rounded corners=3pt, fill=black!4, inner sep=3mm,
+        fit=(t2)(a1)(a3)(b1)(m1)(m2)(m3)] (f2) {};
+\end{scope}
+% Fases 1, 3 y 4
+\node[fase] (f1) at (4.725,2.75) {\textbf{Fase 1. Análisis y definición de requerimientos}\\[1pt]
+  {\scriptsize revisión bibliográfica $\cdot$ caracterización del dispositivo\\requerimientos y métricas $\cdot$ validación con el asesor}};
+\node[fase] (f3) at (4.725,-5.3) {\textbf{Fase 3. Validación experimental y evaluación de desempeño}\\[1pt]
+  {\scriptsize reproducción determinista y operación en vivo $\cdot$ comparación de configuraciones\\cortes de GPS simulados $\cdot$ recorridos controlados}};
+\node[fase] (f4) at (4.725,-7.1) {\textbf{Fase 4. Análisis de resultados y documentación}\\[1pt]
+  {\scriptsize conclusiones $\cdot$ recomendaciones $\cdot$ informe final $\cdot$ defensa}};
+% secuencia
+\draw[flecha] (f1.south) -- (f1.south |- f2.north);
+\draw[flecha] (f2.south -| f3.north) -- (f3.north);
+\draw[flecha] (f3) -- (f4);
+% retroalimentación
+\draw[retro] (f2.east) -- ++(4mm,0) |- node[rotulo, pos=0.25, right] {mediciones\\refinan los\\requerimientos} (f1.east);
+\draw[retro] (f3.east) -- ++(4mm,0) |- node[rotulo, pos=0.25, right] {ajustes} ([yshift=-6mm]f2.east);
+\end{tikzpicture}
+\caption[Secuencia del proceso seguido]{Secuencia del proceso seguido. La Fase 2 se compone de incrementos; la aplicación móvil se desarrolla en paralelo con el canal de procesamiento y ambos se unen solo a través del protocolo de red. Fuente: elaboración propia.}
+\label{fig:met-proceso}
+\end{figure}
+
+% ---------------------------------------------------------------------------
+\subsection{Fase 1: análisis y definición de requerimientos}
+\label{sec:met-fase1}
+
+Esta fase corresponde al primer objetivo específico.
+Su punto de partida es la revisión bibliográfica sobre SLAM visual monocular, posicionamiento satelital, sensores inerciales, fusión de sensores, aprendizaje por refuerzo, operación en tiempo real y métricas de evaluación, cuyo resultado es el marco teórico del Capítulo~\ref{ch:marco}.
+De esa revisión se obtienen las técnicas candidatas y las métricas con que se evaluará la plataforma, descritas en las Secciones~\ref{sec:tiempo-real} y~\ref{sec:metricas}.
+
+La revisión se complementa con la documentación técnica del dispositivo móvil y con mediciones realizadas sobre él, ya que varios requerimientos dependen de sus características reales y no de valores nominales.
+Entre esas mediciones se encuentran la frecuencia efectiva de las soluciones GPS, el retraso entre la captura de una imagen y su llegada a la computadora, la frecuencia de muestreo de los sensores inerciales y los parámetros intrínsecos de la cámara.
+Como varias de estas mediciones solo pueden obtenerse una vez construidos los módulos de adquisición, los requerimientos se refinan durante la Fase 2, lo que corresponde a la retroalimentación indicada en la Fig.~\ref{fig:met-proceso}.
+
+Los requerimientos se agrupan en funcionales, computacionales y temporales, y se consolidan en el documento de requerimientos.
+El profesor asesor evalúa y valida ese documento, lo que constituye el criterio de experto previsto en el primer objetivo específico.
+Los criterios cuantitativos y los valores específicos con que se verificará el cumplimiento de cada requerimiento se definen en conjunto con el asesor como parte de esta validación.
+
+% ---------------------------------------------------------------------------
+\subsection{Fase 2: diseño e implementación de la plataforma}
+\label{sec:met-fase2}
+
+Esta fase corresponde al segundo y al tercer objetivo específico.
+Se desarrolla mediante incrementos, cada uno de los cuales produce una versión de la plataforma capaz de procesar grabaciones y que se verifica antes de pasar al siguiente.
+La arquitectura resultante y las decisiones de diseño de cada incremento se documentan en el capítulo siguiente; aquí se describe el método seguido en cada uno.
+
+\textbf{Punto de partida.}
+El punto de partida es la plataforma previa descrita en el Capítulo~\ref{chp:intro}, que procesa secuencias grabadas sin restricción de tiempo.
+La odometría visual de la plataforma en tiempo real conserva los mismos parámetros que la previa: número de características ORB, criterio de emparejamiento, umbral de la prueba de razón y número mínimo de correspondencias.
+Una prueba automática verifica que esos parámetros coincidan en ambos sistemas, de modo que los diagnósticos realizados sobre la plataforma previa sigan siendo válidos para la nueva.
+
+\textbf{Canal de procesamiento en tiempo real.}
+Se construye primero el canal de procesamiento, con hilos independientes para la captura de cuadros, la recepción de las posiciones GPS y el procesamiento, con la política de descarte del cuadro más antiguo descrita en la Sección~\ref{sec:tiempo-real} y con la medición de los tiempos por etapa, la latencia y la tasa de descarte.
+Las fuentes de datos son intercambiables: el canal recibe los datos con el mismo formato tanto de una grabación como del teléfono en vivo, de modo que el sistema que se evalúa sobre grabaciones es el mismo que opera en campo.
+Sobre grabaciones, el canal admite dos modos de ejecución.
+En el modo estricto respeta el tiempo real entre cuadros y descarta cuadros como lo haría en operación, por lo que reproduce el comportamiento real pero no es determinista.
+En el modo determinista procesa todos los cuadros sin esperar y calcula después los descartes a partir de los tiempos medidos; al ser reproducible, es el modo que se emplea durante el desarrollo y para las cifras que se reportan.
+
+\textbf{Escala métrica.}
+Dado que la odometría visual monocular no determina la escala, según se explicó en la Sección~\ref{sec:escala}, antes de integrar una fuente de escala en la plataforma se evaluaron tres alternativas: la recuperación por plano de tierra, la escala derivada de las posiciones GPS y la profundidad estimada por un modelo monocular \cite{yang2024depthanything}.
+Cada alternativa se evaluó primero mediante un sondeo mínimo sobre secuencias del conjunto KITTI \cite{geiger2012kitti}, cuya trayectoria de referencia de alta precisión se utiliza únicamente para evaluar.
+Para imitar las condiciones del teléfono, el GPS de KITTI se degrada a una solución por segundo con ruido añadido.
+Dado que un menor error de escala no garantiza una mejor trayectoria, las alternativas se compararon también por la trayectoria que producen, con una alineación rígida que no compensa los errores de escala.
+La alternativa seleccionada se integró después en la plataforma, en un hilo propio que no detiene el procesamiento principal.
+
+\textbf{Aplicación móvil y protocolo de red.}
+En paralelo con el canal de procesamiento se desarrolló, en Java y con el entorno Android Studio, una aplicación para Android que adquiere el video, las posiciones GPS y las mediciones inerciales del teléfono.
+Su desarrollo siguió fases propias: compilación y ejecución en el teléfono, medición de la frecuencia del GPS, registro del GPS en archivo, transmisión del GPS, transmisión del video y control remoto de la grabación.
+La aplicación y el canal de procesamiento residen en repositorios separados y se comunican únicamente a través de un protocolo de red definido para el proyecto: el video se transmite por TCP junto con los parámetros intrínsecos de la cámara y la marca de tiempo de cada cuadro, mientras que las posiciones GPS, el estado y las órdenes de control viajan por UDP.
+Definir esa interfaz como único punto de unión permite desarrollar y verificar cada lado por separado.
+El lado del teléfono se verificó con clientes de referencia independientes del canal de procesamiento, y se comprobó que los cuadros transmitidos coinciden con los que se graban en el teléfono.
+La aplicación ofrece además un modo que transmite y graba a la vez, de modo que cada sesión en vivo deja una grabación completa que puede volver a procesarse en el modo determinista.
+Más adelante se incorporaron la transmisión en vivo de las mediciones inerciales, necesaria para que la fusión utilice el giroscopio en campo, y una consulta de hora que permite medir la latencia desde la captura pese a la diferencia entre los relojes del teléfono y de la computadora.
+
+\textbf{Integración en escritorio.}
+Antes de cualquier prueba de campo, el canal de procesamiento y la aplicación se integraron en un entorno de escritorio.
+Para ello se desarrolló un simulador del teléfono que sirve una grabación con el mismo protocolo de la aplicación, con la cámara en tiempo real, el descarte de cuadros cuando la computadora se retrasa y la entrega de cada posición en el instante en que el video alcanza su marca de tiempo.
+El simulador permite verificar el cliente en vivo y la interfaz gráfica sin depender del teléfono, de la red ni del vehículo.
+
+\textbf{Fusión de sensores.}
+Sobre la plataforma integrada se implementó el filtro de Kalman extendido descrito en la Sección~\ref{sec:fusion}, con niveles de ruido medidos sobre grabaciones realizadas en vehículo.
+Las variantes del filtro se comparan entre sí sobre las mismas grabaciones, con cortes de GPS simulados y con el GPS degradado de forma sintética, y se conserva un modo que utiliza únicamente la información visual como referencia de comparación.
+
+\textbf{Mecanismo de aprendizaje por refuerzo.}
+El último incremento corresponde al tercer objetivo específico y se construye sobre el filtro del incremento anterior, que actúa como referencia de comparación.
+Su formulación es la de la Sección~\ref{sec:rl-fusion}; la configuración del entrenamiento y los resultados se documentan en el capítulo siguiente.
+Antes de construir el mecanismo se midió el margen de mejora disponible, comparando el filtro convencional con un oráculo que elige, en cada corte del GPS, el mejor ajuste constante.
+Esa medición ubicó el margen en la confianza que el filtro asigna a la rapidez de la cámara durante las pérdidas del GPS, y no en el peso del GPS, por lo que la acción se limitó a ese ajuste.
+
+Los datos de entrenamiento son las grabaciones propias en vehículo, procesadas una vez en el modo determinista y guardadas, de modo que el entrenamiento recorre las mediciones sin volver a procesar el video.
+Como su única referencia de posición es el propio GPS del teléfono, la recompensa se construye con cortes de GPS simulados: el filtro no recibe las soluciones de un intervalo, y esas soluciones ocultas se emplean solo para calcular la recompensa y para evaluar, nunca como entrada de la política.
+Las secuencias de KITTI no se emplearon en este incremento, porque sus sensores difieren de los del teléfono y su GPS tendría que degradarse de forma artificial.
+
+El algoritmo elegido es Q-learning tabular (Sección~\ref{sec:rl}), porque la acción se elige entre pocos valores, los datos de entrenamiento son limitados y la consulta de una tabla cabe con holgura en el presupuesto de tiempo de cada cuadro (Sección~\ref{sec:tiempo-real}).
+
+El protocolo de entrenamiento y de evaluación, incluido el criterio de éxito, se fijó por escrito antes de la primera ejecución, y lo que se reporta es la primera corrida completa.
+La evaluación deja por turno una grabación fuera del entrenamiento, con varias semillas, y reserva para validar una grabación realizada con otra aplicación y otra orientación de la cámara.
+La política se compara con el filtro convencional, con una regla de un solo umbral sobre la rapidez, ajustada con los mismos datos, y con el oráculo.
+Como controles contra artefactos se repite la corrida para verificar su reproducibilidad y se entrena con los estados barajados.
+Una segunda iteración, con su protocolo también fijado de antemano, agrega como línea base un peso fijo de la cámara durante los cortes.
+
+% ---------------------------------------------------------------------------
+\subsection{Fase 3: validación experimental}
+\label{sec:met-fase3}
+
+Esta fase, de validación experimental y evaluación de desempeño, corresponde al cuarto objetivo específico.
+Su primera actividad es el diseño del protocolo experimental, que define los recorridos, su cantidad y las condiciones en que se realizan.
+En línea con las acciones de mitigación de riesgos del anteproyecto, se procura que los recorridos cubran condiciones distintas de iluminación, textura de la escena y visibilidad del cielo, que son las que degradan a cada fuente según la Tabla~\ref{tab:complementariedad}.
+
+\textbf{Modos de evaluación.}
+Las cifras de precisión se obtienen procesando las grabaciones en el modo determinista, lo que garantiza que cualquier configuración pueda volver a evaluarse sobre exactamente los mismos datos.
+El comportamiento temporal se mide además en el modo estricto y en operación en vivo, que son los que reflejan la latencia y el descarte de cuadros reales.
+
+\textbf{Configuraciones comparadas.}
+Sobre las mismas grabaciones se comparan tres configuraciones: la plataforma con información exclusivamente visual, la fusión con el filtro convencional y la fusión con el peso de la rapidez de la cámara ajustado por la política.
+La plataforma previa no se emplea como referencia de comparación: la comparación del cuarto objetivo se realiza dentro del mismo canal de procesamiento, que puede ejecutar una grabación con fusión o en modo exclusivamente visual.
+
+\textbf{Referencias de evaluación.}
+Las secuencias de KITTI, que cuentan con una trayectoria de referencia de alta precisión, se emplearon en los estudios de la Fase 2, como la selección de la fuente de escala y la verificación de la odometría visual.
+En las grabaciones propias no se dispone de una referencia de ese tipo, por lo que cada magnitud se contrasta con la medición independiente más confiable del propio teléfono: la forma y la distancia de la trayectoria con el GPS, la rotación con el giroscopio y la rapidez con la velocidad Doppler.
+El efecto de la fusión durante la pérdida de la señal satelital se evalúa con cortes de GPS simulados de distinta duración, comparando la estimación con las soluciones GPS que el filtro no utilizó.
+La robustez ante un GPS de mala calidad se evalúa degradando de forma sintética el GPS de las grabaciones, con ruido, saltos y pérdidas, y comparando la estimación con el GPS original.
+
+\textbf{Métricas y formas de análisis.}
+Las métricas son las de las Secciones~\ref{sec:tiempo-real} y~\ref{sec:metricas}: el error absoluto de trayectoria tras una alineación rígida, la deriva durante los cortes de GPS, la latencia, la tasa de descarte, la frecuencia efectiva y el tiempo de cómputo por etapa, este último descrito mediante percentiles además del promedio.
+El error relativo de pose y la utilización de recursos computacionales, comprometidos en el anteproyecto, se incorporan a la herramienta de evaluación en esta fase.
+Los resultados se analizan por grabación y de forma agregada, comparando cada configuración con la anterior sobre los mismos datos.
+
+\textbf{Pruebas de campo.}
+Las pruebas de campo se ejecutan con el sistema integrado, con el teléfono montado en horizontal en el tablero del vehículo y conectado a una computadora portátil por cable USB, mediante anclaje de red.
+Se emplea el modo que transmite y graba a la vez, de modo que cada recorrido deja una grabación de respaldo que se procesa después en el modo determinista.
+En cada prueba se verifican los cuadros recibidos y procesados, la llegada completa del GPS y de las mediciones inerciales en comparación con lo grabado por el teléfono, y la integridad de la grabación de respaldo.
+
+% ---------------------------------------------------------------------------
+\subsection{Fase 4: análisis de resultados y documentación}
+\label{sec:met-fase4}
+
+En la última fase se consolidan los resultados de las fases anteriores y se contrastan con los objetivos y los entregables definidos.
+Se identifican las fortalezas y limitaciones de la solución, se formulan las conclusiones y las recomendaciones para trabajos futuros, y se elabora el informe final, incluido el apéndice de implicaciones ambientales y de desarrollo sostenible que exigen los lineamientos \cite{tec_lineamientos_tfg}.
+La fase concluye con la preparación del material para la defensa ante el tribunal evaluador.
+
+% ---------------------------------------------------------------------------
+\section{Herramientas y recursos}
+\label{sec:met-herramientas}
+% ---------------------------------------------------------------------------
+
+La Tabla~\ref{tab:met-herramientas} resume las herramientas y los recursos empleados en el proyecto.
+
+\begin{table}[H]
+\centering
+\caption{Herramientas y recursos del proyecto}
+\label{tab:met-herramientas}
+\small
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{3.0cm}>{\raggedright\arraybackslash}X@{}}
+\toprule
+\textbf{Tipo} & \textbf{Herramienta o recurso y uso en el proyecto} \\
+\midrule
+Dispositivo móvil & Samsung Galaxy S23: cámara principal de 1280$\times$720 píxeles a 30 cuadros por segundo, receptor GPS, giroscopio y acelerómetro. \\
+\addlinespace
+Computadoras & Computadora de escritorio con procesador AMD Ryzen 5 5600X y tarjeta gráfica NVIDIA RTX 3070, para el desarrollo y las cifras de referencia; computadora portátil con procesador Intel Core i5-8300H y tarjeta gráfica NVIDIA GTX 1050 Ti, para las pruebas de campo; con Linux Mint 22.1 y 22, respectivamente. Ejecutan el canal de procesamiento, la fusión y la evaluación. \\
+\addlinespace
+Lenguaje y entorno & Python 3.12 sobre Linux, con un entorno virtual que se configura mediante un guion de instalación incluido en el repositorio. \\
+\addlinespace
+Visión computacional & OpenCV: detección y descripción ORB, emparejamiento, estimación de la matriz esencial con RANSAC, recuperación de la pose y triangulación. \\
+\addlinespace
+Profundidad monocular & PyTorch y Transformers, para ejecutar el modelo Depth Anything V2 \cite{yang2024depthanything}. \\
+\addlinespace
+Cálculo y análisis & NumPy, SciPy, pandas y scikit-learn para el cálculo numérico y el análisis de datos; matplotlib para los gráficos; pyproj para la conversión a coordenadas UTM. \\
+\addlinespace
+Interfaz & Tkinter, para la ventana que inicia, supervisa y detiene las sesiones. \\
+\addlinespace
+Aplicación móvil & Aplicación propia para Android, desarrollada en Java con Android Studio, en un repositorio separado. \\
+\addlinespace
+Datos & Secuencias del conjunto KITTI \cite{geiger2012kitti}, con trayectoria de referencia de alta precisión; grabaciones propias en vehículo, la mayoría realizadas con la aplicación, que incluyen video, posiciones GPS con velocidad Doppler y mediciones inerciales con un reloj común. \\
+\addlinespace
+Control de versiones & Git y GitHub, para el código de la plataforma y el de la aplicación. \\
+\addlinespace
+Apoyo con inteligencia artificial & Claude y Claude Code, de Anthropic, como apoyo en tareas de programación, análisis y organización del proyecto. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Respecto del último recurso de la tabla, los asistentes de inteligencia artificial se emplearon como apoyo en tareas de programación, de análisis y de organización del proyecto.
+Las decisiones de diseño, la selección entre alternativas, la validación de los resultados y su interpretación corresponden al autor.
+El código desarrollado con ese apoyo se somete a las mismas estrategias de verificación que el resto de la plataforma, y los resultados que se reportan provienen de ejecuciones de la plataforma sobre los datos descritos en este capítulo.
+
+% ---------------------------------------------------------------------------
+\section{Actores participantes}
+\label{sec:met-actores}
+% ---------------------------------------------------------------------------
+
+\textbf{Estudiante.}
+Es responsable del análisis, el diseño, la implementación, la ejecución de los experimentos, el análisis de los resultados y la documentación del proyecto, así como de las decisiones técnicas que se toman en cada fase.
+
+\textbf{Profesor asesor.}
+El MSc.\ Luis Alberto Chavarría Zamora brinda la asesoría técnica y académica del proyecto.
+Evalúa y valida los requerimientos del sistema, revisa los informes quincenales de avance y los productos intermedios, y realiza las evaluaciones intermedias que establecen los lineamientos \cite{tec_lineamientos_tfg}.
+
+\textbf{Organización.}
+El proyecto se desarrolla en la Escuela de Ingeniería en Computadores del Tecnológico de Costa Rica, descrita en el Capítulo~\ref{chp:intro}.
+
+\textbf{Tribunal evaluador.}
+Los profesores lectores y el tribunal evalúan el informe final y la defensa oral, según los criterios de los lineamientos \cite{tec_lineamientos_tfg}.
+
+El seguimiento del proyecto se realiza mediante los informes quincenales de avance dirigidos al profesor asesor, que incluyen las tareas realizadas, las tareas planificadas para el siguiente periodo y un análisis de la situación del proyecto \cite{tec_lineamientos_tfg}.
+
+% ---------------------------------------------------------------------------
+\section{Desglose del marco metodológico}
+\label{sec:met-desglose}
+% ---------------------------------------------------------------------------
+
+La Tabla~\ref{tab:met-desglose} resume, para cada objetivo específico, las principales actividades, los entregables asociados, las técnicas o herramientas empleadas y las estrategias de verificación y validación.
+Los entregables coinciden con los definidos en la Tabla~\ref{tab:entregables}.
+
+\begin{table}[H]
+\centering
+\caption{Desglose del marco metodológico por objetivo específico}
+\label{tab:met-desglose}
+\scriptsize
+\renewcommand{\arraystretch}{1.15}
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{2.1cm}>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}p{2.6cm}>{\raggedright\arraybackslash}p{2.5cm}>{\raggedright\arraybackslash}X@{}}
+\toprule
+\textbf{Objetivo} & \textbf{Principales actividades} & \textbf{Entregables} & \textbf{Técnicas o herramientas} & \textbf{Verificación y validación} \\
+\midrule
+OE1. Sintetizar los requerimientos funcionales, computacionales y temporales &
+Revisión bibliográfica y de documentación técnica. Medición de las características del dispositivo. Definición de requerimientos y de métricas de evaluación. &
+Documento de requerimientos. Definición de las métricas de evaluación. &
+Literatura científica, documentación técnica, mediciones sobre el teléfono. &
+Revisión de consistencia entre requerimientos, literatura y mediciones. Validación del asesor, con criterios cuantitativos definidos en conjunto. \\
+\addlinespace
+OE2. Diseñar la plataforma SLAM híbrida &
+Canal de procesamiento en tiempo real. Selección e integración de la escala métrica. Aplicación móvil y protocolo de red. Integración en escritorio. Filtro de fusión. &
+Documento de arquitectura. Plataforma SLAM híbrida funcional. &
+Python, OpenCV, PyTorch, aplicación Android, KITTI, grabaciones propias. &
+Prueba automática de parámetros de la odometría visual. Sondeos con referencia solo para evaluar. Reproducción determinista. Simulador del teléfono. Clientes de referencia del protocolo. \\
+\addlinespace
+OE3. Desarrollar el mecanismo de aprendizaje por refuerzo &
+Medición del margen de mejora. Definición del estado, la acción y la recompensa. Protocolo fijado antes de entrenar. Entrenamiento e integración en la plataforma. &
+Módulo de aprendizaje por refuerzo integrado. Configuración de entrenamiento. &
+Q-learning tabular; grabaciones propias procesadas de antemano; cortes de GPS simulados. &
+Evaluación dejando una grabación fuera, con varias semillas. Comparación con el filtro convencional, una regla de umbral y un oráculo. Controles contra artefactos. \\
+\addlinespace
+OE4. Valorar experimentalmente el desempeño &
+Diseño del protocolo experimental. Recorridos controlados. Evaluación de las configuraciones. Análisis comparativo. &
+Resultados experimentales. Informe de evaluación. &
+Herramienta de evaluación de la plataforma, métricas de las Secciones~\ref{sec:tiempo-real} y~\ref{sec:metricas}. &
+Comparación sobre las mismas grabaciones. Cortes de GPS simulados. GPS degradado de forma sintética. Contraste con GPS, giroscopio y Doppler. Medición temporal en modo estricto y en vivo. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "main"
+%%% End:

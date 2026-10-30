@@ -1,0 +1,29 @@
+%% ---------------------------------------------------------------------------
+%% paNotation.tex
+%%
+%% Notation
+%%
+%% $Id: paNotation.tex,v 1.15 2004/03/30 05:55:59 alvarado Exp $
+%% ---------------------------------------------------------------------------
+
+%\cleardoublepage
+\renewcommand{\nomname}{Lista de símbolos y abreviaciones}
+\markboth{\nomname}{\nomname}
+\renewcommand{\nompreamble}{\addcontentsline{toc}{chapter}{\nomname}%
+\setlength{\nomitemsep}{-\parsep}
+\setlength{\itemsep}{10ex}
+}
+
+%%
+% Algunas abreviaciones
+%%
+
+\syma{SIGLAS}{SIGNIFICADO}
+
+
+\printnomenclature[20mm]
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "paMain"
+%%% End:

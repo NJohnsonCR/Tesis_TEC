@@ -1,0 +1,272 @@
+%% ---------------------------------------------------------------------------
+%% intro.tex
+%%
+%% Capítulo 1: Introducción
+%% Estructura según Apéndice 3 (Opción 1: Proyecto de graduación) de los
+%% Lineamientos para los Trabajos Finales de Graduación V4.1, CE-5601.
+%% ---------------------------------------------------------------------------
+
+\chapter{Introducción}
+\label{chp:intro}
+
+La localización y navegación de agentes móviles representan uno de los principales retos en los campos de la robótica móvil, los sistemas autónomos y las tecnologías de transporte inteligente. Para desplazarse de manera segura y fiable, un agente debe determinar su propia ubicación y, simultáneamente, generar una representación del entorno que le permita desenvolverse en él de forma efectiva.
+
+Los sistemas de Localización y Mapeo Simultáneo (SLAM, del inglés \textit{Simultaneous Localization and Mapping}) responden justamente a ese requerimiento: posibilitan calcular la trayectoria seguida por el agente y construir un mapa de su entorno empleando los datos proporcionados por sus sensores, sin necesidad de contar con una infraestructura externa instalada de antemano \cite{cadena2016slam}.
+
+Si bien estas metodologías han mostrado un progreso notable, su rendimiento disminuye cuando se enfrentan a escenarios viales cambiantes. 
+Factores como las variaciones lumínicas, los elementos en movimiento, las obstrucciones momentáneas y la desaparición de rasgos visuales generan errores acumulativos que afectan gradualmente la precisión en el cálculo de la trayectoria y la fidelidad del mapa, aunque para mitigar esta desviación se suele recurrir a coordenadas absolutas de sistemas de posicionamiento global (GPS) que también incorporan su propio margen de incertidumbre.
+Ante este desafío, el presente Trabajo Final de Graduación propone el desarrollo de un sistema SLAM híbrido de ejecución en tiempo real que integra la información visual de una cámara monocular, los registros GPS de dispositivos móviles y una estrategia de aprendizaje por refuerzo encargada de calibrar de manera dinámica el peso de cada fuente informativa durante el trayecto.
+
+En este capítulo se presenta el contexto general del proyecto. En primer lugar, se exponen sus antecedentes, abarcando la descripción de la organización en la que se lleva a cabo, las áreas de conocimiento vinculadas y los estudios previos relacionados con la problemática que se busca atender.
+A continuación, se desarrolla el planteamiento del problema, desde la descripción de su contexto y justificación hasta la formulación concreta del mismo.
+Por último, se establecen los objetivos del proyecto y se especifican sus alcances, los entregables previstos y las limitaciones identificadas.
+
+
+% ---------------------------------------------------------------------------
+\section{Antecedentes del proyecto}
+% ---------------------------------------------------------------------------
+
+El presente apartado ubica el proyecto dentro de su marco contextual.
+En primer lugar, se presenta la entidad donde este se lleva a cabo; seguidamente, se determinan las ramas de conocimiento de la Ingeniería en Computadores con las que se relaciona el trabajo y, por último, se examinan investigaciones anteriores que tratan problemáticas análogas, con el fin de delimitar aquellos elementos en los que este proyecto se sustenta y aquellos en los que se distingue respecto a la literatura existente.
+
+
+\subsection{Descripción de la organización}
+
+Esta sección tiene como fin presentar un panorama general del contexto y los antecedentes del proyecto en desarrollo.
+Para ello, se abordan elementos clave de la institución anfitriona, el Instituto Tecnológico de Costa Rica, tales como sus orígenes, localización geográfica, enfoque institucional y estructura organizativa.
+
+El Instituto Tecnológico de Costa Rica (TEC) es una institución autónoma de educación superior universitaria de alcance nacional, establecida mediante la Ley No. 4.777 el 10 de junio de 1971.
+Su misión consiste en impulsar el desarrollo integral del país mediante la formación de profesionales, la investigación y la extensión en los campos de la tecnología y las ciencias relacionadas, procurando mantener un papel destacado en los ámbitos científico, tecnológico y técnico.
+El TEC tiene su sede principal en Cartago, Costa Rica, y ha contribuido significativamente al desarrollo educativo y tecnológico de la nación \cite{que_es_el_tec}.
+
+La fundación del TEC se promovió bajo la administración del presidente de la República, José Figueres Ferrer, contando con el respaldo del presidente de la Asamblea Legislativa, Daniel Oduber Quirós, así como de la comunidad cartaginesa.
+La población de Cartago optó por la iniciativa de crear el TEC por encima de otras alternativas, tales como un programa de desarrollo agropecuario y una carretera hacia San José.
+El acto de suscripción de la Ley de Creación del Tecnológico de Costa Rica constituyó un acontecimiento cívico de relevancia, el cual se conmemoró con desfiles en la vieja metrópoli \cite{que_es_el_tec}.
+
+Dentro de su esquema organizativo, el TEC dispone de diversas instancias fundamentales: la Asamblea Institucional como máxima autoridad, el Consejo Institucional en su rol de órgano directivo superior, la Rectoría como la máxima jerarquía ejecutiva, y un conjunto de cuatro Vicerrectorías orientadas a ejecutar políticas particulares \cite{que_es_el_tec}.
+
+
+En particular, el proyecto se lleva a cabo en la Escuela de Ingeniería en Computadores del TEC, localizada igualmente en Cartago.
+Esta disciplina integra las Ciencias de la Computación y la Ingeniería Electrónica, y comprende el diseño, la construcción, la implementación y el mantenimiento de componentes de sistemas computacionales, tanto en \textit{hardware} como en \textit{software} \cite{ingenieria_computadores}.
+La Escuela fomenta el desarrollo de soluciones mediante la aplicación de conocimientos en áreas como el desarrollo de software, la inteligencia artificial, los sistemas empotrados y la arquitectura de computadores. Asimismo, participa activamente en iniciativas de investigación orientadas al desarrollo de sistemas computacionales y dispositivos controlados por computador.
+El proyecto se enmarca en este contexto académico y forma parte de los requisitos para obtener el grado de Licenciatura en Ingeniería en Computadores. Esta modalidad permite a los estudiantes aplicar e integrar los conocimientos adquiridos durante su formación mediante la ejecución de proyectos de investigación, innovación o desarrollo tecnológico \cite{tec_lineamientos_tfg}.
+
+
+\subsection{Descripción del área de conocimiento del proyecto}
+
+Las directrices de la Escuela de Ingeniería en Computadores definen las áreas de conocimiento dentro de las cuales debe encuadrarse un Trabajo Final de Graduación de la carrera \cite{tec_lineamientos_tfg}.
+El proyecto actual se sitúa en tres de dichas áreas, y cada una de ellas se vincula con un componente diferente de la plataforma planteada.
+
+
+\textbf{Inteligencia artificial y aprendizaje de máquina.} La función encargada de determinar el nivel de confianza para cada sensor no se define mediante un conjunto de normas preestablecidas, sino a través de una política optimizada por medio de aprendizaje por refuerzo.
+Durante la navegación, el agente analiza métricas del estado del sistema, genera un peso para cada fuente de datos y refina su comportamiento basándose en una señal de recompensa vinculada a la precisión de la estimación obtenida \cite{sutton2018rl}.
+Este enfoque de resolución, donde el criterio de elección surge de la experiencia empírica en vez de ser impuesto por el diseñador, caracteriza a esta disciplina.
+
+
+\textbf{Reconocimiento y procesamiento de imágenes.} El movimiento del agente se calcula mediante el análisis de la secuencia de imágenes capturadas por la cámara.
+Para ello, es necesario identificar puntos característicos en cada cuadro, generar descriptores que permitan identificarlos en imágenes posteriores y encontrar correspondencias entre cuadros consecutivos. Para realizar este proceso, la plataforma utiliza características ORB \cite{rublee2011orb}.
+Con base en las correspondencias identificadas, se estima el desplazamiento relativo de la cámara, por lo que la precisión de la localización está directamente relacionada con la calidad del procesamiento de la información visual.
+
+
+\textbf{Aplicaciones de alta complejidad algorítmica.} La estimación de la trayectoria no se limita a una serie de cálculos directos.
+Comprende geometría de múltiples vistas para recuperar el movimiento a partir de correspondencias entre imágenes, la conservación de un grafo de poses que acumula las relaciones entre cuadros clave, y la fusión de mediciones heterogéneas, expresadas en sistemas de referencia y con frecuencias de actualización distintas, en una estimación única y coherente.
+Por consiguiente, el diseño de la solución requiere razonar sobre el costo computacional de cada componente y sobre la manera en que el error se propaga a lo largo del recorrido.
+
+A estas tres áreas se añade un eje transversal que condiciona todo el diseño: la ejecución en tiempo real.
+El sistema tiene que generar su estimación mientras el vehículo está en marcha, lo que establece un límite de tiempo estricto por cada fotograma y exige que el análisis visual, la integración de los datos GPS y la decisión del modelo de aprendizaje por refuerzo se procesen dentro de ese margen.
+Dicha limitación no representa un campo de estudio autónomo dentro de la clasificación de la Escuela, pero determina las elecciones implementadas en cada uno de los apartados anteriores.
+
+\subsection{Trabajos similares encontrados}
+\label{sec:trabajos-similares}
+
+La integración del SLAM visual con sistemas de posicionamiento global, así como el uso del aprendizaje por refuerzo para determinar cómo combinar ambas fuentes de información, son enfoques que se han estudiado previamente en la literatura.
+En las siguientes secciones se examinan tres trabajos relacionados con el problema propuesto, destacando sus similitudes y las diferencias más relevantes en cada caso.
+ 
+\textbf{Fusión multisensorial adaptativa mediante actor-crítico.} Jia \etal{} plantean \textit{Lvio-Fusion}, un sistema SLAM que combina cámara estéreo, LiDAR, unidad inercial y GPS por medio de optimización de grafos, e incluye un agente entrenado con el método actor-crítico que ajusta de manera dinámica el peso otorgado a cada sensor conforme al entorno en el que se desplaza el vehículo; los autores lo evalúan en escenarios de tráfico urbano y reportan mejoras frente a esquemas de ponderación fija \cite{jia2021lviofusion}.
+Se trata del trabajo conceptualmente más afín al presente proyecto, pues comparte la noción de concebir la asignación de confianza entre sensores como una decisión aprendida en lugar de un parámetro fijo.
+La distinción radica en los recursos que cada solución demanda: \textit{Lvio-Fusion} se apoya en sensores de nivel profesional, en los cuales el LiDAR aporta mediciones de distancia absolutas y la unidad inercial sostiene la estimación cuando la información visual se deteriora, mientras que este proyecto parte de una cámara monocular y un receptor GPS de dispositivo móvil, de manera que el agente debe decidir entre dos fuentes que, por separado, resultan débiles.
+ 
+\textbf{Ponderación entre algoritmos de localización mediante aprendizaje profundo por refuerzo.} Wong \etal{} integran la detección de anomalías en los residuos de estimación junto con un agente optimizado mediante \textit{Proximal Policy Optimization} para balancear el peso de dos métodos de posicionamiento simultáneos —uno apoyado en LiDAR y otro en SLAM visual—, validando su enfoque en escenarios internos simulados en Gazebo \cite{wong2024drlslam}.
+Aunque comparten similitudes en cuanto al mecanismo, las discrepancias con este proyecto son profundas: los espacios interiores simulados carecen de los retos que justifican esta investigación, tales como las variaciones lumínicas al aire libre o la pérdida de calidad en la señal de satélite; asimismo, mientras que Wong \etal{} evalúan dos estimaciones relativas entre sí, este trabajo requiere fusionar una estimación relativa de alta precisión local pero vulnerable a la deriva con una referencia absoluta afectada por ruido.
+
+\textbf{Fusión de sensores de teléfono móvil para navegación vehicular.} Chiang \etal{} combinan datos de GNSS, la unidad de medición inercial y la cámara de un teléfono móvil mediante un esquema de acoplamiento débil que emplea un filtro de Kalman extendido y SLAM monocular para el procesamiento visual. En pruebas realizadas con un vehículo terrestre en un entorno urbano, los autores reportan una mejora del 43{,}0~\% en la estimación de la posición en comparación con una solución que utiliza únicamente GNSS \cite{chiang2020smartphone}.
+Este estudio presenta una estrecha relación con el proyecto, tanto por su contexto de aplicación como por los sensores utilizados, ya que evidencia que la información obtenida de un teléfono móvil puede contribuir a mejorar la localización vehicular.
+Sin embargo, se distingue por incorporar la unidad inercial como elemento principal de la integración, mientras que este proyecto emplea únicamente el giroscopio del teléfono para medir el cambio de rumbo.
+Además, su método de fusión se basa en un modelo de incertidumbre establecido previamente, cuya configuración permanece fija, frente al enfoque de este proyecto, que busca reemplazar esa configuración por una política adaptativa.
+
+ 
+\textbf{Aporte del presente proyecto.} La Tabla~\ref{tab:trabajos-similares} sintetiza dichas diferencias.
+Los estudios examinados abordan por separado las piezas del problema: la fusión adaptativa mediante aprendizaje por refuerzo se ha investigado con conjuntos de sensores extensos o en entornos simulados, mientras que la fusión con sensores de dispositivo móvil en carretera se ha estudiado con métodos de parámetros fijos y con respaldo inercial.
+Este proyecto se ocupa de la intersección de ambas líneas: una estrategia de fusión adaptativa fundamentada en aprendizaje por refuerzo, que opera únicamente con los sensores de un dispositivo móvil (cámara monocular, GPS y giroscopio), sin integración inercial completa, y que opera en tiempo real durante recorridos viales reales, en lugar de limitarse a datos previamente grabados o simulados.
+
+ 
+\begin{table}[H]
+\centering
+\caption{Comparación de los trabajos similares con el presente proyecto}
+\label{tab:trabajos-similares}
+\begin{tabularx}{\textwidth}{@{}lXXX@{}}
+\toprule
+\textbf{Trabajo} & \textbf{Sensores} & \textbf{Estrategia de fusión} & \textbf{Validación} \\
+\midrule
+Jia \etal{} \cite{jia2021lviofusion} & Cámara estéreo, LiDAR, IMU, GPS & Adaptativa, actor-crítico & Escenas urbanas y conjuntos de datos públicos \\
+\addlinespace
+Wong \etal{} \cite{wong2024drlslam} & LiDAR 2D, cámara RGB-D, encoders & Adaptativa, \textit{Proximal Policy Optimization} & Entornos interiores simulados \\
+\addlinespace
+Chiang \etal{} \cite{chiang2020smartphone} & GNSS, IMU y cámara de teléfono móvil & Filtro de Kalman extendido, parámetros fijos & Vehículo terrestre en zona urbana \\
+\addlinespace
+Presente proyecto & Cámara monocular, GPS y giroscopio de dispositivo móvil & Adaptativa, aprendizaje por refuerzo & Recorridos viales controlados, en tiempo real \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+
+% ---------------------------------------------------------------------------
+\section{Planteamiento del problema}
+% ---------------------------------------------------------------------------
+
+En esta sección se define la problemática que motiva el proyecto.
+Para ello, primero se detalla el entorno tecnológico en el que se manifiesta este inconveniente, a continuación se fundamenta su importancia y, por último, se formula de manera específica la incógnita que la investigación pretende responder.
+
+\subsection{Contexto del problema}
+
+La determinación precisa de la ubicación de un agente móvil en el entorno donde se desplaza representa uno de los principales desafíos de la robótica móvil y los sistemas autónomos.
+Esta capacidad es esencial en aplicaciones como los vehículos autónomos, los robots de exploración, los sistemas avanzados de asistencia al conductor y las plataformas inteligentes de monitoreo, ya que los errores en la estimación de la posición pueden repercutir considerablemente en el funcionamiento del sistema e incluso poner en riesgo la seguridad de la operación.
+
+Con el fin de atender esta problemática, a lo largo de las últimas décadas se han concebido diversas técnicas orientadas a la localización y a la construcción de mapas del entorno.
+Dentro de ellas, los sistemas de Localización y Mapeo Simultáneo (SLAM) se han afianzado como una de las alternativas más empleadas, gracias a su aptitud para estimar de manera simultánea la trayectoria de un agente y producir una representación del entorno a partir de los datos que proveen los sensores \cite{cadena2016slam}.
+
+Específicamente, las metodologías fundamentadas en visión por computador han cobrado notable importancia gracias a la accesibilidad de dispositivos económicos y al avance en los métodos de análisis visual.
+No obstante, al implementar estos sistemas en entornos viales cotidianos, se enfrentan a inconvenientes como variaciones lumínicas, elementos en movimiento, obstrucciones momentáneas y desaparición de rasgos visuales, lo cual genera desviaciones acumulativas que disminuyen de forma continua la exactitud del posicionamiento.
+A este panorama se suma un obstáculo característico de los arreglos monoculares: al calcular el desplazamiento mediante una única cámara, la escala del trayecto carece de una determinación absoluta, haciendo que dicho error de escala también se propague y acumule a lo largo de la ruta \cite{murartal2015orbslam}.
+
+De manera complementaria, los sistemas de posicionamiento global (GPS) ofrecen referencias absolutas de ubicación que contribuyen a mitigar parte de la deriva acumulada en los métodos de SLAM visual.
+Sin embargo, estas mediciones están sujetas a errores provocados por el ruido de la señal, las interferencias y las fluctuaciones en la precisión según las condiciones del entorno \cite{groves2013gnss}.
+En particular, los receptores incorporados en dispositivos móviles de consumo presentan limitaciones más pronunciadas, debido a que ofrecen una precisión inferior a la de los equipos de grado topográfico y actualizan sus mediciones con menor frecuencia que la captura de imágenes de una cámara.
+
+Frente a este panorama, se plantea la necesidad de concebir mecanismos de fusión sensorial que sean capaces de explotar las ventajas de cada tecnología y subsanar sus carencias particulares.
+Asimismo, se incrementa la exigencia de validar este tipo de soluciones bajo condiciones de operación en tiempo real, de modo que puedan emplearse en escenarios de navegación más próximos a aplicaciones reales.
+
+\subsection{Justificación del problema}
+
+El posicionamiento exacto constituye un elemento esencial para cualquier sistema que requiera desplazamiento autónomo o asistencia a la conducción.
+Con el auge de las aplicaciones vinculadas a la movilidad inteligente, la robótica móvil y la navegación autónoma, se acentúa la necesidad de disponer de mecanismos capaces de preservar estimaciones de ubicación estables a pesar de las alteraciones del entorno durante la ruta.
+Asimismo, abordar esta problemática mediante sensores económicos y de alta accesibilidad —tales como la cámara y el módulo GPS integrados en un teléfono inteligente— cobra relevancia al disminuir las barreras de entrada para la experimentación con estos sistemas en ámbitos académicos e investigativos.
+
+Este problema no puede solucionarse de manera óptima mediante el uso de un único sensor, debido a que las dos fuentes de información disponibles presentan limitaciones diferentes que pueden complementarse entre sí.
+El SLAM visual permite estimar el movimiento con una buena precisión a nivel local, pero no dispone de una referencia absoluta de posición y tiende a acumular errores conforme avanza el recorrido, especialmente cuando la escena presenta poca textura o cuando los objetos en movimiento dificultan el seguimiento de características.
+Por su parte, el GPS proporciona una referencia absoluta de ubicación que no acumula deriva en función de la distancia recorrida, aunque sus mediciones pueden presentar ruido, menor resolución espacial y pérdidas de señal.
+Estas diferencias justifican el uso de la fusión sensorial como una estrategia para obtener estimaciones de posición más precisas que las que se conseguirían utilizando cada fuente de información de forma independiente \cite{groves2013gnss}.
+
+El inconveniente radica en que la manera de combinar ambas fuentes no resulta sencilla.
+Los esquemas de fusión habituales tienden a otorgar a cada sensor un nivel de confianza definido mediante parámetros fijos o reglas previamente establecidas, lo que presume implícitamente que las condiciones de operación permanecen estables.
+Tal suposición no se satisface en un recorrido vial: la confiabilidad de la cámara y la del GPS cambian de manera independiente y en cuestión de segundos, en función de la iluminación, la textura de la escena, el tráfico circundante y la visibilidad del cielo.
+Un esquema de parámetros fijos debe, por lo tanto, optar por un punto intermedio que resulta conservador cuando las condiciones son favorables e insuficiente cuando son desfavorables.
+
+Las estrategias de aprendizaje por refuerzo brindan una opción para resolver dicha restricción, debido a que posibilitan el entrenamiento de una política que determina, en función del estado observado, el peso correspondiente a cada fuente de datos en cada momento \cite{sutton2018rl}.
+Investigaciones recientes en el campo han demostrado que balancear las aportaciones de diversos sensores con agentes optimizados por refuerzo eleva la exactitud del posicionamiento frente a esquemas de ponderación estática \cite{jia2021lviofusion, wong2024drlslam}, validando así la idoneidad de la metodología seleccionada en esta iniciativa.
+
+No obstante, la utilidad práctica de una estrategia de fusión de este tipo está condicionada a su capacidad para operar a la velocidad requerida durante la navegación.
+Un sistema de localización resulta útil para apoyar o dirigir el desplazamiento únicamente si genera estimaciones mientras el agente continúa en movimiento. Esto exige que el procesamiento de las imágenes, la integración de las mediciones GPS y las decisiones tomadas por el agente de aprendizaje por refuerzo se realicen dentro de un intervalo de tiempo limitado para cada cuadro.
+Esta condición no queda reflejada al evaluar el sistema de manera diferida sobre datos registrados previamente, puesto que, en ese escenario, el tiempo de procesamiento no impone restricciones sobre el comportamiento observado.
+Por consiguiente, evaluar el sistema en condiciones de funcionamiento continuo permite obtener información sobre su desempeño que no es posible determinar únicamente mediante el análisis diferido.
+
+\paragraph{Evidencia de la situación.} Como antecedente de este proyecto se dispone de una plataforma experimental previa que combina un módulo de SLAM visual monocular fundamentado en características ORB con un esquema de fusión de datos GPS, en el que un agente de aprendizaje por refuerzo modifica la ponderación otorgada a cada fuente a partir de indicadores de confianza visual y de confianza del GPS.
+Dicha plataforma funciona de manera diferida sobre secuencias de un conjunto de datos vehicular público, utilizando mediciones GPS a las que se incorpora ruido de forma controlada para aproximar el comportamiento de un receptor de dispositivo móvil, y presenta sus resultados mediante las métricas \textit{Absolute Trajectory Error} (ATE) y \textit{Relative Pose Error} (RPE) en contraste con el SLAM visual sin fusión.
+Los resultados alcanzados evidencian que el enfoque disminuye el error de trayectoria respecto a la estimación puramente visual, lo que ratifica el potencial de la estrategia de fusión adaptativa.
+
+Aun así, este sistema exhibe dos deficiencias fundamentales que configuran el núcleo del problema de investigación.
+Por un lado, nunca se ha implementado bajo exigencias de tiempo real, por lo que no hay constancia de que su enfoque de integración mantenga la efectividad ante un margen de cómputo estrictamente limitado por fotograma.
+Por otro lado, su validación previa se ha limitado a conjuntos de datos almacenados y ruido satelital artificial, lo que impide conocer su comportamiento frente a trayectorias y mediciones reales capturadas directamente en carretera mediante un dispositivo móvil.
+Superar ambas deficiencias implica rediseñar la arquitectura para el funcionamiento continuo, aplicar las optimizaciones correspondientes y someter el sistema a una validación experimental en recorridos viales controlados.
+
+Por último, abordar esta problemática aporta beneficios que van más allá del escenario específico analizado.
+Como resultado, el proyecto proporciona una plataforma experimental modular basada en sensores de uso común, que estará disponible para la Escuela de Ingeniería en Computadores como punto de partida para futuras investigaciones en localización inteligente, percepción del entorno y fusión sensorial. Asimismo, ofrece documentación sobre los efectos de incorporar aprendizaje por refuerzo al proceso de fusión de información en condiciones de funcionamiento en tiempo real.
+
+\subsection{Enunciado del problema}
+
+La plataforma experimental existente evidencia que una estrategia de fusión adaptativa fundamentada en aprendizaje por refuerzo disminuye el error de localización de un sistema SLAM visual monocular, aunque lo hace trabajando sobre datos previamente grabados, por lo que su desempeño bajo las restricciones de cómputo que implica operar en tiempo real, y con datos capturados directamente en carretera, sigue sin establecerse.
+Partiendo de esta circunstancia, el problema que atiende el presente proyecto se plantea del siguiente modo: ¿Cómo diseñar e implementar una plataforma SLAM híbrida en tiempo real basada en visión computacional, datos GPS y aprendizaje por refuerzo, que permita reducir los errores de localización presentes en sistemas SLAM tradicionales durante recorridos controlados en carretera?
+
+
+% ---------------------------------------------------------------------------
+\section{Objetivos del proyecto}
+% ---------------------------------------------------------------------------
+
+A partir de la problemática planteada en el apartado previo, se establecen las metas que guían la ejecución del proyecto.
+El objetivo general define la meta final que se busca alcanzar, en tanto que los propósitos específicos fragmentan dicho logro en cuatro fases comprobables por separado.
+
+\subsection{Objetivo general}
+
+Desarrollar una plataforma SLAM híbrida capaz de operar en tiempo real mediante la combinación de visión computacional, datos GPS y aprendizaje por refuerzo, con el propósito de incrementar la precisión y estabilidad de la localización durante recorridos viales controlados.
+
+\subsection{Objetivos específicos}
+
+\begin{itemize}
+    \item Sintetizar un listado de requerimientos funcionales, computacionales y temporales para la operación en tiempo real de un sistema SLAM híbrido basado en visión y GPS, a partir de la revisión de literatura científica y documentación técnica del área, validado mediante criterio de experto.
+    
+    \item Diseñar una plataforma SLAM híbrida que combine procesamiento visual y datos GPS para la localización en tiempo real.
+    
+    \item Desarrollar un mecanismo de aprendizaje por refuerzo que permita optimizar de forma adaptativa el proceso de fusión sensorial.
+
+    \item Valorar experimentalmente el desempeño del sistema por medio de métricas de precisión, estabilidad y rendimiento computacional.
+\end{itemize}
+
+% ---------------------------------------------------------------------------
+\section{Alcances, entregables y limitaciones del proyecto}
+% ---------------------------------------------------------------------------
+En este apartado se delimitan los compromisos asumidos por el proyecto.
+Primeramente se define su cobertura, especificando tanto los aspectos incluidos como aquellos excluidos de forma intencional; a continuación se enlistan los productos asociados a cada meta específica; y por último se exponen las restricciones que condicionan los hallazgos logrados.
+
+\subsection{Alcances}
+
+El proyecto comprende el diseño y desarrollo de una plataforma SLAM híbrida operativa en tiempo real, que utiliza información visual capturada mediante una cámara monocular, datos GPS y mediciones del giroscopio provenientes de un dispositivo móvil.
+Este alcance contempla la implementación de los módulos responsables de capturar imágenes, procesar la información visual, estimar la escala métrica mediante un modelo preentrenado de profundidad monocular, obtener y filtrar las mediciones GPS y del giroscopio, sincronizar temporalmente las fuentes de datos e integrar la información recopilada para generar una estimación unificada de la posición.
+
+El proyecto comprende asimismo el desarrollo y la integración del mecanismo de aprendizaje por refuerzo encargado de la fusión adaptativa, lo cual abarca la definición del estado que percibe el agente, la acción mediante la cual modifica la ponderación de las mediciones en el filtro de fusión, su entrenamiento y la optimización requerida para que dicha decisión se adopte dentro del presupuesto de tiempo disponible por cada cuadro de video.
+
+Por último, el alcance contempla la comprobación experimental del sistema a través de trayectos controlados en vías públicas y el cotejo de su rendimiento frente a un método fundamentado exclusivamente en SLAM visual.
+Dicha evaluación se efectúa sobre indicadores de exactitud en el posicionamiento, desviación acumulada de la trayectoria, firmeza de la estimación, tasa de actualización y consumo de recursos de cómputo.
+
+El proyecto no contempla la fabricación de un vehículo autónomo ni la incorporación de la plataforma en uno existente. Asimismo, se excluye el desarrollo de funciones para la planificación de trayectorias y el control del vehículo, dado que el trabajo se centra exclusivamente en la estimación de la posición y la generación de un mapa del entorno.
+De igual manera, no se incluye la evaluación del sistema en escenarios de operación no controlados ni su implementación como un producto destinado a entornos de producción.
+El resultado esperado consiste en una plataforma experimental, respaldada por evidencia que permita analizar el impacto de la estrategia de fusión propuesta.
+
+\subsection{Entregables}
+
+La Tabla~\ref{tab:entregables} muestra los entregables correspondientes a cada objetivo específico del proyecto.
+\begin{table}[H]
+\centering
+\caption{Entregables asociados a cada objetivo específico}
+\label{tab:entregables}
+\begin{tabularx}{\textwidth}{@{}lX@{}}
+\toprule
+\textbf{Objetivo} & \textbf{Entregables} \\
+\midrule
+OE1 & Documento de requerimientos funcionales, computacionales y temporales de la plataforma. Definición de las métricas de evaluación que se emplearán en la validación experimental. \\
+\addlinespace
+OE2 & Documento de arquitectura del sistema, con la descripción de sus módulos y de las interfaces entre ellos. Plataforma SLAM híbrida funcional, capaz de operar con información visual y datos GPS. \\
+\addlinespace
+OE3 & Módulo de aprendizaje por refuerzo funcional e integrado a la plataforma. Configuración de entrenamiento del agente, incluyendo la definición del estado observado y de la señal de recompensa utilizada. \\
+\addlinespace
+OE4 & Resultados experimentales obtenidos de los recorridos controlados en carretera. Informe de evaluación con el análisis comparativo frente al enfoque basado únicamente en SLAM visual. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Por otra parte, la iniciativa comprende entre sus entregables este documento de Trabajo Final de Graduación, junto con el material requerido para su exposición y defensa ante la comisión evaluadora.
+
+\subsection{Limitaciones del proyecto}
+
+La plataforma emplea exclusivamente los sensores de un dispositivo móvil para obtener la información necesaria: una cámara monocular, un receptor GPS y el giroscopio.
+Esta elección permite mantener el costo del sistema dentro del rango de un dispositivo móvil convencional; sin embargo, supone que la estimación carece de una referencia métrica directa para determinar la escala, que se obtiene de un modelo de profundidad aprendido.
+
+En particular, de la unidad de medición inercial (IMU) solo se utiliza el giroscopio, para medir el cambio de rumbo; el acelerómetro se emplea únicamente para estimar la vertical y no para estimar la posición ni la velocidad.
+La ausencia de una integración inercial completa restringe la aptitud del sistema para mantener la estimación a lo largo de intervalos en los que la información visual y la satelital se degradan de manera prolongada: el sistema conserva el rumbo, pero no dispone de una medición independiente de la distancia recorrida, situación que en otros trabajos se resuelve justamente por medio de la integración inercial.
+
+Tampoco se utiliza ROS (\textit{Robot Operating System}) como framework de integración.
+Los bloques interactúan a través de un diseño personalizado, lo cual facilita la implementación y la gestión de la sincronización temporal del software, aunque disminuye la viabilidad de aprovechar directamente módulos ya existentes en dicho ecosistema.
+
+Por último, las pruebas del sistema se circunscriben a recorridos controlados, cuyas rutas y condiciones de ejecución se establecen previamente.
+En consecuencia, los resultados reflejan el desempeño de la plataforma en dichos escenarios y no pueden generalizarse a cualquier entorno vial, especialmente a aquellos con una mayor densidad de tráfico o condiciones ambientales considerablemente diferentes.
+
+

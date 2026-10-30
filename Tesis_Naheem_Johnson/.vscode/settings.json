@@ -1,0 +1,33 @@
+{
+  // Build only on demand (Ctrl+Alt+B); a full build of the thesis is slow
+  "latex-workshop.latex.autoBuild.run": "never",
+
+  // Use the first recipe (latexmk + pdflatex), which also runs bibtex as needed
+  "latex-workshop.latex.recipe.default": "first",
+
+  // Remove auxiliary files after a failed build so stale .aux/.bbl don't break the next one
+  "latex-workshop.latex.autoClean.run": "onFailed",
+
+  // Open the PDF in a VS Code tab next to the source
+  "latex-workshop.view.pdf.viewer": "tab",
+
+  // Hide LaTeX auxiliary files from the explorer; they stay on disk for the build
+  "files.exclude": {
+    "**/*.aux": true,
+    "**/*.bbl": true,
+    "**/*.blg": true,
+    "**/*.fdb_latexmk": true,
+    "**/*.fls": true,
+    "**/*.idx": true,
+    "**/*.ilg": true,
+    "**/*.ind": true,
+    "**/*.lof": true,
+    "**/*.lot": true,
+    "**/*.log": true,
+    "**/*.nlo": true,
+    "**/*.nls": true,
+    "**/*.out": true,
+    "**/*.toc": true,
+    "**/*.synctex.gz": true
+  }
+}

@@ -1,0 +1,82 @@
+\babel@toc {english}{}\relax 
+\contentsline {chapter}{\'{I}ndice de figuras}{iv}{chapter*.5}%
+\contentsline {chapter}{\'Indice de tablas}{v}{chapter*.6}%
+\contentsline {chapter}{\numberline {1}Introducción}{1}{chapter.1}%
+\contentsline {section}{\numberline {1.1}Antecedentes del proyecto}{2}{section.1.1}%
+\contentsline {subsection}{\numberline {1.1.1}Descripción de la organización}{2}{subsection.1.1.1}%
+\contentsline {subsection}{\numberline {1.1.2}Descripción del área de conocimiento del proyecto}{3}{subsection.1.1.2}%
+\contentsline {subsection}{\numberline {1.1.3}Trabajos similares encontrados}{4}{subsection.1.1.3}%
+\contentsline {section}{\numberline {1.2}Planteamiento del problema}{6}{section.1.2}%
+\contentsline {subsection}{\numberline {1.2.1}Contexto del problema}{6}{subsection.1.2.1}%
+\contentsline {subsection}{\numberline {1.2.2}Justificación del problema}{7}{subsection.1.2.2}%
+\contentsline {paragraph}{Evidencia de la situación.}{8}{section*.7}%
+\contentsline {subsection}{\numberline {1.2.3}Enunciado del problema}{9}{subsection.1.2.3}%
+\contentsline {section}{\numberline {1.3}Objetivos del proyecto}{9}{section.1.3}%
+\contentsline {subsection}{\numberline {1.3.1}Objetivo general}{9}{subsection.1.3.1}%
+\contentsline {subsection}{\numberline {1.3.2}Objetivos específicos}{9}{subsection.1.3.2}%
+\contentsline {section}{\numberline {1.4}Alcances, entregables y limitaciones del proyecto}{10}{section.1.4}%
+\contentsline {subsection}{\numberline {1.4.1}Alcances}{10}{subsection.1.4.1}%
+\contentsline {subsection}{\numberline {1.4.2}Entregables}{11}{subsection.1.4.2}%
+\contentsline {subsection}{\numberline {1.4.3}Limitaciones del proyecto}{11}{subsection.1.4.3}%
+\contentsline {chapter}{\numberline {2}Marco teórico}{13}{chapter.2}%
+\contentsline {section}{\numberline {2.1}Introducción}{13}{section.2.1}%
+\contentsline {section}{\numberline {2.2}Mapa conceptual}{14}{section.2.2}%
+\contentsline {section}{\numberline {2.3}Localización y mapeo simultáneos}{15}{section.2.3}%
+\contentsline {subsection}{\numberline {2.3.1}Representación probabilística}{15}{subsection.2.3.1}%
+\contentsline {subsection}{\numberline {2.3.2}Arquitectura: procesamiento frontal y posterior}{16}{subsection.2.3.2}%
+\contentsline {section}{\numberline {2.4}SLAM visual monocular}{17}{section.2.4}%
+\contentsline {subsection}{\numberline {2.4.1}Modelo de cámara estenopeica}{17}{subsection.2.4.1}%
+\contentsline {subsection}{\numberline {2.4.2}Detección y descripción de características ORB}{18}{subsection.2.4.2}%
+\contentsline {subsection}{\numberline {2.4.3}Geometría epipolar y estimación de la pose relativa}{19}{subsection.2.4.3}%
+\contentsline {subsection}{\numberline {2.4.4}Estimación robusta mediante RANSAC}{20}{subsection.2.4.4}%
+\contentsline {subsection}{\numberline {2.4.5}Triangulación}{21}{subsection.2.4.5}%
+\contentsline {subsection}{\numberline {2.4.6}Deriva y ambigüedad de escala}{22}{subsection.2.4.6}%
+\contentsline {subsection}{\numberline {2.4.7}Escala métrica a partir de profundidad monocular}{23}{subsection.2.4.7}%
+\contentsline {section}{\numberline {2.5}Posicionamiento satelital}{23}{section.2.5}%
+\contentsline {subsection}{\numberline {2.5.1}Principio de operación}{23}{subsection.2.5.1}%
+\contentsline {subsection}{\numberline {2.5.2}Fuentes de error y receptores de dispositivos móviles}{24}{subsection.2.5.2}%
+\contentsline {subsection}{\numberline {2.5.3}Conversión a coordenadas métricas}{25}{subsection.2.5.3}%
+\contentsline {section}{\numberline {2.6}Sensores inerciales}{25}{section.2.6}%
+\contentsline {section}{\numberline {2.7}Fusión de sensores}{26}{section.2.7}%
+\contentsline {subsection}{\numberline {2.7.1}Complementariedad entre las fuentes}{26}{subsection.2.7.1}%
+\contentsline {subsection}{\numberline {2.7.2}Filtro de Kalman}{27}{subsection.2.7.2}%
+\contentsline {subsection}{\numberline {2.7.3}Filtro de Kalman extendido}{28}{subsection.2.7.3}%
+\contentsline {subsection}{\numberline {2.7.4}Papel de las covarianzas de ruido}{29}{subsection.2.7.4}%
+\contentsline {subsection}{\numberline {2.7.5}Filtrado adaptativo}{30}{subsection.2.7.5}%
+\contentsline {section}{\numberline {2.8}Aprendizaje por refuerzo}{31}{section.2.8}%
+\contentsline {subsection}{\numberline {2.8.1}Procesos de decisión de Markov}{31}{subsection.2.8.1}%
+\contentsline {subsection}{\numberline {2.8.2}Métodos basados en valor: Q-learning}{32}{subsection.2.8.2}%
+\contentsline {subsection}{\numberline {2.8.3}Ajuste adaptativo de la fusión mediante aprendizaje por refuerzo}{33}{subsection.2.8.3}%
+\contentsline {section}{\numberline {2.9}Operación en tiempo real}{35}{section.2.9}%
+\contentsline {section}{\numberline {2.10}Métricas de evaluación de trayectorias}{37}{section.2.10}%
+\contentsline {chapter}{\numberline {3}Marco metodológico}{40}{chapter.3}%
+\contentsline {section}{\numberline {3.1}Introducción}{40}{section.3.1}%
+\contentsline {section}{\numberline {3.2}Tipo de trabajo y estrategia elegida}{40}{section.3.2}%
+\contentsline {section}{\numberline {3.3}Secuencia del proceso}{41}{section.3.3}%
+\contentsline {subsection}{\numberline {3.3.1}Fase 1: análisis y definición de requerimientos}{42}{subsection.3.3.1}%
+\contentsline {subsection}{\numberline {3.3.2}Fase 2: diseño e implementación de la plataforma}{43}{subsection.3.3.2}%
+\contentsline {subsection}{\numberline {3.3.3}Fase 3: validación experimental}{45}{subsection.3.3.3}%
+\contentsline {subsection}{\numberline {3.3.4}Fase 4: análisis de resultados y documentación}{46}{subsection.3.3.4}%
+\contentsline {section}{\numberline {3.4}Herramientas y recursos}{46}{section.3.4}%
+\contentsline {section}{\numberline {3.5}Actores participantes}{48}{section.3.5}%
+\contentsline {section}{\numberline {3.6}Desglose del marco metodológico}{48}{section.3.6}%
+\contentsline {chapter}{\numberline {4}Descripción del trabajo realizado}{50}{chapter.4}%
+\contentsline {section}{\numberline {4.1}Descripción del proceso de solución}{50}{section.4.1}%
+\contentsline {subsection}{\numberline {4.1.1}Requerimientos de la plataforma}{50}{subsection.4.1.1}%
+\contentsline {subsection}{\numberline {4.1.2}Arquitectura de la plataforma}{52}{subsection.4.1.2}%
+\contentsline {subsection}{\numberline {4.1.3}Estimación de la escala métrica}{54}{subsection.4.1.3}%
+\contentsline {subsection}{\numberline {4.1.4}Corrección de la odometría visual}{55}{subsection.4.1.4}%
+\contentsline {subsection}{\numberline {4.1.5}Filtro de fusión}{57}{subsection.4.1.5}%
+\contentsline {subsection}{\numberline {4.1.6}Mecanismo de aprendizaje por refuerzo}{59}{subsection.4.1.6}%
+\contentsline {section}{\numberline {4.2}Análisis de los resultados obtenidos}{61}{section.4.2}%
+\contentsline {subsection}{\numberline {4.2.1}Comportamiento en tiempo real}{62}{subsection.4.2.1}%
+\contentsline {subsection}{\numberline {4.2.2}Prueba de campo}{62}{subsection.4.2.2}%
+\contentsline {subsection}{\numberline {4.2.3}Precisión de la localización}{63}{subsection.4.2.3}%
+\contentsline {subsection}{\numberline {4.2.4}Aporte del aprendizaje por refuerzo}{65}{subsection.4.2.4}%
+\contentsline {subsection}{\numberline {4.2.5}Limitaciones de la solución}{66}{subsection.4.2.5}%
+\contentsline {chapter}{\numberline {5}Conclusiones}{68}{chapter.5}%
+\contentsline {section}{\numberline {5.1}Recomendaciones}{68}{section.5.1}%
+\contentsline {chapter}{Bibliograf\'{\i }a}{69}{chapter*.19}%
+\contentsline {chapter}{\numberline {A}APENDICE A}{72}{appendix.A}%
+\contentsline {chapter}{\numberline {B}APENDICE B}{73}{appendix.B}%
+\contentsline {chapter}{\numberline {C}APENDICE C}{74}{appendix.C}%

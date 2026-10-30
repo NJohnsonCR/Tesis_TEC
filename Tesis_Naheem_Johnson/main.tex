@@ -1,0 +1,154 @@
+
+
+% \documentclass is book
+\documentclass[12pt,twoside,letterpaper,openany]{book}
+\usepackage{soul}
+\newcommand{\TODOJ}[1]{\hl{(TODO: #1)}}
+%\renewcommand{\TODOJ}[1]{}  % Disable TODO comments
+\usepackage[utf8]{inputenc}
+\usepackage{ifthen}                     % provide if-then-else operators
+
+% --------------------------------------------------------------------------
+% Global variables required in document formatting
+% --------------------------------------------------------------------------
+%
+% BOOK MODE
+%
+\newboolean{bookmode}                  % boolean used to control book format
+% Ensure that only one of the next two lines is active:
+\setboolean{bookmode}{true}           % turn book mode on
+%\setboolean{bookmode}{false}           % turn book mode off
+
+%
+% DRAFT MODE
+%
+\newboolean{draftmode}                  % boolean used to control draft-mode
+% Ensure that only one of the next two lines is active:
+%\setboolean{draftmode}{true}            % turn draft mode on
+\setboolean{draftmode}{false}           % turn draft mode off
+% --------------------------------------------------------------------------
+%
+% GENERAL AUTHOR, TITLE AND KEYWORDS
+%
+% Nombre del Estudiante
+\newcommand{\scriptAuthor}{NAHEEM JOHNSON SOLÍS}
+
+% Título de la tesis
+\newcommand{\scriptTitle}{Diseño de ...} 
+
+% Keywords
+\newcommand{\scriptKeywords}{PALABRAS CLAVE}
+
+% Descripción de la editorial
+\newcommand{\boxeditorial}{%
+}
+
+% Para el PDF (cambiar si se desea otras cosas a lo indicado arriba
+\newcommand{\pdfAuthor}{\scriptAuthor}
+\newcommand{\pdfTitle}{\scriptTitle} 
+\newcommand{\pdfKeywords}{\scriptKeywords}
+
+% --------------------------------------------------------------------------
+
+% include all packages and define all required general macros
+\input{macros}
+
+% allow equations to be splitted (breaked) into several pages
+\allowdisplaybreaks[3]
+
+% evita páginas estiradas cuando una figura [H] no cabe y pasa a la siguiente
+\raggedbottom
+
+% --------------------------------------------------------------------------
+\begin{document}
+  % where to look for graphics
+  \graphicspath{{./}{./fig/}}
+
+  \pagenumbering{alph}
+  % fix some terms not activated due to the bug of hyperref with spanish.
+  \renewcommand{\tablename}{Tabla}
+  \renewcommand{\listtablename}{\'Indice de tablas}
+  \renewcommand{\examplesolution}{Solución}
+  \pagestyle{empty}
+
+  \include{titlepage}                                 % Titlepage
+  
+  %Página con la nota \includepdf[pages=-, offset=75 -75]{Acta.pdf}
+  
+  %\cleardoublepage
+  \include{disclaimer}
+  %\cleardoublepage
+  \include{tribunal}
+  \include{acta}
+  \include{resumen}
+  \include{dedicatoria}
+  \include{agradecimientos}
+
+  %----------------------------------------------------------------------------
+  \frontmatter
+  %----------------------------------------------------------------------------
+  \pagestyle{fancy}
+
+  \pdfbookmark[1]{Indice General}{Indice General}
+
+  \parskip0ex                           % space between paragraphs
+
+\renewcommand{\figurename}{Fig.}
+\renewcommand{\figureautorefname}{Fig.}
+\renewcommand{\autoref}[1]{\hyperref[#1]{\figureautorefname~\ref*{#1}}}
+  \tableofcontents                                      % Table of contents
+  %\listoffigures                                        % List of figures
+  {
+    \let\oldnumberline\numberline
+    \renewcommand{\numberline}{Fig.~\oldnumberline}
+    \listoffigures
+  } 
+  %\listoftables                                         % List of tables
+    {
+    \let\oldnumberline\numberline
+    \renewcommand{\numberline}{Tabla~\oldnumberline}
+    \listoftables
+  } 
+\ifdraft{%
+  % todo's                                              % TODOs
+  \listoftodo
+}{%
+}
+
+  \include{notation}                                    % Notation
+  \include{glosario}                                    % Abbreviation
+
+  \parskip1.3ex                           % space between paragraphs
+
+  %----------------------------------------------------------------------------
+  \mainmatter
+  %----------------------------------------------------------------------------
+  % where to look for graphics
+  \graphicspath{{./fig/}}
+
+  % Main files
+  \include{intro}
+  \include{teoria}
+  \include{solucion}
+  \include{resultados}
+  \include{conclusiones}
+
+  %----------------------------------------------------------------------------
+  % literature
+  \bibliographystyle{sty/plainurl} % for english documents
+  \bibliography{literatura}
+  %----------------------------------------------------------------------------
+
+  %----------------------------------------------------------------------------
+  \appendix
+  %----------------------------------------------------------------------------
+
+  \include{apendice}
+
+  %----------------------------------------------------------------------------
+  \backmatter
+  %----------------------------------------------------------------------------
+
+  %\printindex                % insert index into document. Don't forget to call
+                             % "makeindex filename" first.
+\end{document}

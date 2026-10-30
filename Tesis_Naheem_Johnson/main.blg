@@ -1,0 +1,61 @@
+This is BibTeX, Version 0.99d (TeX Live 2023/Debian)
+Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
+The top-level auxiliary file: main.aux
+A level-1 auxiliary file: titlepage.aux
+A level-1 auxiliary file: disclaimer.aux
+A level-1 auxiliary file: tribunal.aux
+A level-1 auxiliary file: acta.aux
+A level-1 auxiliary file: resumen.aux
+A level-1 auxiliary file: dedicatoria.aux
+A level-1 auxiliary file: agradecimientos.aux
+A level-1 auxiliary file: notation.aux
+A level-1 auxiliary file: glosario.aux
+A level-1 auxiliary file: intro.aux
+A level-1 auxiliary file: teoria.aux
+A level-1 auxiliary file: solucion.aux
+A level-1 auxiliary file: resultados.aux
+A level-1 auxiliary file: conclusiones.aux
+The style file: sty/plainurl.bst
+A level-1 auxiliary file: apendice.aux
+Database file #1: literatura.bib
+You've used 31 entries,
+            2363 wiz_defined-function locations,
+            764 strings with 11462 characters,
+and the built_in function-call counts, 12278 in all, are:
+= -- 1497
+> -- 528
+< -- 6
++ -- 213
+- -- 178
+* -- 738
+:= -- 2055
+add.period$ -- 120
+call.type$ -- 31
+change.case$ -- 181
+chr.to.int$ -- 0
+cite$ -- 31
+duplicate$ -- 404
+empty$ -- 870
+format.name$ -- 178
+if$ -- 2728
+int.to.chr$ -- 0
+int.to.str$ -- 31
+missing$ -- 33
+newline$ -- 185
+num.names$ -- 62
+pop$ -- 181
+preamble$ -- 1
+purify$ -- 151
+quote$ -- 0
+skip$ -- 530
+stack$ -- 0
+substring$ -- 614
+swap$ -- 89
+text.length$ -- 6
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 112
+warning$ -- 0
+while$ -- 100
+width$ -- 33
+write$ -- 392

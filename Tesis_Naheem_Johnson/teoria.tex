@@ -1,0 +1,1055 @@
+%% ---------------------------------------------------------------------------
+%% teoria.tex
+%%
+%% Capítulo 2: Marco de referencia teórico
+%% Estructura según Apéndice 3 de los Lineamientos para los Trabajos Finales
+%% de Graduación V4.1, CE-5601: introducción al capítulo, mapa conceptual,
+%% explicación y discusión de los principales elementos.
+%%
+%% Convención de escritura: una oración por línea del archivo fuente.
+%% Los títulos de las secciones 2.3 a 2.10 coinciden con los nodos del mapa
+%% conceptual (Fig. mapa-conceptual).
+%% ---------------------------------------------------------------------------
+
+\chapter{Marco teórico}
+\label{ch:marco}
+
+% ---------------------------------------------------------------------------
+\section{Introducción}
+% ---------------------------------------------------------------------------
+
+El problema formulado en el capítulo previo conjuga elementos procedentes de ámbitos diversos.
+La estimación del movimiento a partir de imágenes corresponde a la visión computacional; la medición del giro del vehículo, a los sensores inerciales; la obtención de una referencia absoluta de posición proviene de la navegación por satélite; la forma de combinar estas fuentes compete a la fusión de sensores; y el mecanismo que ajusta dicha combinación se sustenta en el aprendizaje por refuerzo.
+A ello se añade la restricción de operar en tiempo real, la cual condiciona las decisiones de diseño en todos los componentes mencionados.
+
+Este apartado agrupa las bases teóricas de dichos componentes.
+Cada noción se expone mediante su respectivo planteamiento matemático, los algoritmos que la concretan y, de ser útil para su entendimiento, un esquema ilustrativo del flujo de información.
+El principio de selección se basó en la utilidad: se incorpora exclusivamente aquello que posteriormente se utiliza para respaldar una opción de diseño, examinar un resultado empírico o entender una restricción del sistema.
+
+En la Sección~\ref{sec:mapa} se expone el mapa conceptual del capítulo, cuyos nodos se corresponden directamente con las secciones que lo conforman.
+Las Secciones~\ref{sec:slam} y~\ref{sec:slam-monocular} explican los fundamentos de la localización y el mapeo simultáneos, así como su aplicación mediante visión monocular.
+Por su parte, las Secciones~\ref{sec:gnss} y~\ref{sec:inerciales} describen los sistemas de posicionamiento satelital y los sensores inerciales, mientras que la Sección~\ref{sec:fusion} aborda la integración de estas fuentes de información mediante el filtro de Kalman.
+A su vez, la Sección~\ref{sec:rl} examina el aprendizaje por refuerzo como una herramienta para adaptar el proceso de fusión.
+Finalmente, las Secciones~\ref{sec:tiempo-real} y~\ref{sec:metricas} presentan los aspectos relacionados con la ejecución en tiempo real y las métricas empleadas para evaluar las trayectorias estimadas.
+
+A lo largo del capítulo, los escalares se escriben en cursiva, los vectores en negrita minúscula y las matrices en negrita mayúscula.
+El superíndice $\top$ señala transposición, $\mathbf{I}$ la matriz identidad y $\mathcal{N}(\boldsymbol{\mu},\boldsymbol{\Sigma})$ una distribución normal con media $\boldsymbol{\mu}$ y covarianza $\boldsymbol{\Sigma}$.
+
+% ---------------------------------------------------------------------------
+\section{Mapa conceptual}
+\label{sec:mapa}
+% ---------------------------------------------------------------------------
+
+La Fig.~\ref{fig:mapa-conceptual} ilustra los conceptos abordados en este capítulo y los vínculos existentes entre ellos.
+Cada nodo representa un apartado y cada flecha se encuentra etiquetada con la conexión que enlaza a ambos temas.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+font=\footnotesize,
+concepto/.style={rounded corners=3pt, draw, thick, align=center,
+text width=36mm, minimum height=11mm, inner sep=3pt},
+clave/.style={concepto, line width=1.4pt, fill=black!6},
+rel/.style={-{Stealth[length=2.2mm]}, thick},
+rotulo/.style={font=\scriptsize\itshape, fill=white, inner sep=1.5pt, align=center}
+]
+\node[concepto] (lms) at (5.5, 1.0) {Localización y mapeo\\simultáneos};
+\node[concepto] (svm) at (0.0, -2.6) {SLAM visual\\monocular};
+\node[concepto] (si) at (5.5, -2.6) {Sensores\\inerciales};
+\node[concepto] (gps) at (11.0,-2.6) {Posicionamiento\\satelital};
+\node[concepto] (fus) at (5.5, -5.2) {Fusión de\\sensores};
+\node[clave] (rl) at (11.0,-5.2) {Aprendizaje por\\refuerzo};
+\node[concepto] (met) at (5.5, -8.6) {Métricas de evaluación\\de trayectorias};
+\node[concepto] (tr) at (0.0, -8.6) {Operación en\\tiempo real};
+\draw[rel] (lms) -- node[rotulo] {se implementa\\mediante} (svm);
+\draw[rel] (lms) -- node[rotulo] {se complementa\\con} (si);
+\draw[rel] (lms) -- node[rotulo] {se complementa\\con} (gps);
+\draw[rel] (svm) -- node[rotulo] {proporciona la\\estimación relativa} (fus);
+\draw[rel] (si) -- node[rotulo] {contribuye\\con el giro} (fus);
+\draw[rel] (gps) -- node[rotulo] {proporciona una\\referencia absoluta} (fus);
+\draw[rel] (rl) -- node[rotulo] {modifica las\\covarianzas} (fus);
+\draw[rel] (fus) -- node[rotulo] {genera una trayectoria\\que se analiza mediante} (met);
+\begin{scope}[on background layer]
+\node[draw, dashed, rounded corners=4pt, inner sep=3.5mm,
+fit=(svm)(si)(gps)(fus)(rl)] (marco) {};
+\end{scope}
+\draw[rel] (tr.north) -- node[rotulo] {establece restricciones\\para} (tr.north |- marco.south);
+\end{tikzpicture}
+\caption[Mapa conceptual del marco teórico]{Mapa conceptual del marco teórico. Cada nodo corresponde a una sección del capítulo. Fuente: elaboración propia.}
+\label{fig:mapa-conceptual}
+\end{figure}
+
+El mapa se estructura en torno a la noción de localización y mapeo simultáneos, la cual ocupa la sección superior.
+El presente trabajo la aborda a través de su modalidad visual monocular y la complementa con los sensores inerciales del teléfono y con el posicionamiento satelital.
+La fuente visual y la satelital poseen una naturaleza contrapuesta: la primera genera una estimación relativa, precisa a corto plazo pero propensa a la deriva, y la segunda una referencia absoluta, exenta de deriva pero ruidosa.
+Los sensores inerciales suministran el giro del vehículo, el cual miden sin depender de la escena ni de la señal satelital.
+Las tres fuentes confluyen en la fusión de sensores, donde se integran en una estimación única.
+El aprendizaje por refuerzo se vincula con la fusión mediante las covarianzas de ruido del filtro, que constituye el punto en el que este trabajo propone intervenir, y por ello se resalta con trazo grueso.
+La trayectoria obtenida se evalúa con las métricas de la sección inferior.
+Por último, la operación en tiempo real no se representa como una etapa adicional, sino como una condición que incide sobre todo el procesamiento delimitado por la línea discontinua.
+
+\section{Localización y mapeo simultáneos}
+\label{sec:slam}
+
+La localización y el mapeo simultáneos, abreviados como SLAM, consisten en calcular de manera conjunta la ruta de un agente móvil y un plano del escenario recorrido, basándose exclusivamente en las lecturas de los dispositivos que transporta \cite{cadena2016slam}.
+El término \textit{simultáneos} denota la dependencia mutua entre ambos cálculos: situar un objeto del entorno requiere conocer el punto de observación, al tiempo que determinar la posición del vehículo demanda un mapa de referencia.
+Por este motivo, ninguno de los dos parámetros puede resolverse de forma anticipada, sino que ambos se abordan como variables conjuntas de un mismo problema de estimación.
+
+\subsection{Representación probabilística}
+\label{sec:slam-prob}
+
+Debido a que las mediciones están sujetas a incertidumbre, el problema de SLAM se formula desde un enfoque probabilístico \cite{thrun2005probabilistic}.
+Se representa mediante $\mathbf{x}_t$ la pose del agente en el instante $t$, que comprende su posición y orientación; mediante $\mathbf{m}$, el mapa del entorno; mediante $\mathbf{u}_t$, la información relativa al movimiento entre los instantes $t-1$ y $t$; y mediante $\mathbf{z}_t$, las observaciones obtenidas en el instante $t$.
+La interacción entre estas variables se establece a través de dos modelos probabilísticos.
+El modelo de movimiento $p(\mathbf{x}_t \mid \mathbf{x}_{t-1}, \mathbf{u}_t)$ describe la evolución de la pose del agente, mientras que el modelo de observación $p(\mathbf{z}_t \mid \mathbf{x}_t, \mathbf{m})$ representa las mediciones que se esperan obtener cuando el agente se encuentra en una pose determinada dentro de un mapa conocido \cite{thrun2005probabilistic}.
+
+Con estos elementos se identifican dos maneras de formular la estimación.
+La formulación completa persigue la distribución conjunta de la trayectoria entera y el mapa,
+\begin{equation}
+p(\mathbf{x}_{1:t}, \mathbf{m} \mid \mathbf{z}_{1:t}, \mathbf{u}_{1:t}),
+\label{eq:slam-completo}
+\end{equation}
+en tanto que la formulación en línea persigue solamente la pose actual y el mapa, y se alcanza marginalizando las poses previas \cite{thrun2005probabilistic}:
+\begin{equation}
+p(\mathbf{x}_{t}, \mathbf{m} \mid \mathbf{z}_{1:t}, \mathbf{u}_{1:t}) = \int \!\cdots\! \int p(\mathbf{x}_{1:t}, \mathbf{m} \mid \mathbf{z}_{1:t}, \mathbf{u}_{1:t}) \, d\mathbf{x}_{1} \cdots d\mathbf{x}_{t-1}.
+\label{eq:slam-linea}
+\end{equation}
+La formulación completa posibilita corregir poses anteriores cuando arriba información nueva, mientras que la formulación en línea es la que resuelven los filtros recursivos, como el filtro de Kalman de la Sección~\ref{sec:fusion}.
+
+En la práctica, la estimación suele plantearse como la búsqueda del valor más probable de las variables, conocido como estimador de máximo a posteriori.
+Si se agrupan todas las variables por estimar en $\mathcal{X}$ y todas las mediciones en $\mathcal{Z}=\{\mathbf{z}_k\}$, donde cada observación depende únicamente de un subconjunto $\mathcal{X}_k$ de las variables, se tiene que \cite{cadena2016slam}
+\begin{equation}
+\mathcal{X}^{*} = \arg\max_{\mathcal{X}} \; p(\mathcal{X}) \prod_{k} p(\mathbf{z}_k \mid \mathcal{X}_k).
+\label{eq:map}
+\end{equation}
+Cuando cada lectura se modela como $\mathbf{z}_k = h_k(\mathcal{X}_k) + \boldsymbol{\epsilon}_k$, con ruido gaussiano $\boldsymbol{\epsilon}_k \sim \mathcal{N}(\mathbf{0}, \boldsymbol{\Omega}_k^{-1})$, y la distribución a priori se contempla como una medición adicional, aplicar el logaritmo negativo a la Ecuación~\eqref{eq:map} deriva en un problema de mínimos cuadrados no lineales \cite{cadena2016slam}:
+\begin{equation}
+\mathcal{X}^{*} = \arg\min_{\mathcal{X}} \sum_{k} \left\| h_k(\mathcal{X}_k) - \mathbf{z}_k \right\|^{2}_{\boldsymbol{\Omega}_k},
+\qquad
+\|\mathbf{e}\|^{2}_{\boldsymbol{\Omega}} = \mathbf{e}^{\top}\boldsymbol{\Omega}\,\mathbf{e},
+\label{eq:mincuad}
+\end{equation}
+en donde $h_k$ representa la función encargada de predecir la medición a partir de los estados y $\boldsymbol{\Omega}_k$ corresponde a la matriz de información, equivalente a la inversa de la covarianza del error.
+Esta formulación resulta fundamental para el resto del apartado, ya que evidencia que el impacto de cada observación sobre el resultado final está gobernado por su respectiva matriz de información: a mayor incertidumbre asociada a una lectura, menor será su ponderación en la solución.
+
+\subsection{Arquitectura: procesamiento frontal y posterior}
+
+Los sistemas SLAM se estructuran en dos componentes que desempeñan funciones diferenciadas, como se muestra en la Fig.~\ref{fig:arquitectura-slam} \cite{cadena2016slam}.
+El procesamiento frontal (\textit{front-end}) convierte las mediciones originales de los sensores en restricciones expresadas según la Ecuación~\eqref{eq:mincuad}.
+Para ello, identifica características relevantes en las mediciones, determina cuáles observaciones pertenecen a un mismo elemento del entorno y genera una estimación inicial.
+Por su parte, el procesamiento posterior (\textit{back-end}) utiliza las restricciones obtenidas para calcular una solución global que se ajuste de la mejor manera posible a todas ellas, distribuyendo los errores entre las distintas restricciones en lugar de permitir que se acumulen.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+  font=\footnotesize,
+  caja/.style={rounded corners=2pt, draw, align=center, inner sep=4pt, minimum height=12mm},
+  flecha/.style={-{Stealth[length=2mm]}, thick}
+]
+\node[caja, text width=17mm, fill=black!5] (sen) {Mediciones de los sensores};
+\node[caja, text width=31mm, right=6mm of sen] (fe) {\textbf{Procesamiento frontal}\\[1pt]{\scriptsize extracción de características,\\asociación de datos,\\estimación inicial}};
+\node[caja, text width=31mm, right=22mm of fe] (be) {\textbf{Procesamiento posterior}\\[1pt]{\scriptsize estimación del estado\\mediante filtrado\\u optimización}};
+\node[caja, text width=19mm, right=6mm of be, fill=black!5] (out) {Trayectoria y mapa};
+\draw[flecha] (sen) -- (fe);
+\draw[flecha] (fe) -- node[above, font=\scriptsize] {restricciones} (be);
+\draw[flecha] (be) -- (out);
+\draw[flecha, dashed] (be.south) -- ++(0,-7mm) -| node[pos=0.25, below, font=\scriptsize] {estimación actual} (fe.south);
+\end{tikzpicture}
+\caption[Arquitectura de un sistema SLAM]{Arquitectura de un sistema SLAM. La línea discontinua indica que el procesamiento frontal utiliza la estimación vigente para asociar nuevas observaciones. Fuente: elaboración propia con base en~\cite{cadena2016slam}.}
+\label{fig:arquitectura-slam}
+\end{figure}
+
+El procesamiento frontal varía según el tipo de sensor y constituye el punto donde se generan la mayor parte de los errores cuando las condiciones de observación se deterioran.
+El procesamiento posterior, por su parte, trabaja sobre relaciones geométricas abstractas y resulta en gran medida independiente del sensor.
+
+El tratamiento posterior contempla dos perspectivas \cite{cadena2016slam}.
+La primera aborda la expresión completa de la Ecuación~\eqref{eq:slam-completo} a través de la optimización: las poses de un grupo selecto de cuadros representativos, llamados cuadros clave, se estructuran en un grafo cuyas aristas representan restricciones entre pares de poses, resolviendo la Ecuación~\eqref{eq:mincuad} de manera iterativa en toda la red \cite{grisetti2010graphslam}.
+Esta alternativa posibilita la corrección de poses anteriores al recibir datos novedosos, como ocurre al identificar un sitio previamente recorrido, aunque su carga computacional se incrementa conforme se acumulan más poses.
+La segunda resuelve la modalidad secuencial de la Ecuación~\eqref{eq:slam-linea} mediante filtrado: en cada paso temporal actualiza exclusivamente la estimación actual junto con su respectiva incertidumbre, manteniendo un costo computacional acotado por cuadro.
+La iteración anterior del sistema estructuraba las poses en un grafo de cuadros clave provisto de una fase opcional de optimización; por su parte, la plataforma en tiempo real propuesta en este estudio adopta el método de filtrado a través del mecanismo descrito en la Sección~\ref{sec:fusion}.
+
+% ---------------------------------------------------------------------------
+\section{SLAM visual monocular}
+\label{sec:slam-monocular}
+% ---------------------------------------------------------------------------
+
+Cuando el sistema utiliza una única cámara como sensor principal, se conoce como SLAM visual monocular.
+Esta configuración es de interés debido a que las cámaras son dispositivos económicos, livianos y de bajo consumo energético, capaces de proporcionar más información por medición que otros tipos de sensores \cite{scaramuzza2011vo}.
+El procesamiento frontal comprende una secuencia de operaciones: identificar y describir puntos característicos en cada imagen, establecer correspondencias entre distintas imágenes, calcular el desplazamiento relativo de la cámara y reconstruir las coordenadas tridimensionales de dichos puntos.
+Si el sistema únicamente enlaza los movimientos calculados entre cuadros consecutivos, sin generar ni aprovechar un mapa del entorno, esta técnica se denomina odometría visual \cite{scaramuzza2011vo}.
+Este enfoque corresponde al utilizado por la plataforma desarrollada en este trabajo, que calcula el movimiento entre cuadros y emplea la triangulación para comprobar cada pose estimada y determinar la escala.
+En esta sección se explica cada una de estas etapas, se analizan las dos limitaciones características de los sistemas monoculares y, finalmente, se describe el procedimiento empleado por la plataforma para obtener una escala métrica.
+
+\subsection{Modelo de cámara estenopeica}
+
+El vínculo entre un punto del espacio y su imagen se describe por medio del modelo de cámara estenopeica, ilustrado en la Fig.~\ref{fig:camara} \cite{hartley2003mvg}.
+Un punto con coordenadas homogéneas $\tilde{\mathbf{X}} = [X, Y, Z, 1]^{\top}$ en el sistema del mundo se proyecta sobre el píxel $\tilde{\mathbf{y}} = [u, v, 1]^{\top}$ de acuerdo con
+\begin{equation}
+Z_c \, \tilde{\mathbf{y}} = \mathbf{K}\,[\,\mathbf{R} \mid \mathbf{t}\,]\,\tilde{\mathbf{X}},
+\qquad
+\mathbf{K} =
+\begin{bmatrix}
+f_x & 0 & c_x \\
+0 & f_y & c_y \\
+0 & 0 & 1
+\end{bmatrix},
+\label{eq:camara}
+\end{equation}
+en donde $\mathbf{R}$ y $\mathbf{t}$ son la rotación y la traslación que trasladan el punto al sistema de la cámara, $Z_c$ es su profundidad en dicho sistema, y $\mathbf{K}$ es la matriz de parámetros intrínsecos, compuesta por las distancias focales $f_x, f_y$ y el punto principal $(c_x, c_y)$, ambos expresados en píxeles \cite{hartley2003mvg}.
+Las coordenadas normalizadas $\bar{\mathbf{y}} = \mathbf{K}^{-1}\tilde{\mathbf{y}}$ suprimen el efecto de los parámetros intrínsecos y son las que se utilizan en la geometría de dos vistas.
+El modelo no toma en cuenta la distorsión que provocan las lentes reales, la cual desplaza la imagen de los puntos alejados del centro \cite{hartley2003mvg}; en este trabajo se emplea sin términos de distorsión.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[font=\footnotesize, scale=1.0]
+\draw[-{Stealth[length=2mm]}] (-0.4,0) -- (8.6,0) node[right] {eje óptico};
+\fill (0,0) circle (1.6pt) node[below left] {$\mathbf{C}$};
+\draw[thick] (2.2,-1.5) -- (2.2,1.9);
+\node[above, align=center] at (2.2,1.9) {plano de imagen};
+\fill (7.5,1.6) circle (1.9pt) node[above right] {$\mathbf{X}$};
+\draw[dashed] (0,0) -- (7.5,1.6);
+\fill (2.2,0.469) circle (1.6pt) node[above left] {$\tilde{\mathbf{y}}$};
+\fill (2.2,0) circle (1.2pt) node[below right] {$(c_x,c_y)$};
+\draw[dotted] (7.5,0) -- (7.5,1.6) node[midway, right] {$Y$};
+\draw[{Stealth[length=1.6mm]}-{Stealth[length=1.6mm]}] (0,-1.0) -- (2.2,-1.0) node[midway, below] {$f$};
+\draw[{Stealth[length=1.6mm]}-{Stealth[length=1.6mm]}] (0,-1.9) -- (7.5,-1.9) node[midway, below] {$Z_c$};
+\node[align=left, anchor=west] at (4.7,-0.85) {$v - c_y = f_y \, \dfrac{Y}{Z_c}$};
+\end{tikzpicture}
+\caption[Modelo de cámara estenopeica]{Modelo de cámara estenopeica en vista lateral. La coordenada de la imagen depende del cociente $Y/Z_c$, por lo que la profundidad se pierde en la proyección. Fuente: elaboración propia con base en~\cite{hartley2003mvg}.}
+\label{fig:camara}
+\end{figure}
+
+La Fig.~\ref{fig:camara} evidencia una consecuencia que se retoma en la Sección~\ref{sec:escala}: la posición dentro de la imagen está determinada por el cociente entre la coordenada transversal y la profundidad, de suerte que un objeto con el doble de dimensiones y ubicado al doble de distancia genera exactamente la misma proyección visual.
+
+\subsection{Detección y descripción de características ORB}
+
+Operar con un conjunto acotado de puntos característicos, en vez de la imagen completa, disminuye el volumen de datos que el sistema debe procesar, lo cual se vuelve imprescindible cuando existe una restricción de tiempo.
+La plataforma utiliza características ORB, que conjugan un detector de esquinas con un descriptor binario y añaden a ambos la información de orientación requerida para que la descripción no varíe cuando la cámara rota \cite{rublee2011orb}.
+
+\textbf{Detección.}
+El detector FAST \cite{rosten2006fast} clasifica un píxel como una esquina potencial si, dentro de una circunferencia de dieciséis elementos circundantes, existe un arco de píxeles consecutivos cuya intensidad excede a la del punto central por encima de un umbral, o bien es inferior a esta en una diferencia mayor a dicho valor; por su parte, ORB implementa la variante FAST-9 y ordena los candidatos según el criterio de esquina de Harris con el objeto de preservar los más estables \cite{rublee2011orb}.
+Con el fin de tolerar modificaciones en la escala, la identificación se repite en cada nivel de una pirámide conformada por versiones a menor resolución de la imagen.
+
+
+\textbf{Orientación.}
+La orientación de cada punto se determina a partir del centroide de intensidad del parche $I$ que lo rodea.
+Los momentos calculados sobre el parche y el ángulo correspondiente se definen como \cite{rublee2011orb}
+\begin{equation}
+m_{pq} = \sum_{u,v} u^{p}\, v^{q}\, I(u,v),
+\qquad
+\beta = \operatorname{atan2}(m_{01},\, m_{10}),
+\label{eq:orb-orientacion}
+\end{equation}
+donde $\beta$ representa el ángulo del vector que conecta el centro del parche con su centroide de intensidad.
+
+
+\textbf{Descripción.}
+El descriptor se conforma mediante pruebas binarias que contrastan la intensidad de pares de píxeles del parche suavizado:
+\begin{equation}
+\tau(I;\mathbf{a},\mathbf{b}) =
+\begin{cases}
+1 & \text{si } I(\mathbf{a}) < I(\mathbf{b}),\\
+0 & \text{en otro caso,}
+\end{cases}
+\qquad
+f_n(I) = \sum_{i=1}^{n} 2^{\,i-1}\,\tau(I;\mathbf{a}_i,\mathbf{b}_i),
+\label{eq:orb-descriptor}
+\end{equation}
+con $n=256$ pares $(\mathbf{a}_i,\mathbf{b}_i)$ cuyas posiciones se rotan conforme a $\beta$ antes de ser evaluadas \cite{rublee2011orb}.
+El resultado consiste en una cadena de 256 bits.
+
+
+\textbf{Emparejamiento.}
+Dos descriptores binarios $\mathbf{d}_a$ y $\mathbf{d}_b$ se contrastan a través de la distancia de Hamming,
+\begin{equation}
+d_H(\mathbf{d}_a,\mathbf{d}_b) = \sum_{i=1}^{n} d_a^{(i)} \oplus d_b^{(i)},
+\label{eq:hamming}
+\end{equation}
+donde $\oplus$ representa la operación lógica de disyunción exclusiva.
+Dicho cálculo se simplifica al conteo de bits sobre el resultado de una instrucción lógica, la cual es ejecutada directamente por el procesador, constituyendo el motivo principal por el que ORB resulta una alternativa frecuente en arquitecturas expuestas a limitaciones temporales.
+
+
+Para cada descriptor de la primera imagen, se identifican los dos descriptores más próximos de la segunda imagen, cuyas distancias cumplen $d_H^{(1)} \le d_H^{(2)}$.
+La correspondencia se considera válida únicamente cuando se satisface la siguiente condición:
+\begin{equation}
+d_H^{(1)} < \zeta\, d_H^{(2)},
+\qquad
+0 < \zeta < 1,
+\label{eq:lowe}
+\end{equation}
+Este procedimiento, denominado prueba de razón, permite filtrar correspondencias ambiguas \cite{lowe2004sift}.
+En particular, elimina aquellos puntos para los que el mejor candidato presenta una distancia similar a la del segundo, algo frecuente en regiones con patrones visuales repetitivos.
+
+
+\subsection{Geometría epipolar y estimación de la pose relativa}
+
+Tras emparejar los puntos de dos imágenes, la relación geométrica entre ambas vistas posibilita recuperar el movimiento de la cámara.
+Tal como se aprecia en la Fig.~\ref{fig:epipolar}, los dos centros de cámara y el punto observado determinan un plano, denominado plano epipolar, que intersecta a cada plano de imagen en una recta; el punto observado en una imagen ha de localizarse, en la otra, sobre dicha recta \cite{hartley2003mvg}.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[font=\footnotesize]
+\fill[black!6] (0,0) -- (8,0) -- (4,3.8) -- cycle;
+\draw[thick] (0.9,-0.6) -- (2.7,0.3) -- (2.7,2.5) -- (0.9,1.6) -- cycle;
+\draw[thick] (5.3,0.3) -- (7.1,-0.6) -- (7.1,1.6) -- (5.3,2.5) -- cycle;
+\fill (0,0) circle (1.6pt) node[left] {$\mathbf{C}_1$};
+\fill (8,0) circle (1.6pt) node[right] {$\mathbf{C}_2$};
+\fill (4,3.8) circle (1.9pt) node[above] {$\mathbf{X}$};
+\draw[dashed] (0,0) -- (4,3.8);
+\draw[dashed] (8,0) -- (4,3.8);
+\draw[thick] (0,0) -- (8,0);
+\node[below] at (4,0) {línea base};
+\fill (1.8,1.71) circle (1.5pt) node[left] {$\bar{\mathbf{y}}_1$};
+\fill (6.2,1.71) circle (1.5pt) node[right] {$\bar{\mathbf{y}}_2$};
+\fill (1.8,0) circle (1.3pt) node[below] {$\mathbf{e}_1$};
+\fill (6.2,0) circle (1.3pt) node[below] {$\mathbf{e}_2$};
+\draw[very thick] (6.2,-0.1) -- (6.2,1.95) node[pos=0.55, left] {$\boldsymbol{\ell}_2$};
+\node at (4,1.35) {plano epipolar};
+\draw[-{Stealth[length=2mm]}] (1.2,-1.2) to[bend right=12] node[below] {$(\mathbf{R},\mathbf{t})$} (6.8,-1.2);
+\end{tikzpicture}
+\caption[Geometría epipolar entre dos vistas]{Geometría epipolar entre dos vistas. El punto $\bar{\mathbf{y}}_2$ correspondiente a $\bar{\mathbf{y}}_1$ debe encontrarse sobre la recta epipolar $\boldsymbol{\ell}_2$; $\mathbf{e}_1$ y $\mathbf{e}_2$ son los epipolos. Fuente: elaboración propia con base en~\cite{hartley2003mvg}.}
+\label{fig:epipolar}
+\end{figure}
+
+Dicha condición se formula de manera algebraica por medio de la matriz esencial $\mathbf{E}$, la cual vincula las coordenadas normalizadas de un mismo punto en ambas vistas \cite{hartley2003mvg}:
+\begin{equation}
+\bar{\mathbf{y}}_2^{\top}\,\mathbf{E}\,\bar{\mathbf{y}}_1 = 0,
+\qquad
+\mathbf{E} = [\mathbf{t}]_{\times}\,\mathbf{R},
+\qquad
+[\mathbf{t}]_{\times} =
+\begin{bmatrix}
+0 & -t_z & t_y \\
+t_z & 0 & -t_x \\
+-t_y & t_x & 0
+\end{bmatrix},
+\label{eq:epipolar}
+\end{equation}
+en donde $\mathbf{R}$ y $\mathbf{t}$ corresponden a la orientación y al desplazamiento relativos entre ambas cámaras.
+Cada correspondencia suministra una ecuación lineal respecto a los componentes de $\mathbf{E}$, de tal manera que la matriz es factible de estimarse a partir de un conjunto reducido de asociaciones.
+Posteriormente, esta se procesa mediante una descomposición en valores singulares, $\mathbf{E} = \mathbf{U}\operatorname{diag}(1,1,0)\mathbf{V}^{\top}$, lo cual genera cuatro posibles pares $(\mathbf{R},\mathbf{t})$; siendo el válido aquel único caso donde los puntos tridimensionales recuperados se sitúan frente a ambas cámaras \cite{hartley2003mvg}.
+Puesto que la Ecuación~\eqref{eq:epipolar} se satisface de igual manera al multiplicar $\mathbf{t}$ por un factor escalar arbitrario, el desplazamiento solo puede determinarse en cuanto a su dirección, por lo que se normaliza fijando $\|\mathbf{t}\|=1$.
+
+\subsection{Estimación robusta mediante RANSAC}
+
+El proceso de emparejamiento genera inevitablemente correspondencias erróneas, debido a patrones visuales repetitivos, objetos en movimiento entre capturas o variaciones en las condiciones de iluminación.
+Si se aplicara un ajuste por mínimos cuadrados utilizando todas las correspondencias, los valores atípicos podrían distorsionar significativamente la estimación.
+Para reducir este efecto, el método RANSAC estima el modelo de manera iterativa a partir de subconjuntos mínimos seleccionados aleatoriamente y conserva aquel que presenta concordancia con el mayor número de correspondencias, tal como se describe en el Algoritmo~\ref{alg:ransac} \cite{fischler1981ransac}.
+
+\begin{algorithm}[H]
+\caption[RANSAC]{RANSAC aplicado a la estimación de la matriz esencial. Fuente: elaboración propia con base en~\cite{fischler1981ransac,hartley2003mvg}.}
+\label{alg:ransac}
+\begin{algorithmic}[1]
+\REQUIRE correspondencias $\mathcal{C}$, tamaño de muestra mínima $n_{\min}$, umbral de error $\delta$, número de iteraciones $N_{\mathrm{it}}$
+\ENSURE matriz esencial $\mathbf{E}^{*}$ y conjunto de correspondencias consistentes $\mathcal{I}^{*}$
+\STATE $\mathcal{I}^{*} \leftarrow \emptyset$
+\FOR{$i = 1, \ldots, N_{\mathrm{it}}$}
+  \STATE seleccionar al azar $\mathcal{M} \subset \mathcal{C}$ con $|\mathcal{M}| = n_{\min}$
+  \STATE estimar $\mathbf{E}_i$ a partir de $\mathcal{M}$ mediante la Ecuación~\eqref{eq:epipolar}
+  \STATE $\mathcal{I}_i \leftarrow \{\, c \in \mathcal{C} \;:\; \operatorname{err}(c,\mathbf{E}_i) < \delta \,\}$
+  \IF{$|\mathcal{I}_i| > |\mathcal{I}^{*}|$}
+    \STATE $\mathcal{I}^{*} \leftarrow \mathcal{I}_i$
+  \ENDIF
+\ENDFOR
+\STATE reestimar $\mathbf{E}^{*}$ con todas las correspondencias de $\mathcal{I}^{*}$
+\STATE \textbf{devolver} $\mathbf{E}^{*}$, $\mathcal{I}^{*}$
+\end{algorithmic}
+\end{algorithm}
+
+La cantidad de iteraciones requerida para que, con probabilidad $p$, al menos una muestra carezca de valores atípicos depende de la proporción $\eta$ de correspondencias correctas y del tamaño de la muestra \cite{hartley2003mvg}:
+\begin{equation}
+N_{\mathrm{it}} = \left\lceil \frac{\log(1-p)}{\log\!\left(1-\eta^{\,n_{\min}}\right)} \right\rceil .
+\label{eq:ransac-iter}
+\end{equation}
+La Ecuación~\eqref{eq:ransac-iter} evidencia que el costo de RANSAC se incrementa con rapidez a medida que se reduce la proporción de correspondencias correctas, lo cual sucede justamente en escenas degradadas.
+Asimismo, el tamaño de $\mathcal{I}^{*}$ constituye un indicador directo de la calidad de la estimación en ese instante.
+
+\subsection{Triangulación}
+\label{sec:triangulacion}
+
+Una vez determinado el desplazamiento relativo, las coordenadas tridimensionales de cada elemento se obtienen mediante el proceso de triangulación.
+Si $\mathbf{M}_1 = \mathbf{K}[\,\mathbf{I}\mid\mathbf{0}\,]$ y $\mathbf{M}_2 = \mathbf{K}[\,\mathbf{R}\mid\mathbf{t}\,]$ representan las matrices de proyección correspondientes a ambas perspectivas, el punto $\tilde{\mathbf{X}}$ ha de cumplir que $\tilde{\mathbf{y}}_1 \times (\mathbf{M}_1\tilde{\mathbf{X}}) = \mathbf{0}$ y $\tilde{\mathbf{y}}_2 \times (\mathbf{M}_2\tilde{\mathbf{X}}) = \mathbf{0}$.
+Dichas restricciones configuran un sistema de ecuaciones lineales homogéneas $\mathbf{A}\tilde{\mathbf{X}} = \mathbf{0}$, cuya resolución se alcanza calculando el vector singular correspondiente al valor singular mínimo de $\mathbf{A}$ \cite{hartley2003mvg}.
+
+Un punto reconstruido mediante triangulación se considera válido únicamente cuando se encuentra delante de ambas cámaras, lo que implica que su profundidad $Z_c$ debe ser positiva en las dos vistas.
+Este mismo principio permite seleccionar, entre las cuatro soluciones obtenidas al descomponer $\mathbf{E}$, el par $(\mathbf{R},\mathbf{t})$ que representa el movimiento correcto \cite{hartley2003mvg}.
+La exactitud de la triangulación también está condicionada por el paralaje, definido como el ángulo formado por los dos rayos que convergen en el punto.
+Si la línea base es pequeña en comparación con la distancia al punto observado, los rayos presentan direcciones casi paralelas, por lo que incluso una pequeña imprecisión en la imagen puede generar un error considerable en la profundidad estimada \cite{hartley2003mvg}.
+Por este motivo, la triangulación entre cuadros consecutivos puede resultar poco fiable en un vehículo, ya que este recorre una distancia reducida entre capturas mientras observa puntos ubicados a decenas de metros.
+En consecuencia, resulta conveniente utilizar imágenes separadas por un intervalo mayor.
+El número de puntos que cumplen estas condiciones permite evaluar si la geometría de la escena ofrece información suficiente para estimar el movimiento de manera confiable.
+Estos criterios son los que aplica la estimación de escala de la Sección~\ref{sec:escala-metrica}, que triangula entre cuadros separados y descarta los puntos con poco paralaje.
+
+
+\subsection{Deriva y ambigüedad de escala}
+\label{sec:escala}
+
+La configuración monocular tiene dos limitaciones que resultan determinantes para este proyecto.
+
+\textbf{Deriva.}
+La pose de la cámara se consigue componiendo los movimientos relativos calculados entre cuadros consecutivos.
+Si $\mathbf{T}_k = \left[\begin{smallmatrix}\mathbf{R}_k & \mathbf{t}_k\\ \mathbf{0}^{\top} & 1\end{smallmatrix}\right]$ denota la pose en el cuadro $k$ y $\mathbf{T}_{k-1,k}$ el movimiento estimado entre los cuadros $k-1$ y $k$, entonces \cite{scaramuzza2011vo}
+\begin{equation}
+\mathbf{T}_k = \mathbf{T}_{k-1}\,\mathbf{T}_{k-1,k} = \mathbf{T}_0 \prod_{i=1}^{k} \mathbf{T}_{i-1,i}.
+\label{eq:composicion}
+\end{equation}
+Cada factor del producto alberga un error de estimación, y la composición hace que dichos errores se propaguen sin ser corregidos.
+Incluso si cada paso resulta preciso, la trayectoria estimada se aleja de manera progresiva de la real a medida que crece la distancia recorrida.
+
+\textbf{Ambigüedad de escala.}
+Si un determinado grupo de poses y puntos tridimensionales $\{\mathbf{R}_k, \mathbf{t}_k, \mathbf{X}_j\}$ resulta consistente con todas las vistas capturadas, de igual manera lo es el conjunto $\{\mathbf{R}_k, s\,\mathbf{t}_k, s\,\mathbf{X}_j\}$ para cualquier parámetro $s>0$, dado que la proyección descrita en la Ecuación~\eqref{eq:camara} divide entre la profundidad y dicho factor se anula.
+Por consiguiente, la trayectoria obtenida mediante visión monocular queda determinada salvo por un coeficiente de escala desconocido, el cual puede además experimentar variaciones graduales a lo largo del trayecto \cite{murartal2015orbslam,scaramuzza2011vo}.
+Establecer dicho valor de escala demanda información ausente en la geometría de las imágenes, tales como lecturas de distancia proporcionadas por un sensor alternativo o información previa acerca del escenario.
+
+Estas dos limitaciones se vuelven más pronunciadas en entornos viales.
+Las variaciones de iluminación, las superficies con escasa textura y la presencia de objetos en movimiento disminuyen la proporción $\eta$ de correspondencias válidas, lo que afecta a cada factor de la Ecuación~\eqref{eq:composicion} y favorece una acumulación más rápida del error.
+
+\subsection{Escala métrica a partir de profundidad monocular}
+\label{sec:escala-metrica}
+
+Una manera de conseguir esa información sin acudir a otro sensor consiste en utilizar una red neuronal entrenada para estimar la profundidad de cada píxel a partir de una única imagen.
+Tales modelos aprenden la relación entre la apariencia y la profundidad a partir de grandes conjuntos de imágenes, y algunas de sus variantes se ajustan con datos que incorporan la profundidad real, de manera que su salida se expresa en metros \cite{yang2024depthanything}.
+Su estimación resulta menos precisa que una medición directa, pero no se deriva de la geometría entre vistas y, por consiguiente, no comparte la ambigüedad descrita en la Sección~\ref{sec:escala}.
+
+El sistema integra ambas fuentes de estimación de profundidad.
+Al considerar dos cuadros separados por un intervalo $\Delta t_b$ que garantice la presencia de paralaje, la triangulación basada en una traslación unitaria $\|\mathbf{t}\|=1$ genera profundidades $Z_j^{\mathrm{VO}}$ expresadas en unidades de la propia línea base, al tiempo que el modelo predice para esos mismos puntos valores de profundidad $Z_j^{\mathrm{m}}$ medidos en metros.
+Por consiguiente, la relación entre ambos valores corresponde a la longitud de la línea base expresada en metros, la cual se calcula empleando la mediana de los puntos disponibles:
+\begin{equation}
+\hat{b} = \operatorname{mediana}_{j}\!\left( \frac{Z_j^{\mathrm{m}}}{Z_j^{\mathrm{VO}}} \right),
+\qquad
+v^{\mathrm{cam}} = \frac{\hat{b}}{\Delta t_b},
+\label{eq:escala-metrica}
+\end{equation}
+donde $v^{\mathrm{cam}}$ representa la rapidez del vehículo estimada a partir de la cámara.
+A diferencia de la media aritmética, el uso de la mediana mitiga el impacto de aquellos puntos cuya profundidad se encuentra erróneamente calculada, tales como los correspondientes a elementos en movimiento dentro de la escena.
+Dicha escala se deriva exclusivamente de la información visual, previniendo así la dependencia estricta de la estimación respecto al GPS: ante una degradación de la señal satelital, la fuente visual mantiene su propia métrica de distancia.
+No obstante, su margen de error fluctúa según las características del entorno, motivo por el cual el mecanismo de filtrado descrito en la Sección~\ref{sec:fusion} incorpora un factor de corrección de escala guiado por las lecturas del sistema satelital.
+
+\section{Posicionamiento satelital}
+\label{sec:gnss}
+
+\subsection{Principio de operación}
+
+Un sistema global de navegación por satélite está formado por una constelación de satélites que emiten señales con información sobre el instante de transmisión y los datos necesarios para determinar su posición.
+El receptor calcula el tiempo que tarda cada señal en llegar y lo transforma en una distancia aparente conocida como pseudodistancia.
+Para un satélite $i$, cuya posición $\mathbf{r}^{(i)}$ es conocida, la pseudodistancia observada se expresa mediante el siguiente modelo \cite{groves2013gnss}
+\begin{equation}
+\rho^{(i)} = \left\| \mathbf{r}^{(i)} - \mathbf{r} \right\| + c\,\delta t_r + \varepsilon^{(i)},
+\label{eq:pseudodistancia}
+\end{equation}
+donde $\mathbf{r}$ representa la posición del receptor, $c$ corresponde a la velocidad de la luz, $\delta t_r$ denota el desfase del reloj del receptor y $\varepsilon^{(i)}$ comprende los demás errores presentes en la medición.
+El modelo contiene cuatro incógnitas: las tres coordenadas de $\mathbf{r}$ y el desfase temporal $\delta t_r$.
+Por tanto, se necesitan al menos cuatro satélites para resolver el sistema.
+
+El receptor resuelve dicho sistema de manera iterativa, linealizando la Ecuación~\eqref{eq:pseudodistancia} en torno a una posición aproximada y aplicando mínimos cuadrados \cite{groves2013gnss}.
+Aparte de la posición, calcula la velocidad a partir del desplazamiento Doppler de la frecuencia de las señales recibidas, el cual es proporcional a la velocidad relativa entre el receptor y cada satélite \cite{groves2013gnss}.
+Dicha velocidad no se consigue derivando posiciones sucesivas, por lo que no hereda de forma directa su error.
+
+\subsection{Fuentes de error y receptores de dispositivos móviles}
+\label{sec:gps-movil}
+
+El componente $\varepsilon^{(i)}$ presente en la Ecuación~\eqref{eq:pseudodistancia} agrupa los errores remanentes de órbita y oscilador del satélite, el desfasaje temporal ocasionado por la ionosfera y la troposfera, el fenómeno de multitrayecto derivado de rebotes en superficies próximas y el ruido propio del receptor \cite{groves2013gnss}.
+Asimismo, la exactitud posicional está supeditada a la disposición espacial de los satélites en línea de visión: si dichos satélites se concentran en una zona acotada del firmamento, la estructura matemática se vuelve mal condicionada, provocando la amplificación de los errores de pseudodistancia en el resultado final, un fenómeno cuantificado mediante el índice de dilución de la precisión \cite{groves2013gnss}.
+
+Esta fuente de información presenta dos características que la diferencian de la estimación visual.
+En primer lugar, su error es acotado, ya que no aumenta conforme se incrementa la distancia recorrida, pues cada posición se calcula sin depender de las estimaciones anteriores.
+En segundo lugar, el error puede alcanzar una magnitud considerable en un momento determinado y conservar una correlación durante varios segundos mientras continúen las condiciones que lo generan.
+
+Los receptores incorporados en teléfonos móviles funcionan bajo el mismo principio que los equipos geodésicos, aunque con limitaciones de costo, tamaño y consumo.
+Sus antenas utilizan polarización lineal en vez de circular, lo que las hace más propensas al multitrayecto, y la relación entre portadora y ruido de sus observaciones es aproximadamente diez decibelios inferior a la de una antena geodésica \cite{zangenehnejad2021smartphone}.
+En consecuencia, las soluciones basadas solamente en código alcanzan exactitudes de tres a cinco metros en condiciones favorables, las cuales superan los diez metros en entornos con multitrayecto severo \cite{zangenehnejad2021smartphone}.
+A esto se añade una asimetría temporal: el receptor proporciona una o pocas soluciones por segundo, en tanto que la cámara genera varias decenas de imágenes en ese mismo intervalo.
+En tal contexto el GPS no puede considerarse como una referencia verdadera, sino como una segunda estimación con su propio error, cuya confiabilidad fluctúa a lo largo del recorrido.
+
+\subsection{Conversión a coordenadas métricas}
+
+El receptor proporciona coordenadas geodésicas (latitud, longitud y altitud) referidas al elipsoide del marco de referencia WGS~84, en tanto que la estimación visual se formula en un sistema cartesiano local con unidades métricas.
+Su integración requiere transformar ambas fuentes a un marco de referencia común.
+Para el análisis en una superficie bidimensional, el procedimiento convencional consiste en emplear la proyección Universal Transversa de Mercator (UTM), la cual segmenta la superficie terrestre en husos de seis grados de longitud y proyecta cada uno de manera independiente, limitando así la distorsión geométrica en cada sección \cite{snyder1987projections}.
+Sus expresiones analíticas corresponden a desarrollos en serie que se omiten en este documento.
+Dado que un trayecto que atraviesa la frontera entre dos husos generaría coordenadas en sistemas diferentes, todas las mediciones de una ruta se proyectan en el huso correspondiente al punto de partida, expresándose como componentes de desplazamiento al este y al norte respecto a dicho origen.
+Esta consideración resulta especialmente relevante en el caso de Costa Rica, cuyo territorio es atravesado por el meridiano de $84^{\circ}$ de longitud oeste, el cual marca la frontera entre los husos 16 y 17.
+Es importante destacar que esta transformación unifica las unidades y el marco de referencia de la observación satelital, mas no alinea ambas fuentes por sí sola: la trayectoria visual se origina en un punto y una orientación arbitrarios, y su escala, aunque se encuentre expresada en metros, conserva el sesgo asociado al modelo de profundidad descrito en la Sección~\ref{sec:escala-metrica}.
+
+\section{Sensores inerciales}
+\label{sec:inerciales}
+
+Los teléfonos móviles incorporan sensores inerciales de bajo costo, fabricados con tecnología microelectromecánica.
+Los dos que interesan en este trabajo son el acelerómetro, que mide la fuerza específica sobre el dispositivo y, por tanto, también la reacción a la gravedad, y el giroscopio, que mide la velocidad angular, ambos sobre los tres ejes del dispositivo \cite{groves2013gnss}.
+La orientación se obtiene integrando la velocidad angular en el tiempo \cite{groves2013gnss}.
+En un vehículo terrestre interesa sobre todo el cambio de rumbo, que corresponde a la rotación alrededor de la vertical, y para calcularlo basta la componente de la velocidad angular en esa dirección.
+
+La vertical no se conoce de antemano, dado que el teléfono puede montarse con cualquier inclinación.
+Una manera sencilla de estimarla se vale de que la gravedad es constante, mientras que las aceleraciones propias del vehículo cambian de signo y se compensan con el tiempo; un filtro paso bajo de primer orden sobre la medición $\mathbf{f}_j$ del acelerómetro preserva la primera y atenúa las segundas:
+\begin{equation}
+\mathbf{g}_j = \mathbf{g}_{j-1} + \frac{\Delta t_j}{\tau_{\mathrm{g}}}\left(\mathbf{f}_j - \mathbf{g}_{j-1}\right),
+\qquad
+\hat{\mathbf{n}}_j = \frac{\mathbf{g}_j}{\|\mathbf{g}_j\|},
+\label{eq:vertical}
+\end{equation}
+donde $\Delta t_j$ es el tiempo transcurrido entre las muestras $j-1$ y $j$, y $\tau_{\mathrm{g}}$ la constante de tiempo del filtro, del orden de decenas de segundos.
+Con la vertical $\hat{\mathbf{n}}_j$, el giro acumulado entre dos cuadros se consigue integrando la componente vertical de las mediciones $\boldsymbol{\omega}_j$ del giroscopio mediante la regla del trapecio,
+\begin{equation}
+\Delta\psi = \sum_{j} \tfrac{1}{2}\left(\boldsymbol{\omega}_{j-1} + \boldsymbol{\omega}_{j}\right)^{\top}\hat{\mathbf{n}}_j\,\Delta t_j,
+\label{eq:giro}
+\end{equation}
+en donde la suma abarca las muestras comprendidas entre ambos cuadros.
+
+El giroscopio registra la velocidad angular con alta precisión en lapsos breves y con absoluta independencia de la escena visual; sin embargo, su lectura incorpora un sesgo de variación lenta que, al integrarse según se indica en la Ecuación~\eqref{eq:giro}, se traduce en un error de orientación acumulativo que se incrementa con el tiempo \cite{groves2013gnss}.
+Por su parte, el acelerómetro se descarta como fuente para la estimación directa de la posición: dicho cálculo demandaría una doble integración de la señal tras compensar el efecto de la gravedad, lo cual, al emplear dispositivos de bajo costo, genera un error proporcional al cuadrado del tiempo que supera rápidamente al del GPS \cite{groves2013gnss}.
+En consecuencia, para el desarrollo de este trabajo se establece una estrategia complementaria donde el giroscopio suministra la variación de rumbo entre cuadros consecutivos, la cámara aporta la estimación de rapidez y el sistema GPS interviene para corregir ambas magnitudes, conforme se detalla en el apartado subsiguiente.
+
+\section{Fusión de sensores}
+\label{sec:fusion}
+
+\subsection{Complementariedad entre las fuentes}
+
+Al comparar las tres fuentes de información, se observa que cada una presenta limitaciones diferentes, lo que permite aprovechar sus fortalezas al combinarlas.
+La Tabla~\ref{tab:complementariedad} sintetiza estas diferencias.
+
+\begin{table}[H]
+\centering
+\caption{Características complementarias de las fuentes de información}
+\label{tab:complementariedad}
+\small
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{2.95cm}>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}X@{}}
+\toprule
+\textbf{Característica} & \textbf{Cámara} & \textbf{Giroscopio} & \textbf{GPS de dispositivo móvil} \\
+\midrule
+Magnitud que aporta & Movimiento relativo y rapidez & Cambio de rumbo & Posición, velocidad Doppler y rumbo entre soluciones \\
+\addlinespace
+Naturaleza de la estimación & Relativa, respecto a un origen arbitrario & Relativa, respecto al rumbo inicial & Absoluta, respecto a un marco global \\
+\addlinespace
+Comportamiento del error & Crece con la distancia, Ec.~\eqref{eq:composicion} & Crece con el tiempo por el sesgo, Ec.~\eqref{eq:giro} & Acotado, no crece con el recorrido \\
+\addlinespace
+Precisión instantánea & Alta entre cuadros consecutivos & Alta en intervalos cortos & Del orden de metros \\
+\addlinespace
+Frecuencia de actualización & Decenas de cuadros por segundo & Decenas de muestras por segundo & Una o pocas soluciones por segundo \\
+\addlinespace
+Escala & Aproximada, a partir del modelo de profundidad & No aplica & Métrica por construcción \\
+\addlinespace
+Condiciones que la degradan & Poca textura, cambios de iluminación, objetos en movimiento & Variación del sesgo durante intervalos largos sin corrección & Obstrucción del cielo, multitrayecto, geometría desfavorable \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+La última fila constituye la que justifica el enfoque de este trabajo.
+Las condiciones que degradan una fuente resultan en buena medida independientes de las que degradan las otras: un túnel de vegetación densa obstruye la señal satelital a la vez que enriquece la textura visual, y una carretera abierta brinda buena visibilidad de los satélites junto con una escena pobre en características.
+El giroscopio, por su parte, no depende de la escena ni del cielo, de modo que sostiene el rumbo en ambos casos durante intervalos cortos.
+
+\subsection{Filtro de Kalman}
+\label{sec:fusion-clasicos}
+
+El filtro de Kalman es la realización clásica de la estimación recursiva para sistemas lineales con ruido gaussiano \cite{kalman1960filtering}.
+El sistema se describe mediante un modelo de estado y un modelo de medición:
+\begin{equation}
+\begin{aligned}
+\mathbf{x}_k &= \mathbf{F}_k\,\mathbf{x}_{k-1} + \mathbf{B}_k\,\mathbf{u}_k + \mathbf{w}_k, & \mathbf{w}_k &\sim \mathcal{N}(\mathbf{0},\mathbf{Q}_k),\\
+\mathbf{z}_k &= \mathbf{H}_k\,\mathbf{x}_k + \mathbf{v}_k, & \mathbf{v}_k &\sim \mathcal{N}(\mathbf{0},\mathbf{R}_k),
+\end{aligned}
+\label{eq:kf-modelo}
+\end{equation}
+donde $\mathbf{x}_k$ es el estado, $\mathbf{u}_k$ la entrada, $\mathbf{z}_k$ la medición, $\mathbf{F}_k$ la matriz de transición, $\mathbf{H}_k$ la matriz de observación, y $\mathbf{Q}_k$ y $\mathbf{R}_k$ las covarianzas del ruido de proceso y del ruido de medición, respectivamente \cite{groves2013gnss}.
+
+El filtro conserva una estimación del estado $\hat{\mathbf{x}}_k$ junto con su covarianza $\mathbf{P}_k$, las cuales se actualizan mediante dos etapas.
+Durante la predicción, el estado se proyecta a partir del modelo del sistema, mientras que la incertidumbre aumenta:
+\begin{equation}
+\hat{\mathbf{x}}_k^{-} = \mathbf{F}_k\,\hat{\mathbf{x}}_{k-1} + \mathbf{B}_k\,\mathbf{u}_k,
+\qquad
+\mathbf{P}_k^{-} = \mathbf{F}_k\,\mathbf{P}_{k-1}\,\mathbf{F}_k^{\top} + \mathbf{Q}_k.
+\label{eq:kf-prediccion}
+\end{equation}
+En la etapa de corrección, se contrasta la medición con el valor predicho y se ajusta la estimación según la ganancia de Kalman \cite{groves2013gnss}:
+\begin{equation}
+\begin{aligned}
+\boldsymbol{\nu}_k &= \mathbf{z}_k - \mathbf{H}_k\,\hat{\mathbf{x}}_k^{-}, &
+\mathbf{S}_k &= \mathbf{H}_k\,\mathbf{P}_k^{-}\,\mathbf{H}_k^{\top} + \mathbf{R}_k,\\
+\mathbf{K}_k &= \mathbf{P}_k^{-}\,\mathbf{H}_k^{\top}\,\mathbf{S}_k^{-1}, &
+\hat{\mathbf{x}}_k &= \hat{\mathbf{x}}_k^{-} + \mathbf{K}_k\,\boldsymbol{\nu}_k,\\
+& & \mathbf{P}_k &= \left(\mathbf{I} - \mathbf{K}_k\,\mathbf{H}_k\right)\mathbf{P}_k^{-}.
+\end{aligned}
+\label{eq:kf-correccion}
+\end{equation}
+El término $\boldsymbol{\nu}_k$ recibe el nombre de innovación, mientras que $\mathbf{S}_k$ representa su covarianza teórica.
+Por su parte, la ganancia $\mathbf{K}_k$ establece el grado en que la estimación se ajusta hacia la medición, en función de la incertidumbre asociada a la predicción y a la propia medición.
+
+\subsection{Filtro de Kalman extendido}
+
+Cuando el modelo de movimiento o el de medición no son lineales, como sucede al incluir rotaciones, se recurre al filtro de Kalman extendido \cite{groves2013gnss}.
+El modelo pasa a ser $\mathbf{x}_k = f(\mathbf{x}_{k-1},\mathbf{u}_k) + \mathbf{w}_k$ y $\mathbf{z}_k = h(\mathbf{x}_k) + \mathbf{v}_k$.
+La predicción del estado y de la medición emplean las funciones no lineales, $\hat{\mathbf{x}}_k^{-} = f(\hat{\mathbf{x}}_{k-1},\mathbf{u}_k)$ y $\boldsymbol{\nu}_k = \mathbf{z}_k - h(\hat{\mathbf{x}}_k^{-})$, en tanto que la propagación de la covarianza y el cálculo de la ganancia utilizan las Ecuaciones~\eqref{eq:kf-prediccion} y~\eqref{eq:kf-correccion} con los jacobianos evaluados en la estimación vigente:
+\begin{equation}
+\mathbf{F}_k = \left.\frac{\partial f}{\partial \mathbf{x}}\right|_{\hat{\mathbf{x}}_{k-1},\,\mathbf{u}_k},
+\qquad
+\mathbf{H}_k = \left.\frac{\partial h}{\partial \mathbf{x}}\right|_{\hat{\mathbf{x}}_k^{-}}.
+\label{eq:ekf-jacobianos}
+\end{equation}
+
+
+Para la localización de un vehículo terrestre resulta suficiente considerar un estado planar,
+\begin{equation}
+\mathbf{x} = \left[\, x,\; y,\; \theta,\; \kappa,\; v \,\right]^{\top},
+\label{eq:estado-ekf}
+\end{equation}
+integrado por la posición $(x,y)$ en el plano definido en la Sección~\ref{sec:gnss}, el rumbo $\theta$, un parámetro $\kappa$ que ajusta la escala del modelo de profundidad de la Sección~\ref{sec:escala-metrica} y la rapidez $v$.
+En cada cuadro, la etapa de predicción incorpora la variación de rumbo $\Delta\psi_k$ medida por el giroscopio según la Ecuación~\eqref{eq:giro}, o bien la estimada por la cámara cuando no se dispone de muestras del giroscopio, bajo la premisa de que el vehículo avanza en la dirección de su propio rumbo:
+
+\begin{equation}
+\theta_k = \theta_{k-1} + \Delta\psi_k,
+\qquad
+\begin{bmatrix} x_k \\ y_k \end{bmatrix}
+=
+\begin{bmatrix} x_{k-1} \\ y_{k-1} \end{bmatrix}
++ v_{k-1}\,\Delta t_k
+\begin{bmatrix} \cos\!\left(\theta_{k-1} + \tfrac{1}{2}\Delta\psi_k\right) \\ \sin\!\left(\theta_{k-1} + \tfrac{1}{2}\Delta\psi_k\right) \end{bmatrix},
+\label{eq:modelo-plano}
+\end{equation}
+donde $\Delta t_k$ denota el intervalo temporal transcurrido desde el cuadro anterior y el rumbo intermedio aproxima la trayectoria curvilínea desarrollada durante dicho lapso.
+A su vez, el factor de escala $\kappa$ y la rapidez $v$ se propagan sin modificaciones directas, de modo que su incertidumbre se incrementa a través de la matriz de covarianza del ruido de proceso $\mathbf{Q}_k$.
+
+Las actualizaciones se reciben a diferentes frecuencias, tal como se ilustra en la Fig.~\ref{fig:ekf-multitasa}.
+Cada vez que se dispone de una solución del GPS, se actualizan la posición mediante $h(\mathbf{x}) = [x, y]^{\top}$; la rapidez, utilizando la velocidad Doppler y $h(\mathbf{x}) = v$; y el rumbo, a partir de la dirección del segmento que conecta dos soluciones consecutivas, siempre que su longitud concuerde con la distancia que predice la velocidad Doppler.
+De forma periódica, la rapidez estimada por la cámara mediante la Ecuación~\eqref{eq:escala-metrica} se utiliza para corregir el estado con $h(\mathbf{x}) = v/\kappa$, de manera que el GPS, al proporcionar el valor de $v$, también permite estimar $\kappa$; si la cámara identifica que el vehículo permanece detenido, se emplea directamente la medición $v = 0$.
+En los cuadros donde no se realiza ninguna corrección, se conserva la predicción mediante $\hat{\mathbf{x}}_k = \hat{\mathbf{x}}_k^{-}$ y $\mathbf{P}_k = \mathbf{P}_k^{-}$.
+Tanto la Ecuación~\eqref{eq:modelo-plano} como la medición $v/\kappa$ presentan una relación no lineal con el estado, por lo que resulta apropiado utilizar el filtro extendido.
+Dado que el GPS se integra mediante sus estimaciones de posición y velocidad previamente calculadas, en lugar de utilizar las pseudodistancias originales, este enfoque se clasifica como acoplamiento débil \cite{groves2013gnss}.
+
+
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[font=\footnotesize, x=3.6cm, y=1cm]
+% eje de tiempo
+\draw[-{Stealth[length=2mm]}] (0,0) -- (2.85,0) node[right] {$t$ [s]};
+\foreach \s in {0,1,2} \node[below] at (\s,-0.05) {\s};
+% marcas de cuadros (predicción)
+\foreach \i in {0,...,80} \draw (\i/30,0) -- (\i/30,0.14);
+% correcciones (GPS)
+\foreach \s in {0,0.5,1,1.5,2,2.5} {
+  \draw[very thick] (\s,0) -- (\s,0.55);
+  \fill (\s,0.55) circle (2pt);
+}
+% incertidumbre en diente de sierra
+\foreach \a/\b in {0/0.5,0.5/1,1/1.5,1.5/2,2/2.5} {
+  \draw[thick] plot[domain=\a:\b, samples=25] (\x,{1.0+sqrt(0.36+2.4*(\x-\a))});
+  \draw[thick] (\b,{1.0+sqrt(1.56)}) -- (\b,1.6);
+}
+\draw[thick] plot[domain=2.5:2.7, samples=10] (\x,{1.0+sqrt(0.36+2.4*(\x-2.5))});
+\node[align=left, anchor=west] at (2.74,1.95) {incertidumbre\\de la estimación};
+% rotulos
+\draw[-{Stealth[length=1.6mm]}] (0.4,-0.75) -- (0.4,0.1);
+\node[anchor=north, align=center] at (0.4,-0.75) {predicción con el giroscopio\\y la cámara (cada cuadro)};
+\draw[-{Stealth[length=1.6mm]}] (1.75,-0.75) -- (1.53,0.5);
+\node[anchor=north, align=center] at (1.85,-0.75) {corrección con el GPS\\(cada solución disponible)};
+\end{tikzpicture}
+\caption[Operación del filtro con frecuencias distintas]{Operación del filtro de Kalman extendido con fuentes de frecuencia distinta. La incertidumbre crece con cada predicción y se reduce con cada corrección. Representación cualitativa. Fuente: elaboración propia.}
+\label{fig:ekf-multitasa}
+\end{figure}
+
+\subsection{Papel de las covarianzas de ruido}
+\label{sec:covarianzas}
+
+Las matrices $\mathbf{Q}_k$ y $\mathbf{R}_k$ establecen cuánta confianza obtiene cada fuente.
+El caso escalar lo deja en evidencia.
+Con $\mathbf{H}_k = 1$, la ganancia y la corrección de la Ecuación~\eqref{eq:kf-correccion} se simplifican a
+\begin{equation}
+K_k = \frac{P_k^{-}}{P_k^{-} + R_k},
+\qquad
+\hat{x}_k = \left(1 - K_k\right)\hat{x}_k^{-} + K_k\,z_k,
+\label{eq:kf-escalar}
+\end{equation}
+esto es, la estimación corregida constituye una combinación convexa entre la predicción y la medición, con un peso $K_k \in (0,1)$.
+Si $R_k \to 0$, entonces $K_k \to 1$ y el filtro sigue la medición; si $R_k \to \infty$, entonces $K_k \to 0$ y el filtro la desestima.
+A su vez, $Q_k$ incrementa $P_k^{-}$ conforme a la Ecuación~\eqref{eq:kf-prediccion}, lo que eleva $K_k$ y concede más peso a la medición.
+Por consiguiente, ajustar $\mathbf{Q}_k$ y $\mathbf{R}_k$ equivale a determinar la ponderación entre la predicción, sustentada en el giroscopio y la cámara, y cada una de las correcciones.
+
+Asimismo, la innovación proporciona un mecanismo para comprobar la idoneidad de dichas covarianzas.
+Si el filtro opera de manera consistente, $\boldsymbol{\nu}_k$ se adhiere a una distribución $\mathcal{N}(\mathbf{0},\mathbf{S}_k)$, por lo que la innovación normalizada
+\begin{equation}
+\bar{\nu}_k^{2} = \boldsymbol{\nu}_k^{\top}\,\mathbf{S}_k^{-1}\,\boldsymbol{\nu}_k
+\label{eq:nis}
+\end{equation}
+presenta una distribución chi cuadrado con un número de grados de libertad equivalente a la dimensionalidad del vector de medición \cite{groves2013gnss}.
+Registros elevados de $\bar{\nu}_k^{2}$ de forma sostenida sugieren que las covarianzas subestiman el error efectivo o que alguna de las fuentes de datos ha sufrido una degradación.
+Esta misma prueba resulta útil para auditar cada observación de manera previa a su asimilación: cuando $\bar{\nu}_k^{2}$ excede el límite crítico de la distribución chi cuadrado correspondiente a un nivel de significancia estricto, la lectura se rechaza por considerarse incompatible con la predicción \cite{groves2013gnss}.
+Dicho control de validación resguarda al filtro frente a estimaciones satelitales anómalas que contengan errores severos, tales como los provocados por el fenómeno de multitrayecto.
+
+
+En los métodos tradicionales, las matrices $\mathbf{Q}_k$ y $\mathbf{R}_k$ se establecen durante la etapa de diseño, por ejemplo, utilizando niveles de ruido obtenidos mediante mediciones experimentales, y se mantienen constantes.
+Esto implica asumir que las propiedades estadísticas del error de cada fuente no varían a lo largo del recorrido.
+Sin embargo, esta suposición no se ajusta a las condiciones de un entorno vial, en el que la confiabilidad de la cámara y la del GPS pueden variar en cuestión de segundos y de manera independiente.
+Por ello, un valor fijo tiende a ser demasiado conservador cuando las condiciones son favorables y poco adecuado cuando las condiciones se vuelven desfavorables.
+
+\subsection{Filtrado adaptativo}
+
+La alternativa clásica a los valores fijos es el filtrado adaptativo, que ajusta las covarianzas durante la operación a partir de la propia innovación.
+En la estimación adaptativa basada en la innovación, la covarianza empírica de la innovación se calcula sobre una ventana de las $M$ correcciones más recientes y se compara con la teórica \cite{mohamed1999adaptive}:
+\begin{equation}
+\hat{\mathbf{C}}_{\nu,k} = \frac{1}{M}\sum_{j=k-M+1}^{k} \boldsymbol{\nu}_j\,\boldsymbol{\nu}_j^{\top},
+\qquad
+\hat{\mathbf{R}}_k = \hat{\mathbf{C}}_{\nu,k} - \mathbf{H}_k\,\mathbf{P}_k^{-}\,\mathbf{H}_k^{\top}.
+\label{eq:iae}
+\end{equation}
+Si la innovación observada es mayor que la que predice el filtro, la Ecuación~\eqref{eq:iae} aumenta la covarianza de la medición y reduce su influencia; la covarianza del proceso puede ajustarse de forma análoga a partir de la misma secuencia \cite{mohamed1999adaptive}.
+
+Este planteamiento presenta dos limitaciones de relevancia para el presente trabajo.
+La primera radica en que la extensión de la ventana establece un compromiso: una ventana breve reacciona con rapidez pero genera estimaciones ruidosas, que incluso pueden dejar de estar definidas positivas al tratarse de una diferencia de matrices, mientras que una ventana extensa resulta estable pero lenta.
+La segunda consiste en que la regla de ajuste continúa siendo especificada por el diseñador y únicamente observa la innovación, sin acceso a otros indicadores, como la calidad del seguimiento visual, que anticipan la degradación de una fuente antes de que esta se refleje en la innovación.
+Dichas limitaciones motivan el empleo de una política aprendida, la cual se desarrolla en la sección siguiente.
+
+\section{Aprendizaje por refuerzo}
+\label{sec:rl}
+
+\subsection{Procesos de decisión de Markov}
+
+El aprendizaje por refuerzo analiza los mecanismos mediante los cuales un agente aprende a conducirse dentro de un entorno a través de la experimentación directa, guiado de manera exclusiva por una señal orientada a evaluar sus acciones \cite{sutton2018rl}.
+A diferencia de los paradigmas de aprendizaje supervisado, el agente no recibe indicaciones sobre la acción correcta a ejecutar, sino únicamente una retroalimentación que cuantifica el desempeño de la decisión adoptada.
+
+La interacción entre el agente y el entorno se describe formalmente mediante un proceso de decisión de Markov, ilustrado en la Fig.~\ref{fig:ciclo-rl}.
+En cada instante $t$, el agente recibe una observación del estado $s_t$, selecciona una acción $a_t$ y obtiene del entorno una recompensa $r_{t+1}$ junto con un nuevo estado $s_{t+1}$.
+Esta transición sigue una dinámica $p(s_{t+1}, r_{t+1} \mid s_t, a_t)$, determinada únicamente por el estado y la acción actuales \cite{sutton2018rl}.
+
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+  font=\footnotesize,
+  caja/.style={rounded corners=2pt, draw, align=center, inner sep=5pt,
+               text width=36mm, minimum height=12mm},
+  flecha/.style={-{Stealth[length=2mm]}, thick}
+]
+\node[caja] (agente) {\textbf{Agente}\\{\scriptsize política $\pi(a \mid s)$}};
+\node[caja, right=42mm of agente] (entorno) {\textbf{Entorno}\\{\scriptsize filtro de fusión y sensores}};
+\draw[flecha] (agente.north) -- ++(0,7mm) -| node[pos=0.25, above, align=center]
+  {acción $a_t$\\{\scriptsize en este trabajo: peso de la rapidez de la cámara}} (entorno.north);
+\draw[flecha] (entorno.south) -- ++(0,-7mm) -| node[pos=0.25, below, align=center]
+  {estado $s_{t+1}$ y recompensa $r_{t+1}$\\{\scriptsize indicadores del filtro y error frente al GPS}} (agente.south);
+\end{tikzpicture}
+\caption[Ciclo de interacción entre el agente y el entorno]{Ciclo de interacción entre el agente y el entorno. Fuente: elaboración propia con base en~\cite{sutton2018rl}.}
+\label{fig:ciclo-rl}
+\end{figure}
+
+La conducta del agente queda caracterizada por su política $\pi(a \mid s)$, esto es, la probabilidad de seleccionar la acción $a$ en el estado $s$.
+La meta consiste en maximizar el retorno, es decir, la suma descontada de las recompensas futuras, y la idoneidad de un estado bajo una política se cuantifica mediante su función de valor \cite{sutton2018rl}:
+\begin{equation}
+G_t = \sum_{k=0}^{\infty} \gamma^{k}\, r_{t+k+1},
+\qquad
+v_{\pi}(s) = \mathbb{E}_{\pi}\!\left[\, G_t \mid s_t = s \,\right],
+\label{eq:retorno}
+\end{equation}
+donde $\gamma \in [0,1]$ es el factor de descuento; el valor $\gamma = 1$ solo es admisible en tareas episódicas, que terminan en un número finito de pasos \cite{sutton2018rl}.
+Con $\gamma$ próximo a uno, el agente pondera las consecuencias a largo plazo de sus acciones, lo que le permite admitir una recompensa menor en el presente si con ello logra estados más favorables.
+
+\subsection{Métodos basados en valor: Q-learning}
+
+Las metodologías de aprendizaje por refuerzo se clasifican fundamentalmente en dos grandes ramas.
+Por un lado, los esquemas de gradiente de política representan la estrategia de control mediante una función parametrizada, usualmente una red neuronal, y ajustan sus parámetros en la dirección que mejora el retorno esperado; resultan naturales cuando la acción es una cantidad continua \cite{sutton1999policygradient}.
+Por otro lado, los enfoques basados en valor estiman, para cada estado y acción, el retorno esperado al tomar esa acción y seguir después la política,
+\begin{equation}
+q_{\pi}(s,a) = \mathbb{E}_{\pi}\!\left[\, G_t \mid s_t = s,\; a_t = a \,\right],
+\label{eq:valor-accion}
+\end{equation}
+y actúan seleccionando en cada estado la acción de mayor valor \cite{sutton2018rl}.
+Cuando los conjuntos de estados y de acciones son finitos y pequeños, esa función puede almacenarse como una tabla con una entrada por cada par de estado y acción.
+
+El algoritmo Q-learning estima dicha tabla directamente a partir de la experiencia, sin requerir un modelo de la dinámica del entorno \cite{watkins1992qlearning}.
+Tras cada transición, la entrada correspondiente se corrige hacia una estimación del retorno formada por la recompensa recibida y el mejor valor del estado siguiente \cite{sutton2018rl}:
+\begin{equation}
+Q(s_t,a_t) \leftarrow Q(s_t,a_t) + \alpha \left[\, r_{t+1} + \gamma \max_{a} Q(s_{t+1},a) - Q(s_t,a_t) \,\right],
+\label{eq:qlearning}
+\end{equation}
+donde $\alpha \in (0,1]$ es la tasa de aprendizaje y, en el último paso de un episodio, se omite el término del estado siguiente.
+La diferencia entre corchetes es un error de diferencia temporal: contrasta el valor que se esperaba con lo que efectivamente ocurrió.
+Para que la tabla se estime en todos los pares relevantes, durante el entrenamiento la acción se elige con una política $\varepsilon$-codiciosa \cite{sutton2018rl},
+\begin{equation}
+a_t =
+\begin{cases}
+\arg\max_{a} Q(s_t,a) & \text{con probabilidad } 1-\varepsilon,\\
+\text{una acción elegida al azar} & \text{con probabilidad } \varepsilon,
+\end{cases}
+\label{eq:epsilon}
+\end{equation}
+que equilibra la explotación de lo aprendido con la exploración de alternativas; es habitual reducir $\varepsilon$ a medida que avanza el entrenamiento.
+Si cada par de estado y acción se visita un número suficiente de veces y la tasa de aprendizaje decrece de forma adecuada, la tabla converge a los valores óptimos \cite{watkins1992qlearning}.
+El Algoritmo~\ref{alg:qlearning} resume el procedimiento.
+
+\begin{algorithm}[H]
+\caption[Q-learning tabular]{Q-learning tabular por episodios. Fuente: elaboración propia con base en~\cite{watkins1992qlearning,sutton2018rl}.}
+\label{alg:qlearning}
+\begin{algorithmic}[1]
+\REQUIRE conjuntos finitos de estados y acciones, tasa de aprendizaje $\alpha$, factor de descuento $\gamma$, exploración $\varepsilon$
+\STATE $Q(s,a) \leftarrow 0$ para todo par $(s,a)$
+\FORALL{episodio de entrenamiento}
+  \STATE observar el estado inicial $s$
+  \WHILE{el episodio no ha terminado}
+    \STATE elegir $a$ con la Ecuación~\eqref{eq:epsilon}; aplicarla y observar $r$ y $s'$
+    \STATE actualizar $Q(s,a)$ con la Ecuación~\eqref{eq:qlearning}; \; $s \leftarrow s'$
+  \ENDWHILE
+\ENDFOR
+\ENSURE política $\pi(s) = \arg\max_{a} Q(s,a)$
+\end{algorithmic}
+\end{algorithm}
+
+Para el problema de este proyecto se adopta Q-learning tabular por tres razones.
+La primera es que la acción consiste en elegir entre unos pocos niveles de confianza para una medición, por lo que el conjunto de acciones es discreto y reducido (Sección~\ref{sec:rl-fusion}).
+La segunda es la cantidad limitada de datos de entrenamiento: una tabla sobre un estado discretizado tiene pocos parámetros y es menos propensa que un modelo con muchas variables a memorizar las particularidades de cada recorrido.
+La tercera es que la política resultante se puede leer directamente en la tabla, lo que hace explícitos el estado y la decisión, y su consulta se reduce a un acceso a memoria, de costo despreciable frente al presupuesto de tiempo de cada cuadro.
+
+\subsection{Ajuste adaptativo de la fusión mediante aprendizaje por refuerzo}
+\label{sec:rl-fusion}
+
+La literatura reporta dos formas de emplear el aprendizaje por refuerzo para ajustar la fusión de sensores.
+
+\textbf{Ponderación directa de estimaciones.}
+La manera más sencilla consiste en combinar las estimaciones de dos fuentes utilizando un peso generado por la política:
+\begin{equation}
+\hat{\mathbf{x}} = w\,\hat{\mathbf{x}}_{A} + (1-w)\,\hat{\mathbf{x}}_{B},
+\qquad
+w = \pi_{\boldsymbol{\theta}}(s) \in [0,1].
+\label{eq:ponderacion-directa}
+\end{equation}
+Wong \etal{} utilizan un agente entrenado mediante \textit{Proximal Policy Optimization} para determinar los pesos entre un algoritmo de localización basado en LiDAR y otro basado en SLAM visual \cite{wong2024drlslam}.
+En una formulación de mínimos cuadrados como la Ecuación~\eqref{eq:mincuad}, modificar el peso de un sensor equivale a escalar las matrices de información de sus restricciones; Jia \etal{} adoptan este enfoque mediante un agente actor-crítico que ajusta dinámicamente el peso de cada sensor durante la optimización \cite{jia2021lviofusion}.
+
+\textbf{Adaptación de las covarianzas del filtro.}
+La segunda forma preserva la estructura del filtro de Kalman y permite que la política modifique sus covarianzas.
+Gao \etal{} plantean un filtro de Kalman adaptativo en el que un agente entrenado con un método actor-crítico para acciones continuas ajusta el ruido de proceso de una integración de GNSS con sensores inerciales; la acción se aplica por medio de una función exponencial para conservar el carácter definido positivo de la covarianza, y la recompensa se define como el opuesto del error de posición \cite{gao2020rlakf}.
+En este trabajo se aplica el mismo principio con acciones discretas y sobre una sola medición: la rapidez que aporta la cámara (Sección~\ref{sec:escala-metrica}), cuya confiabilidad cambia con la escena y con la velocidad.
+Durante las interrupciones del GPS, la política escala la varianza de esa medición y se evalúa por el error frente a las soluciones GPS ocultas:
+\begin{equation}
+R^{\mathrm{cam}}_n = \lambda_n\, R^{\mathrm{cam}}_{\mathrm{b}},
+\qquad
+r_n = \sum_{j \in \mathcal{J}_n} \Big( \big\| \hat{\mathbf{p}}^{\mathrm{c}}_j - \mathbf{z}_j \big\| - \big\| \hat{\mathbf{p}}_j - \mathbf{z}_j \big\| \Big) - c_{\lambda}\, \mathbb{1}\!\left[\lambda_n \neq \lambda_{n-1}\right],
+\label{eq:rl-covarianzas}
+\end{equation}
+donde $n$ indexa las decisiones, $\lambda_n$ es la acción, tomada de un conjunto finito de multiplicadores, y $R^{\mathrm{cam}}_{\mathrm{b}}$ la varianza fija del filtro convencional.
+En la recompensa, $\mathcal{J}_n$ reúne las soluciones GPS $\mathbf{z}_j$ comprendidas entre la decisión $n$ y la siguiente, ya sean las ocultas o la primera que se recibe al terminar la interrupción, $\hat{\mathbf{p}}_j$ y $\hat{\mathbf{p}}^{\mathrm{c}}_j$ son las posiciones estimadas por el filtro con la política y por el filtro convencional en la misma interrupción, y $c_{\lambda}$ es una penalización pequeña por cambiar de acción, que evita oscilaciones.
+Con $\lambda_n = 1$ se recupera el filtro convencional, y con $\lambda_n = \infty$ la medición se descarta y el filtro continúa con su propia rapidez y el giroscopio.
+Las soluciones ocultas solo están disponibles cuando las interrupciones se simulan sobre recorridos grabados, de modo que la recompensa se calcula durante el entrenamiento y la evaluación, nunca en operación.
+
+Ambas modalidades guardan una estrecha vinculación.
+De acuerdo con la Ecuación~\eqref{eq:kf-escalar}, la actualización efectuada por el filtro constituye por sí misma una combinación convexa entre la predicción y la observación, cuyos pesos relativos dependen de $\mathbf{Q}_k$ y $\mathbf{R}_k$; en consecuencia, modular las covarianzas representa un método de ponderación que preserva la propagación de la incertidumbre propia del filtro, una ventaja de la que carece la Ecuación~\eqref{eq:ponderacion-directa}.
+Este segundo enfoque es precisamente el que se adopta en la arquitectura de la plataforma desarrollada en el presente estudio.
+
+Respecto al estado, este debe resumir lo que el filtro observa sobre la confiabilidad de la cámara en el momento de decidir.
+Se construye con cinco señales disponibles en el propio filtro,
+\begin{equation}
+\mathbf{s}_n = \left[\, \Delta t^{\mathrm{GPS}}_n,\; \hat{v}_n,\; \sigma^{\mathrm{D/c}}_n,\; \bar{\nu}^{2}_{\mathrm{c},n},\; f^{\mathrm{det}}_n \,\right]^{\top},
+\label{eq:estado-rl}
+\end{equation}
+donde $\Delta t^{\mathrm{GPS}}_n$ es el tiempo transcurrido desde la última solución GPS, $\hat{v}_n$ la rapidez estimada por el filtro, $\sigma^{\mathrm{D/c}}_n$ la dispersión reciente del cociente entre la rapidez Doppler y la de la cámara, $\bar{\nu}^{2}_{\mathrm{c},n}$ la innovación normalizada media de las últimas mediciones de rapidez de la cámara (Ecuación~\eqref{eq:nis}) y $f^{\mathrm{det}}_n$ la fracción reciente de cuadros en que la cámara indica que el vehículo está detenido.
+Cada señal se discretiza en unos pocos niveles, de modo que el estado pertenece a un conjunto finito y la función de valor se representa como una tabla.
+
+El Algoritmo~\ref{alg:ekf-rl} integra los elementos previos en el filtro de la Sección~\ref{sec:fusion}: la política decide el peso de la rapidez de la cámara una vez por segundo, solo mientras el GPS no entrega soluciones, ya que con el GPS presente esa medición no aporta información adicional.
+La concreción de este esquema para la plataforma, incluidos los niveles de cada señal, los multiplicadores y el protocolo de entrenamiento, se expone en el Capítulo~\ref{ch:resultados}.
+
+\begin{algorithm}[H]
+\caption[Filtro de Kalman extendido con el peso de la cámara ajustado por una política]{Filtro de Kalman extendido con el peso de la rapidez de la cámara ajustado por una política. Fuente: elaboración propia con base en~\cite{gao2020rlakf,groves2013gnss}.}
+\label{alg:ekf-rl}
+\begin{algorithmic}[1]
+\REQUIRE tabla $Q$ entrenada, varianza base $R^{\mathrm{cam}}_{\mathrm{b}}$, estado inicial $\hat{\mathbf{x}}_0, \mathbf{P}_0$
+\STATE $\lambda \leftarrow 1$
+\FOR{cada cuadro $k = 1, 2, \ldots$}
+  \STATE obtener $\Delta\psi_k$ del giroscopio con la Ecuación~\eqref{eq:giro}, o de la cámara si no hay muestras
+  \STATE predicción: $\hat{\mathbf{x}}_k^{-}$ con la Ecuación~\eqref{eq:modelo-plano}; \; $\mathbf{P}_k^{-} \leftarrow \mathbf{F}_k\mathbf{P}_{k-1}\mathbf{F}_k^{\top} + \mathbf{Q}_k$; \; $\hat{\mathbf{x}}_k \leftarrow \hat{\mathbf{x}}_k^{-}$; \; $\mathbf{P}_k \leftarrow \mathbf{P}_k^{-}$
+  \IF{hay soluciones GPS recientes}
+    \STATE $\lambda \leftarrow 1$
+  \ELSE
+    \STATE una vez por segundo: construir $\mathbf{s}_n$ según la Ecuación~\eqref{eq:estado-rl}; \; $\lambda \leftarrow \arg\max_{\lambda'} Q(\mathbf{s}_n, \lambda')$
+  \ENDIF
+  \FORALL{medición $\mathbf{z}$ disponible en el cuadro $k$ (GPS o rapidez de la cámara)}
+    \STATE calcular $\bar{\nu}^{2}$ con la Ecuación~\eqref{eq:nis}, con $R^{\mathrm{cam}} = \lambda R^{\mathrm{cam}}_{\mathrm{b}}$ para la rapidez de la cámara
+    \IF{$\bar{\nu}^{2}$ no supera el umbral de validación y la medición no se descarta ($\lambda < \infty$)}
+      \STATE corregir $\hat{\mathbf{x}}_k$ y $\mathbf{P}_k$ con la Ecuación~\eqref{eq:kf-correccion}
+    \ENDIF
+  \ENDFOR
+\ENDFOR
+\end{algorithmic}
+\end{algorithm}
+
+\section{Operación en tiempo real}
+\label{sec:tiempo-real}
+
+Se define como un sistema de tiempo real aquel cuya validez operativa no solo descansa en la exactitud del resultado obtenido, sino también en el momento preciso en que este es emitido \cite{buttazzo2011realtime}.
+En función de las repercusiones asociadas a la transgresión de un límite temporal, se identifican diversos niveles de exigencia: mientras que en un esquema de tiempo real estricto cualquier retraso constituye una falla crítica, en uno de carácter flexible el incumplimiento deteriora la calidad del servicio sin llegar a invalidarlo por completo \cite{buttazzo2011realtime}.
+La arquitectura implementada en este proyecto se adscribe a esta segunda categoría: si un cuadro no logra procesarse dentro del plazo estipulado, la estimación experimenta una pérdida transitoria de continuidad y precisión, si bien el mecanismo conserva la capacidad de recuperarse en las iteraciones subsiguientes.
+
+De acuerdo con la terminología de~\cite{buttazzo2011realtime}, cada cuadro puede considerarse una tarea que se genera en el instante de captura $t_k^{\mathrm{cap}}$, necesita un tiempo de cómputo $C_k$ y finaliza en el instante $t_k^{\mathrm{fin}}$.
+Cuando la cámara funciona a una frecuencia $f_c$, se recibe un nuevo cuadro cada $\Delta t_c = 1/f_c$, por lo que se definen
+\begin{equation}
+C_k = \sum_{j} C_{k,j},
+\qquad
+L_k = t_k^{\mathrm{fin}} - t_k^{\mathrm{cap}},
+\label{eq:tiempo-real}
+\end{equation}
+donde $C_{k,j}$ representa el tiempo requerido por cada etapa del procesamiento y $L_k$ corresponde a la latencia del cuadro, que también contempla el tiempo transcurrido desde la captura hasta el comienzo del procesamiento.
+Para evitar que el procesamiento acumule retraso con respecto a la captura, el tiempo de cómputo debe satisfacer $C_k \le \Delta t_c$, lo que para una cámara de 30~Hz representa aproximadamente 33,3~ms por cuadro.
+
+Cuando un cuadro sobrepasa ese presupuesto, el sistema ha de decidir qué hacer con los que arriban mientras tanto.
+Si se guardan en una cola para procesarlos todos, no se pierde ninguno, pero cada cuadro aguarda más que el anterior y la latencia se incrementa sin límite.
+La alternativa, apropiada para un sistema de tiempo real flexible, consiste en omitir algunas instancias de la tarea a fin de preservar la oportunidad de las demás \cite{buttazzo2011realtime}.
+Una manera de llevarla a cabo es una cola de una sola posición, en la cual cada cuadro nuevo sustituye al que estuviera en espera, de modo que el procesamiento prosigue siempre con la imagen más reciente, como se muestra en la Fig.~\ref{fig:descarte}.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[font=\footnotesize, x=1.35cm, y=1cm]
+% filas
+\node[anchor=east, align=right] at (-0.2,0.45) {procesamiento\\principal};
+\node[anchor=east, align=right] at (-0.2,-1.3) {hilo de\\profundidad};
+\draw[-{Stealth[length=2mm]}] (0,0) -- (8.6,0) node[right] {$t$};
+\draw[-{Stealth[length=2mm]}] (0,-1.75) -- (8.6,-1.75) node[right] {$t$};
+% llegadas de cuadros
+\foreach \x/\l in {0/k, 4/{k+2}, 6/{k+3}} {
+  \draw[-{Stealth[length=1.8mm]}] (\x,1.75) -- (\x,0.85);
+  \node[above] at (\x,1.75) {$t^{\mathrm{cap}}_{\l}$};
+}
+\draw[-{Stealth[length=1.8mm]}, dashed] (2,1.75) -- (2,0.85);
+\node[above] at (2,1.75) {$t^{\mathrm{cap}}_{k+1}$};
+% procesamiento principal
+\draw[fill=black!12] (0,0.15) rectangle (4.6,0.75);
+\node[font=\scriptsize] at (2.3,0.45) {cuadro $k$ (excede el presupuesto)};
+\draw[fill=black!12] (4.6,0.15) rectangle (6.2,0.75);
+\node[font=\scriptsize] at (5.4,0.45) {$k{+}2$};
+\draw[fill=black!12] (6.2,0.15) rectangle (7.8,0.75);
+\node[font=\scriptsize] at (7.0,0.45) {$k{+}3$};
+% cuadro descartado
+\node[font=\scriptsize, align=right, anchor=east] at (1.93,1.3) {descartado al\\llegar $k{+}2$};
+% periodo y latencia
+\draw[{Stealth[length=1.6mm]}-{Stealth[length=1.6mm]}] (0,2.5) -- (2,2.5) node[midway, above] {$\Delta t_c$};
+\draw[{Stealth[length=1.6mm]}-{Stealth[length=1.6mm]}] (4,-0.4) -- (6.2,-0.4) node[midway, below, font=\scriptsize] {latencia $L_{k+2}$};
+% hilo de profundidad
+\draw[fill=black!5] (0.3,-1.6) rectangle (3.6,-1.0);
+\node[font=\scriptsize] at (1.95,-1.3) {inferencia de profundidad};
+\draw[fill=black!5] (3.6,-1.6) rectangle (6.9,-1.0);
+\node[font=\scriptsize] at (5.25,-1.3) {inferencia de profundidad};
+\draw[-{Stealth[length=1.6mm]}, thick] (3.6,-1.0) -- (3.6,0.15) node[pos=0.45, left, font=\scriptsize] {rapidez};
+\end{tikzpicture}
+\caption[Descarte de cuadros y procesamiento asíncrono]{Descarte de cuadros con una cola de una sola posición y procesamiento asíncrono de la profundidad. Mientras se procesa el cuadro $k$, el cuadro $k{+}1$ queda en espera y es reemplazado por $k{+}2$. Las duraciones son ilustrativas. Fuente: elaboración propia con base en la terminología de~\cite{buttazzo2011realtime}.}
+\label{fig:descarte}
+\end{figure}
+
+Bajo esta estrategia de control, el comportamiento temporal del sistema queda caracterizado por la latencia $L_k$ junto con dos parámetros complementarios: la fracción de cuadros descartados y la tasa de procesamiento efectiva:
+\begin{equation}
+q_{\mathrm{desc}} = \frac{N_{\mathrm{desc}}}{N_{\mathrm{proc}} + N_{\mathrm{desc}}},
+\qquad
+f_{\mathrm{ef}} = \frac{N_{\mathrm{proc}}}{T_{\mathrm{ses}}},
+\label{eq:descarte}
+\end{equation}
+en donde $N_{\mathrm{proc}}$ y $N_{\mathrm{desc}}$ denotan el número de cuadros procesados y descartados a lo largo de una sesión con una duración $T_{\mathrm{ses}}$.
+Dado que un valor promedio satisfactorio puede enmascarar cuadros aislados que sobrepasan considerablemente el presupuesto asignado, tanto el tiempo de cálculo como la latencia se analizan también a través de percentiles elevados de su distribución estadística, y no exclusivamente mediante su media aritmética.
+
+Las etapas con un costo considerablemente mayor que el de las demás pueden ejecutarse de manera asíncrona, mediante un hilo independiente que proporciona resultados con menor frecuencia.
+Este es el caso de la estimación de escala descrita en la Sección~\ref{sec:escala-metrica}: la inferencia de la red de profundidad constituye la etapa de mayor costo, pero la rapidez que genera cambia lentamente y puede conservarse entre actualizaciones sin interrumpir el procesamiento principal.
+
+La consecuencia práctica radica en que toda decisión que eleve la precisión debe valorarse asimismo por su costo temporal.
+Extraer más características disminuye el error de cada factor de la Ecuación~\eqref{eq:composicion}, pero eleva el costo de la detección y del emparejamiento; incrementar las iteraciones de RANSAC conforme a la Ecuación~\eqref{eq:ransac-iter} aumenta el de la estimación de la pose; en cambio, consultar una política tabular apenas suma costo.
+La manera en que se resolvieron dichos compromisos se documenta en el Capítulo~\ref{ch:resultados}.
+
+\section{Métricas de evaluación de trayectorias}
+\label{sec:metricas}
+
+La evaluación de un sistema de localización demanda contrastar la trayectoria estimada, integrada por las poses $\hat{\mathbf{T}}_1,\ldots,\hat{\mathbf{T}}_n$, frente a una secuencia de referencia $\mathbf{T}^{\mathrm{ref}}_1,\ldots,\mathbf{T}^{\mathrm{ref}}_n$ dotada de mayor exactitud.
+Dado que ambas trayectorias se representan en marcos de coordenadas diferentes y, bajo la modalidad monocular, con escalas desemejantes, el análisis comparativo inicia con su alineación.
+Dicho proceso de alineación persigue hallar la transformación de semejanza, constituida por un factor de escala $s$, una rotación $\mathbf{R}$ y una traslación $\mathbf{t}$, que logre superponer de manera óptima las ubicaciones estimadas $\hat{\mathbf{p}}_i$ sobre las posiciones de referencia $\mathbf{p}^{\mathrm{ref}}_i$ \cite{umeyama1991alignment}:
+\begin{equation}
+(s^{*},\mathbf{R}^{*},\mathbf{t}^{*}) = \arg\min_{s,\mathbf{R},\mathbf{t}} \; \frac{1}{n}\sum_{i=1}^{n} \left\| \mathbf{p}^{\mathrm{ref}}_i - \left(s\,\mathbf{R}\,\hat{\mathbf{p}}_i + \mathbf{t}\right) \right\|^{2},
+\label{eq:alineacion}
+\end{equation}
+cuyo cálculo posee una solución analítica cerrada basada en la descomposición en valores singulares.
+A la transformación resultante se le asigna la notación $\mathbf{T}_{\mathrm{al}}$.
+En aquellas situaciones donde la trayectoria estimada ya dispone de una escala métrica —como sucede al fusionarla con el sistema GPS—, el procedimiento de alineación se restringe a una transformación de carácter rígido con $s=1$ \cite{sturm2012benchmark}, de modo que cualquier sesgo de escala se vea reflejado en la métrica de evaluación en lugar de ser compensado de manera artificial.
+
+A partir de las trayectorias alineadas, se calculan dos métricas complementarias de uso extendido en la literatura del área \cite{sturm2012benchmark}.
+Utilizando una notación adaptada de dicha referencia y definiendo $\operatorname{trans}(\cdot)$ como la componente de traslación de una transformación:
+
+\textbf{Error absoluto de trayectoria (ATE).}
+Compara cada pose estimada y alineada con la pose de referencia del mismo instante:
+\begin{equation}
+\mathbf{e}^{\mathrm{abs}}_i = \operatorname{trans}\!\left( \left(\mathbf{T}^{\mathrm{ref}}_i\right)^{-1} \mathbf{T}_{\mathrm{al}}\, \hat{\mathbf{T}}_i \right),
+\qquad
+\mathrm{ATE} = \left( \frac{1}{n}\sum_{i=1}^{n} \left\| \mathbf{e}^{\mathrm{abs}}_i \right\|^{2} \right)^{1/2}.
+\label{eq:ate}
+\end{equation}
+
+\textbf{Error relativo de pose (RPE).}
+Compara el movimiento ocurrido en un intervalo fijo $\Delta$, en lugar de las posiciones:
+\begin{equation}
+\begin{aligned}
+\mathbf{e}^{\mathrm{rel}}_i &= \operatorname{trans}\!\left( \left( \left(\mathbf{T}^{\mathrm{ref}}_i\right)^{-1} \mathbf{T}^{\mathrm{ref}}_{i+\Delta} \right)^{-1} \left( \hat{\mathbf{T}}_i^{-1}\, \hat{\mathbf{T}}_{i+\Delta} \right) \right),\\
+\mathrm{RPE}(\Delta) &= \left( \frac{1}{m}\sum_{i=1}^{m} \left\| \mathbf{e}^{\mathrm{rel}}_i \right\|^{2} \right)^{1/2},
+\end{aligned}
+\label{eq:rpe}
+\end{equation}
+con $m = n - \Delta$.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[font=\footnotesize, x=1cm, y=1.7cm]
+% ----- (a) ATE -----
+\begin{scope}
+\coordinate (r1) at (0,0);    \coordinate (e1) at (0,0);
+\coordinate (r2) at (1.2,0.5);\coordinate (e2) at (1.2,0.65);
+\coordinate (r3) at (2.4,0.8);\coordinate (e3) at (2.45,1.15);
+\coordinate (r4) at (3.6,0.8);\coordinate (e4) at (3.7,1.4);
+\coordinate (r5) at (4.8,0.5);\coordinate (e5) at (4.95,1.35);
+\coordinate (r6) at (6.0,0.0);\coordinate (e6) at (6.2,1.05);
+\draw[thick] plot[smooth] coordinates {(r1)(r2)(r3)(r4)(r5)(r6)};
+\draw[thick, dashed] plot[smooth] coordinates {(e1)(e2)(e3)(e4)(e5)(e6)};
+\foreach \i in {2,...,6} {
+  \fill (r\i) circle (1.3pt); \fill (e\i) circle (1.3pt);
+  \draw[densely dotted, very thick] (r\i) -- (e\i);
+}
+\node[right] at (6.25,1.15) {$\mathbf{e}^{\mathrm{abs}}_{6}$};
+\node[anchor=north] at (3,-0.3) {(a) ATE: diferencia de posiciones};
+\end{scope}
+% ----- (b) RPE -----
+\begin{scope}[xshift=8.0cm]
+\coordinate (r1) at (0,0);    \coordinate (e1) at (0,0);
+\coordinate (r2) at (1.2,0.5);\coordinate (e2) at (1.2,0.65);
+\coordinate (r3) at (2.4,0.8);\coordinate (e3) at (2.45,1.15);
+\coordinate (r4) at (3.6,0.8);\coordinate (e4) at (3.7,1.4);
+\coordinate (r5) at (4.8,0.5);\coordinate (e5) at (4.95,1.35);
+\coordinate (r6) at (6.0,0.0);\coordinate (e6) at (6.2,1.05);
+\draw[thick, black!35] plot[smooth] coordinates {(r1)(r2)(r3)(r4)(r5)(r6)};
+\draw[thick, dashed, black!35] plot[smooth] coordinates {(e1)(e2)(e3)(e4)(e5)(e6)};
+\draw[-{Stealth[length=2mm]}, very thick] (r3) -- (r4);
+\draw[-{Stealth[length=2mm]}, very thick, dashed] (e3) -- (e4);
+\fill (r3) circle (1.3pt); \fill (r4) circle (1.3pt);
+\fill (e3) circle (1.3pt); \fill (e4) circle (1.3pt);
+\node[below] at (3.0,0.55) {$i \rightarrow i{+}\Delta$};
+\node[anchor=north, align=center] at (3,-0.3) {(b) RPE: diferencia de desplazamientos};
+\end{scope}
+% leyenda
+\draw[thick] (2.3,-0.95) -- (3.1,-0.95) node[right] {referencia};
+\draw[thick, dashed] (5.6,-0.95) -- (6.4,-0.95) node[right] {estimada y alineada};
+\end{tikzpicture}
+\caption[Diferencia entre ATE y RPE]{Diferencia entre ATE y RPE. La trayectoria estimada acumula deriva, por lo que su ATE es alto; sin embargo, sus desplazamientos locales se parecen a los de referencia, por lo que su RPE es bajo. Fuente: elaboración propia con base en~\cite{sturm2012benchmark}.}
+\label{fig:ate-rpe}
+\end{figure}
+
+La Fig.~\ref{fig:ate-rpe} evidencia por qué ambas métricas se presentan de forma conjunta.
+El ATE cuantifica la consistencia global y está dominado por la deriva acumulada, dado que un desvío progresivo genera errores crecientes.
+El RPE cuantifica la calidad local y resulta en buena medida insensible a dicha deriva, pues un error introducido al inicio no afecta los desplazamientos medidos con posterioridad.
+Un sistema con RPE bajo y ATE alto estima correctamente el movimiento instante a instante pero acumula error; la situación opuesta señala una estimación localmente ruidosa cuyos errores se compensan a lo largo del recorrido.
+
+\textbf{Deriva durante interrupciones del GPS.}
+Con el propósito de auditar el desempeño del sistema ante la ausencia de señal satelital, resulta de gran interés analizar la distancia espacial entre la posición estimada y la de referencia a lo largo del tiempo,
+\begin{equation}
+d(t) = \left\| \hat{\mathbf{p}}(t) - \mathbf{p}^{\mathrm{ref}}(t) \right\|,
+\qquad
+d_{\%} = 100\,\frac{d_{\mathrm{f}}}{\ell},
+\label{eq:deriva}
+\end{equation}
+en donde $d_{\mathrm{f}}$ corresponde a la separación existente al concluir el periodo de interrupción y $\ell$ representa la longitud del trayecto recorrido durante dicho lapso.
+Expresar la deriva en función del porcentaje de la distancia recorrida facilita la comparación entre segmentos de longitud variable, siguiendo un criterio homólogo al empleado en la evaluación de odometría del conjunto de datos KITTI, el cual cuantifica el error traslacional como una proporción de la distancia cubierta en los tramos analizados \cite{geiger2012kitti}.
+Una estrategia metodológica para simular estas interrupciones de forma controlada consiste en deshabilitar las correcciones del GPS durante un intervalo específico dentro de una ruta previamente registrada, contrastando posteriormente la estimación obtenida frente a las mediciones de referencia que fueron omitidas.
+
+Para aplicar estas métricas, se requiere una trayectoria de referencia con mayor precisión que la del sistema bajo evaluación.
+Los conjuntos de datos públicos diseñados para este propósito obtienen dicha trayectoria mediante equipos de posicionamiento de alta precisión instalados en el vehículo de captura; entre ellos, el conjunto KITTI proporciona secuencias registradas en condiciones viales reales junto con sus trayectorias de referencia \cite{geiger2012kitti}.
+En las pruebas efectuadas con equipo propio no se cuenta con una referencia de precisión equivalente, por lo que únicamente se dispone del GPS del teléfono, cuyo error de varios metros, descrito en la Sección~\ref{sec:gps-movil}, restringe el nivel de detalle de la comparación; en estas condiciones, la evaluación se basa principalmente en la deriva durante interrupciones simuladas y en comparaciones relativas entre distintas configuraciones del sistema, tema que se retoma en el Capítulo~\ref{ch:solucion}.
+Por último, debido a que la plataforma funciona bajo una restricción temporal, su evaluación también considera las cantidades definidas en las Ecuaciones~\eqref{eq:tiempo-real} y~\eqref{eq:descarte}, con el fin de evitar que una mejora en la precisión obtenida a costa de incumplir el presupuesto de tiempo se considere una mejora del sistema.
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "main"
+%%% End:
