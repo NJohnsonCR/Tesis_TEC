@@ -1,25 +1,54 @@
+%% ---------------------------------------------------------------------------
+%% resumen.tex
+%%
+%% Resumen (máximo 300 palabras, Lineamientos V4.1) y su traducción fiel al inglés,
+%% con el formato del TFG de ejemplo: contexto, qué se desarrolló, cómo, resultados,
+%% limitaciones y recomendaciones. Las palabras clave están en \scriptKeywords (main.tex).
+%% Cifras: Capítulo 4 (tab:res-modos, tab:res-tiempo-real, tab:res-campo, tab:res-rl).
+%%
+%% Convención de escritura: una oración por línea del archivo fuente.
+%% ---------------------------------------------------------------------------
+
 \chapter*{Resumen}
 \thispagestyle{empty}
 
-
-
+La localización de un vehículo con sensores de bajo costo enfrenta dos limitaciones: la odometría visual monocular acumula deriva y carece de escala propia, y el GPS de un teléfono tiene errores de varios metros y puede perder la señal.
+En este contexto, se desarrolló una plataforma SLAM híbrida que estima en tiempo real la posición de un vehículo combinando la cámara, el GPS y el giroscopio de un teléfono.
+La solución incluye una aplicación Android que transmite el video y los sensores, y un canal de procesamiento con odometría visual basada en ORB, escala métrica a partir de profundidad monocular, un filtro de Kalman extendido y una ventana con la trayectoria en vivo.
+Además, una política de aprendizaje por refuerzo, entrenada con Q-learning tabular, decide cuánto confiar en la rapidez de la cámara durante las pérdidas del GPS.
+El desarrollo siguió una estrategia incremental.
+Sobre siete grabaciones en vehículo, con el GPS del teléfono como referencia, la plataforma obtuvo un error absoluto de trayectoria de 2,2~m, frente a 2087~m de la cámara sola.
+En una computadora de escritorio procesó 30 cuadros por segundo con una latencia de 107~ms en el percentil 95, y en la prueba de campo procesó en vivo cuatro recorridos en una portátil.
+La política, evaluada dejando fuera cada sesión, redujo el percentil 90 del error en los cortes de GPS de 30~s de 170 a 128~m frente al filtro convencional, con un aporte moderado que no se traslada a otro dominio.
+Las grabaciones carecen de una referencia de alta precisión, y la escala de la cámara limita la estimación durante las pérdidas largas del GPS.
+Se recomienda una referencia más precisa, mejorar la escala a rapideces altas y medir el uso de recursos computacionales.
 \bigskip
 
-\textbf{Palabras clave:} \scriptKeywords
+\textbf{Palabras clave:} \scriptKeywords.
 
 \clearpage
 \chapter*{Abstract}
 \thispagestyle{empty}
 
-
-
+\begin{otherlanguage*}{english}
+Locating a vehicle with low-cost sensors faces two limitations: monocular visual odometry accumulates drift and lacks a scale of its own, and a phone's GPS has errors of several meters and can lose the signal.
+In this context, a hybrid SLAM platform was developed that estimates the position of a vehicle in real time by combining the camera, the GPS and the gyroscope of a phone.
+The solution includes an Android application that streams the video and the sensors, and a processing pipeline with ORB-based visual odometry, metric scale from monocular depth, an extended Kalman filter, and a window with the live trajectory.
+In addition, a reinforcement learning policy, trained with tabular Q-learning, decides how much to trust the camera's speed during GPS outages.
+The development followed an incremental strategy.
+On seven in-vehicle recordings, with the phone's GPS as reference, the platform achieved an absolute trajectory error of 2.2~m, compared with 2087~m for the camera alone.
+On a desktop computer it processed 30 frames per second with a latency of 107~ms at the 95th percentile, and in the field test it processed four drives live on a laptop.
+The policy, evaluated leaving each session out, reduced the 90th percentile of the error in 30~s GPS outages from 170 to 128~m compared with the conventional filter, with a moderate contribution that does not transfer to another domain.
+The recordings lack a high-precision reference, and the camera's scale limits the estimate during long GPS outages.
+A more precise reference, a better scale at high speeds, and measuring the use of computational resources are recommended.
 \bigskip
 
-\textbf{Keywords:}
+\textbf{Keywords:} computer vision, sensor fusion, reinforcement learning, monocular visual SLAM, GPS, real time.
+\end{otherlanguage*}
 
 \cleardoublepage
 
-%%% Local Variables: 
+%%% Local Variables:
 %%% mode: latex
 %%% TeX-master: "main"
-%%% End: 
+%%% End:

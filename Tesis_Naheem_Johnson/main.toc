@@ -57,26 +57,37 @@
 \contentsline {subsection}{\numberline {3.3.2}Fase 2: diseño e implementación de la plataforma}{43}{subsection.3.3.2}%
 \contentsline {subsection}{\numberline {3.3.3}Fase 3: validación experimental}{45}{subsection.3.3.3}%
 \contentsline {subsection}{\numberline {3.3.4}Fase 4: análisis de resultados y documentación}{46}{subsection.3.3.4}%
-\contentsline {section}{\numberline {3.4}Herramientas y recursos}{46}{section.3.4}%
+\contentsline {section}{\numberline {3.4}Herramientas y recursos}{47}{section.3.4}%
 \contentsline {section}{\numberline {3.5}Actores participantes}{48}{section.3.5}%
 \contentsline {section}{\numberline {3.6}Desglose del marco metodológico}{48}{section.3.6}%
 \contentsline {chapter}{\numberline {4}Descripción del trabajo realizado}{50}{chapter.4}%
 \contentsline {section}{\numberline {4.1}Descripción del proceso de solución}{50}{section.4.1}%
 \contentsline {subsection}{\numberline {4.1.1}Requerimientos de la plataforma}{50}{subsection.4.1.1}%
 \contentsline {subsection}{\numberline {4.1.2}Arquitectura de la plataforma}{52}{subsection.4.1.2}%
-\contentsline {subsection}{\numberline {4.1.3}Estimación de la escala métrica}{54}{subsection.4.1.3}%
-\contentsline {subsection}{\numberline {4.1.4}Corrección de la odometría visual}{55}{subsection.4.1.4}%
-\contentsline {subsection}{\numberline {4.1.5}Filtro de fusión}{56}{subsection.4.1.5}%
-\contentsline {subsection}{\numberline {4.1.6}Mecanismo de aprendizaje por refuerzo}{59}{subsection.4.1.6}%
-\contentsline {section}{\numberline {4.2}Análisis de los resultados obtenidos}{61}{section.4.2}%
-\contentsline {subsection}{\numberline {4.2.1}Comportamiento en tiempo real}{62}{subsection.4.2.1}%
-\contentsline {subsection}{\numberline {4.2.2}Prueba de campo}{63}{subsection.4.2.2}%
-\contentsline {subsection}{\numberline {4.2.3}Precisión de la localización}{64}{subsection.4.2.3}%
-\contentsline {subsection}{\numberline {4.2.4}Aporte del aprendizaje por refuerzo}{65}{subsection.4.2.4}%
-\contentsline {subsection}{\numberline {4.2.5}Limitaciones de la solución}{67}{subsection.4.2.5}%
-\contentsline {chapter}{\numberline {5}Conclusiones}{68}{chapter.5}%
-\contentsline {section}{\numberline {5.1}Recomendaciones}{68}{section.5.1}%
-\contentsline {chapter}{Bibliograf\'{\i }a}{69}{chapter*.19}%
-\contentsline {chapter}{\numberline {A}APENDICE A}{72}{appendix.A}%
-\contentsline {chapter}{\numberline {B}APENDICE B}{73}{appendix.B}%
-\contentsline {chapter}{\numberline {C}APENDICE C}{74}{appendix.C}%
+\contentsline {subsection}{\numberline {4.1.3}Aplicación móvil}{54}{subsection.4.1.3}%
+\contentsline {subsection}{\numberline {4.1.4}Interfaz de la plataforma}{55}{subsection.4.1.4}%
+\contentsline {subsection}{\numberline {4.1.5}Estimación de la escala métrica}{55}{subsection.4.1.5}%
+\contentsline {subsection}{\numberline {4.1.6}Corrección de la odometría visual}{57}{subsection.4.1.6}%
+\contentsline {subsection}{\numberline {4.1.7}Filtro de fusión}{58}{subsection.4.1.7}%
+\contentsline {subsection}{\numberline {4.1.8}Mecanismo de aprendizaje por refuerzo}{61}{subsection.4.1.8}%
+\contentsline {section}{\numberline {4.2}Análisis de los resultados obtenidos}{63}{section.4.2}%
+\contentsline {subsection}{\numberline {4.2.1}Comportamiento en tiempo real}{64}{subsection.4.2.1}%
+\contentsline {subsection}{\numberline {4.2.2}Prueba de campo}{65}{subsection.4.2.2}%
+\contentsline {subsection}{\numberline {4.2.3}Trayectorias largas}{66}{subsection.4.2.3}%
+\contentsline {subsection}{\numberline {4.2.4}Precisión de la localización}{66}{subsection.4.2.4}%
+\contentsline {subsection}{\numberline {4.2.5}Aporte del aprendizaje por refuerzo}{69}{subsection.4.2.5}%
+\contentsline {subsection}{\numberline {4.2.6}Un corte del GPS con la política}{72}{subsection.4.2.6}%
+\contentsline {subsection}{\numberline {4.2.7}Limitaciones de la solución}{73}{subsection.4.2.7}%
+\contentsline {chapter}{\numberline {5}Conclusiones y recomendaciones}{75}{chapter.5}%
+\contentsline {section}{\numberline {5.1}Conclusiones}{75}{section.5.1}%
+\contentsline {section}{\numberline {5.2}Recomendaciones}{76}{section.5.2}%
+\contentsline {chapter}{Bibliograf\'{\i }a}{78}{chapter*.25}%
+\contentsline {chapter}{\numberline {A}APENDICE 1: Implicaciones ambientales y de desarrollo sostenible}{82}{appendix.A}%
+\contentsline {section}{\numberline {A.1}Aspectos sociales}{82}{section.A.1}%
+\contentsline {section}{\numberline {A.2}Aspectos económicos}{83}{section.A.2}%
+\contentsline {section}{\numberline {A.3}Aspectos legales}{83}{section.A.3}%
+\contentsline {section}{\numberline {A.4}Aspectos ambientales}{84}{section.A.4}%
+\contentsline {section}{\numberline {A.5}Aspectos de seguridad}{84}{section.A.5}%
+\contentsline {section}{\numberline {A.6}Aspectos de salud}{85}{section.A.6}%
+\contentsline {chapter}{\numberline {B}APENDICE B}{86}{appendix.B}%
+\contentsline {chapter}{\numberline {C}APENDICE C}{87}{appendix.C}%

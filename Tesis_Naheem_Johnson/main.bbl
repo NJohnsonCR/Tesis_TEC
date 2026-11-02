@@ -1,5 +1,15 @@
 \begin{thebibliography}{10}
 
+\bibitem{onu2015agenda2030}
+{Asamblea General de las Naciones Unidas}.
+\newblock Transformar nuestro mundo: la agenda 2030 para el desarrollo sostenible.
+\newblock Resolución A/RES/70/1, 2015.
+
+\bibitem{ley8968}
+{Asamblea Legislativa de la República de Costa Rica}.
+\newblock Ley n.\textsuperscript{o} 8968: Protección de la persona frente al tratamiento de sus datos personales, 2011.
+\newblock \foreignlanguage{spanish}{[En línea]. Disponible en:} \url{https://www.sutel.go.cr/sites/default/files/normativas/ley_proteccion_de_la_persona_frente_al_tratamiento_de_sus_ley_8968.pdf}.
+
 \bibitem{buttazzo2011realtime}
 Giorgio~C. Buttazzo.
 \newblock {\em Hard Real-Time Computing Systems: Predictable Scheduling Algorithms and Applications}.
@@ -70,6 +80,11 @@ Rudolph~E. Kalman.
 \newblock A new approach to linear filtering and prediction problems.
 \newblock {\em Transactions of the {ASME} --- Journal of Basic Engineering}, 82(1):35--45, 1960.
 \newblock \url{https://doi.org/10.1115/1.3662552}.
+
+\bibitem{kitti_web}
+{Karlsruhe Institute of Technology y Toyota Technological Institute at Chicago}.
+\newblock The {KITTI} vision benchmark suite, 2026.
+\newblock \foreignlanguage{spanish}{[En línea]. Disponible en:} \url{https://www.cvlibs.net/datasets/kitti/}.
 
 \bibitem{lowe2004sift}
 David~G. Lowe.
@@ -175,6 +190,11 @@ Lihe Yang, Bingyi Kang, Zilong Huang, Zhen Zhao, Xiaogang Xu, Jiashi Feng, and H
 \newblock Depth anything {V2}.
 \newblock In {\em Advances in Neural Information Processing Systems ({NeurIPS})}, 2024.
 \newblock \url{https://doi.org/10.52202/079017-0688}.
+
+\bibitem{depthanything_repo}
+Lihe Yang, Bingyi Kang, Zilong Huang, Zhen Zhao, Xiaogang Xu, Jiashi Feng, and Hengshuang Zhao.
+\newblock Depth anything {V2}, 2024.
+\newblock \foreignlanguage{spanish}{Repositorio de código. [En línea]. Disponible en:} \url{https://github.com/DepthAnything/Depth-Anything-V2}.
 
 \bibitem{zangenehnejad2021smartphone}
 Farzaneh Zangenehnejad and Yang Gao.

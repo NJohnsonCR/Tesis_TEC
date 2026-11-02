@@ -210,7 +210,8 @@ Las cifras de precisión se obtienen procesando las grabaciones en el modo deter
 El comportamiento temporal se mide además en el modo estricto y en operación en vivo, que son los que reflejan la latencia y el descarte de cuadros reales.
 
 \textbf{Configuraciones comparadas.}
-Sobre las mismas grabaciones se comparan tres configuraciones: la plataforma con información exclusivamente visual, la fusión con el filtro convencional y la fusión con el peso de la rapidez de la cámara ajustado por la política.
+Sobre las mismas grabaciones se comparan cuatro modos del mismo filtro, con el mismo arranque: la cámara sola, que constituye la plataforma con información exclusivamente visual, la cámara con el giroscopio, la cámara con el GPS y la configuración completa, con la cámara, el giroscopio y el GPS.
+La fusión con el peso de la rapidez de la cámara ajustado por la política se compara con el filtro convencional en cortes de GPS simulados, ya que con el GPS presente ambos coinciden.
 La plataforma previa no se emplea como referencia de comparación: la comparación del cuarto objetivo se realiza dentro del mismo canal de procesamiento, que puede ejecutar una grabación con fusión o en modo exclusivamente visual.
 
 \textbf{Referencias de evaluación.}
@@ -221,7 +222,7 @@ La robustez ante un GPS de mala calidad se evalúa degradando de forma sintétic
 
 \textbf{Métricas y formas de análisis.}
 Las métricas son las de las Secciones~\ref{sec:tiempo-real} y~\ref{sec:metricas}: el error absoluto de trayectoria tras una alineación rígida, la deriva durante los cortes de GPS, la latencia, la tasa de descarte, la frecuencia efectiva y el tiempo de cómputo por etapa, este último descrito mediante percentiles además del promedio.
-El error relativo de pose y la utilización de recursos computacionales, comprometidos en el anteproyecto, se incorporan a la herramienta de evaluación en esta fase.
+El error relativo de pose, comprometido en el anteproyecto, se incorpora a la herramienta de evaluación en esta fase, mientras que la medición de la utilización de recursos computacionales queda como trabajo futuro (Capítulo~\ref{ch:conclusiones}).
 Los resultados se analizan por grabación y de forma agregada, comparando cada configuración con la anterior sobre los mismos datos.
 
 \textbf{Pruebas de campo.}

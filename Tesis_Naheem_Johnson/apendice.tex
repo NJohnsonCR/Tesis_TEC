@@ -1,7 +1,104 @@
-\chapter{APENDICE A}
+%% ---------------------------------------------------------------------------
+%% apendice.tex
+%%
+%% Apéndice A: implicaciones ambientales y de desarrollo sostenible (obligatorio
+%% según los Lineamientos V4.1; estructura del TFG de ejemplo). Apéndices B y C:
+%% sin contenido.
+%%
+%% Convención de escritura: una oración por línea del archivo fuente.
+%% ---------------------------------------------------------------------------
+
+\chapter{APENDICE 1: Implicaciones ambientales y de desarrollo sostenible}
 \label{appendix:apendiceA}
 
+Este apéndice analiza las implicaciones de la plataforma SLAM híbrida en tiempo real sobre la sociedad y sobre el ejercicio profesional de la ingeniería en computadores.
+Para cada aspecto se identifican los impactos actuales y potenciales, se relacionan con los Objetivos de Desarrollo Sostenible (ODS) de las Naciones Unidas \cite{onu2015agenda2030} y se plantean proyecciones para el área de la localización y la fusión sensorial.
+El análisis parte de la plataforma desarrollada y de sus resultados (Capítulo~\ref{ch:resultados}), no de un sistema ideal.
 
+\section{Aspectos sociales}
+
+\textbf{Identificación y análisis:}
+La plataforma estima la posición de un vehículo en tiempo real con los sensores de un teléfono inteligente de consumo y una computadora con tarjeta gráfica, sin equipos especializados de posicionamiento, lo que reduce la barrera de entrada para experimentar con localización y fusión sensorial en ámbitos académicos.
+Además, queda documentada como una plataforma experimental para la Escuela de Ingeniería en Computadores.
+El principal riesgo social es que se confíe en la estimación más de lo que corresponde: sin GPS, el error crece hasta cientos o miles de metros en pocos minutos, en los cortes de 30~s la mediana del error al volver el GPS llega a 101~m en la configuración completa (Tabla~\ref{tab:res-modos}), y la política de aprendizaje por refuerzo no se traslada a un dominio con otra aplicación y otra cámara.
+Por ello, la plataforma no debe usarse como única fuente de posición para tomar decisiones de conducción.
+
+\textbf{Relación con los ODS:}
+se relaciona con el ODS 4 (educación de calidad), por su uso como herramienta de experimentación e investigación, y con el ODS 11 (ciudades y comunidades sostenibles), por su aporte a la localización en aplicaciones de movilidad.
+
+\textbf{Proyecciones:}
+con más recorridos y una referencia de mayor precisión, la plataforma podría apoyar la investigación en asistencia a la conducción y robótica móvil con sensores de bajo costo.
+Para ello debe comunicar la incertidumbre de su estimación, de modo que quien la use sepa cuándo no confiar en ella.
+
+\section{Aspectos económicos}
+
+\textbf{Identificación y análisis:}
+La plataforma se construyó con herramientas gratuitas o de código abierto, como Python, OpenCV, PyTorch y Android Studio, y con el modelo de profundidad Depth Anything~V2 \cite{yang2024depthanything}, y se ejecuta sin conexión a internet (requerimiento RC-1), de modo que no depende de servicios de pago en la nube.
+Los sensores son los de un teléfono de consumo, en lugar de receptores de posicionamiento de alta precisión o de sensores LiDAR.
+El costo principal es el cómputo: la plataforma requiere una tarjeta gráfica NVIDIA, y la portátil empleada en campo, de menor capacidad, procesa cada cuadro de dos a tres veces más lento que la computadora de escritorio, con una latencia mayor.
+
+\textbf{Relación con los ODS:}
+se relaciona con el ODS 9 (industria, innovación e infraestructura), por el uso de tecnología de bajo costo y de código abierto para la innovación en localización.
+
+\textbf{Proyecciones:}
+un uso a mayor escala tendría que valorar el costo de la tarjeta gráfica frente al de sensores especializados.
+Ejecutar la plataforma en equipos de menor costo exigiría optimizar la odometría visual, que es el cuello de botella de la latencia en la portátil.
+
+\section{Aspectos legales}
+
+\textbf{Identificación y análisis:}
+La plataforma usa datos y modelos de terceros con condiciones propias.
+El conjunto KITTI \cite{geiger2012kitti}, empleado en los estudios de la segunda fase, se publica bajo la licencia Creative Commons Atribución-NoComercial-CompartirIgual 3.0 y para uso académico \cite{kitti_web}, por lo que los resultados obtenidos con él no pueden explotarse comercialmente.
+El modelo Depth Anything~V2 se distribuye bajo la licencia Apache~2.0 en su variante pequeña y bajo una licencia no comercial en las de mayor tamaño \cite{depthanything_repo}; la plataforma usa una variante pequeña ajustada para profundidad métrica en exteriores, cuya licencia debe confirmarse antes de cualquier uso comercial.
+Las grabaciones propias contienen las posiciones GPS de los recorridos y video de vías públicas en el que pueden aparecer personas y placas de vehículos, y en Costa Rica cualquier dato relativo a una persona física identificada o identificable es un dato personal \cite{ley8968}.
+
+\textbf{Relación con los ODS:}
+se relaciona de forma indirecta con el ODS 16 (paz, justicia e instituciones sólidas), por el respeto a la propiedad intelectual y a la privacidad en el manejo de los datos.
+
+\textbf{Proyecciones:}
+una publicación abierta de la plataforma, de sus grabaciones o de sus resultados exigirá anonimizar los rostros y las placas en el video, valorar si las trayectorias revelan datos personales, como lugares de residencia o de trabajo, y respetar la licencia no comercial de KITTI.
+
+\section{Aspectos ambientales}
+
+\textbf{Identificación y análisis:}
+La plataforma reutiliza un teléfono y computadoras de uso general en lugar de equipo especializado, y procesa todo localmente, sin servidores de inferencia en funcionamiento permanente.
+Además, cada grabación se procesa una sola vez en el modo determinista y se guarda en una caché, de modo que las evaluaciones posteriores vuelven a ejecutar la fusión sin procesar de nuevo el video.
+El principal impacto negativo es el consumo de energía del cómputo con tarjeta gráfica: el modelo de profundidad se ejecuta en la GPU durante toda la operación, y el entrenamiento de cada política de aprendizaje por refuerzo tarda unos 12~min, repetido para las tres semillas y las siete pruebas de cada iteración; este consumo no se midió.
+Las pruebas en vehículo implican, además, el consumo de combustible de los recorridos.
+
+\textbf{Relación con los ODS:}
+se relaciona con el ODS 12 (producción y consumo responsables), por la reutilización de dispositivos de consumo en lugar de equipo dedicado, y con el ODS 13 (acción por el clima), por el consumo energético del cómputo.
+
+\textbf{Proyecciones:}
+medir el consumo de energía y la utilización de recursos permitiría valorar el costo ambiental de cada configuración.
+Un modelo de profundidad más liviano reduciría ese consumo, a cambio de una posible pérdida de precisión en la escala.
+
+\section{Aspectos de seguridad}
+
+\textbf{Identificación y análisis:}
+Desde la perspectiva de la seguridad de la información, el protocolo entre el teléfono y la computadora no incluye autenticación ni cifrado: el teléfono actúa como servidor, atiende a una sola computadora a la vez y una conexión nueva reemplaza a la anterior, de modo que cualquier equipo en la misma red podría recibir el video y las posiciones o interrumpir la sesión.
+En las pruebas de campo, la conexión por cable mediante anclaje de red por USB limitó ese acceso a la computadora conectada.
+Desde la perspectiva de la seguridad física, las pruebas se realizan en vías públicas, con el teléfono montado en el tablero y una computadora dentro del vehículo, lo que exige que el soporte no obstruya la visibilidad y que el conductor no opere la computadora mientras conduce.
+Además, los errores de la estimación sin GPS, de cientos de metros, impiden usarla para guiar un vehículo.
+
+\textbf{Relación con los ODS:}
+se relaciona con el ODS 9 (industria, innovación e infraestructura), por la confiabilidad de los sistemas de localización, y con el ODS 11 (ciudades y comunidades sostenibles), en su meta de sistemas de transporte seguros.
+
+\textbf{Proyecciones:}
+un despliegue fuera del entorno experimental requerirá autenticar la conexión entre el teléfono y la computadora, cifrar los datos y advertir de forma explícita sobre la incertidumbre de la estimación durante las pérdidas del GPS.
+
+\section{Aspectos de salud}
+
+\textbf{Identificación y análisis:}
+La plataforma no es un dispositivo médico ni procesa información de salud.
+Sus efectos sobre la salud son indirectos y se relacionan con las pruebas en vehículo: la distracción del conductor puede provocar accidentes, por lo que la operación de la computadora y la revisión de la interfaz deben quedar a cargo de un acompañante o realizarse con el vehículo detenido.
+A largo plazo, una localización más estable podría contribuir a sistemas de asistencia a la conducción que reduzcan los accidentes, aunque la plataforma actual no tiene ese grado de madurez.
+
+\textbf{Relación con los ODS:}
+se relaciona de forma limitada con el ODS 3 (salud y bienestar), en su meta de reducir las muertes y lesiones causadas por accidentes de tránsito, a la que solo podría aportar una versión madura de la plataforma.
+
+\textbf{Proyecciones:}
+una versión futura debería acompañarse de un procedimiento de pruebas en vía con funciones definidas para el conductor y el operador, y de una interfaz que no requiera atención durante la conducción.
 
 \chapter{APENDICE B}
 \label{appendix:apendiceB}
@@ -10,3 +107,8 @@
 
 \chapter{APENDICE C}
 \label{appendix:apendiceC}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "main"
+%%% End:
