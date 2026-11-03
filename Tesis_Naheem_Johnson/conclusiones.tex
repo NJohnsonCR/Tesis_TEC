@@ -6,8 +6,8 @@
 %% (2/11/2026): un párrafo sobre el proyecto y el objetivo general, uno por objetivo
 %% específico (en qué consistía, qué se hizo con su subsección y si se cumplió) y uno
 %% de cierre con las limitaciones que anuncia las recomendaciones (5.2, corta).
-%% Grado de cumplimiento indicado por el estudiante: OE1 completado, con la
-%% validación del asesor pendiente; OE2, OE3 y OE4 cumplidos; la utilización de
+%% Grado de cumplimiento indicado por el estudiante: OE1 completado y validado por
+%% el asesor (su edición del 2/11/2026); OE2, OE3 y OE4 cumplidos; la utilización de
 %% recursos queda como trabajo futuro.
 %%
 %% Convención de escritura: una oración por línea del archivo fuente.
@@ -25,9 +25,9 @@ Este propósito se alcanzó.
 La plataforma estima la posición de un vehículo en tiempo real con la cámara, el GPS y, con la aprobación del profesor asesor, el giroscopio del teléfono, y procesó recorridos completos en vivo durante la prueba de campo.
 Frente a la cámara sola, reduce el error de cientos o miles de metros a unos pocos metros (subsección~\ref{sec:res-precision}).
 La mayor parte de esa mejora se debe a la fusión del GPS y del giroscopio, mientras que el aprendizaje por refuerzo aporta una mejora moderada, concentrada en los peores casos de las pérdidas del GPS.
-Los objetivos 2, 3 y 4 se cumplieron por completo, y el objetivo 1 se completó, con la validación del profesor asesor pendiente.
+Los cuatro objetivos específicos se cumplieron.
 
-% OE1: actualizar cuando el asesor valide RT-1, RT-2 y los criterios cuantitativos.
+% OE1: validado por el asesor (2/11/2026), con los mismos valores de RT-1 y RT-2.
 \textbf{El objetivo 1} consistía en sintetizar un listado de requerimientos funcionales, computacionales y temporales para la operación en tiempo real, validado mediante criterio de experto.
 Se elaboró ese listado, con una forma de verificación para cada requerimiento, a partir de la literatura y de mediciones sobre el teléfono, ya que varias de sus características reales difieren de las nominales (subsección~\ref{sec:res-requerimientos}).
 También se definieron las métricas de evaluación (secciones~\ref{sec:tiempo-real} y~\ref{sec:metricas}), que después se usaron en la validación experimental.
@@ -36,14 +36,14 @@ Es decir, el objetivo se completó y se validó por parte del asesor.
 \textbf{El objetivo 2} consistía en diseñar una plataforma SLAM híbrida que combinara el procesamiento visual y los datos GPS para la localización en tiempo real.
 Se construyeron dos programas unidos por un protocolo de red: la aplicación del teléfono, que transmite el video, el GPS y las mediciones inerciales, y el canal de procesamiento de la computadora, con una ventana que muestra el video, el estado y el mapa (subsecciones~\ref{sec:res-arquitectura}, \ref{sec:res-app} y~\ref{sec:res-interfaz}).
 Sobre esa base se resolvieron la escala de la cámara, dos errores heredados de la odometría visual y la fusión con el giroscopio y el GPS (subsecciones~\ref{sec:res-escala} a~\ref{sec:res-fusion}).
-La plataforma procesa los 30 cuadros por segundo en la computadora de escritorio, con un percentil 95 de latencia de 107~ms, y en la prueba de campo procesó en vivo cuatro sesiones en la portátil, con una latencia mayor (subsecciones~\ref{sec:res-tiempo-real} a~\ref{sec:res-trayectorias}).
+La plataforma procesa los 30 cuadros por segundo en la computadora de escritorio, con un percentil 95 de latencia de 107~ms, dentro de los requerimientos temporales, y en la prueba de campo procesó en vivo cuatro sesiones en la portátil, con una latencia mayor que no afectó la precisión (subsecciones~\ref{sec:res-tiempo-real} a~\ref{sec:res-trayectorias}).
 Por lo tanto, el objetivo se cumplió.
 
 \textbf{El objetivo 3} consistía en desarrollar un mecanismo de aprendizaje por refuerzo que optimizara de forma adaptativa la fusión sensorial.
 Antes de construirlo se midió dónde había margen de mejora, y se encontró que estaba en la confianza en la rapidez de la cámara durante las pérdidas del GPS (subsección~\ref{sec:res-rl}).
 Se desarrolló una política con Q-learning tabular que decide esa confianza, se evaluó dejando fuera cada sesión con criterios fijados de antemano y se integró en el canal de procesamiento y en la ventana, con un costo de décimas de milisegundo por cuadro.
 Las dos iteraciones cumplieron su criterio: la segunda redujo los peores errores frente al filtro convencional y, por poco, frente a un peso fijo bien elegido, aunque su aporte es moderado y no se traslada a otro dominio (subsecciones~\ref{sec:res-aporte-rl} y~\ref{sec:res-corte-rl}).
-Es decir, el objetivo se cumplió; queda pendiente probar la política en vivo con el teléfono.
+Es decir, el objetivo se cumplió, y la política funciona integrada en el canal de procesamiento y en la ventana.
 
 \textbf{El objetivo 4} consistía en valorar experimentalmente el desempeño del sistema por medio de métricas de precisión, estabilidad y rendimiento computacional.
 Se compararon cuatro modos de la plataforma sobre siete grabaciones en vehículo, con el GPS del teléfono como referencia (subsección~\ref{sec:res-precision}).

@@ -12,14 +12,18 @@
 \addvspace {10\p@ }
 \contentsline {figure}{\numberline {9}{\ignorespaces Secuencia del proceso seguido}}{42}{figure.caption.16}%
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {10}{\ignorespaces Arquitectura de la plataforma}}{53}{figure.caption.17}%
-\contentsline {figure}{\numberline {11}{\ignorespaces Pantalla de la aplicación móvil}}{54}{figure.caption.18}%
+\contentsline {figure}{\numberline {10}{\ignorespaces Arquitectura de la plataforma}}{52}{figure.caption.17}%
+\contentsline {figure}{\numberline {11}{\ignorespaces Pantallas de la aplicación móvil}}{54}{figure.caption.18}%
+\contentsline {subfigure}{\numberline {(a)}{\ignorespaces {Pantalla de video}}}{54}{subfigure.11.1}%
+\contentsline {subfigure}{\numberline {(b)}{\ignorespaces {Lecturas de la IMU}}}{54}{subfigure.11.2}%
+\contentsline {subfigure}{\numberline {(c)}{\ignorespaces {Ajustes}}}{54}{subfigure.11.3}%
 \contentsline {figure}{\numberline {12}{\ignorespaces Ventana de la plataforma}}{55}{figure.caption.19}%
-\contentsline {figure}{\numberline {13}{\ignorespaces Trayectorias completas de dos sesiones de la prueba de campo}}{66}{figure.caption.20}%
-\contentsline {figure}{\numberline {14}{\ignorespaces Los cuatro modos en la grabación de las 14:05}}{68}{figure.caption.21}%
-\contentsline {figure}{\numberline {15}{\ignorespaces Percentil 90 del error a 30~s por sesión de prueba}}{71}{figure.caption.22}%
-\contentsline {figure}{\numberline {16}{\ignorespaces Corte del GPS en que la política reduce el error}}{72}{figure.caption.23}%
-\contentsline {figure}{\numberline {17}{\ignorespaces Corte del GPS en que la política aumenta el error}}{73}{figure.caption.24}%
+\contentsline {figure}{\numberline {13}{\ignorespaces Lanzador de la plataforma}}{55}{figure.caption.20}%
+\contentsline {figure}{\numberline {14}{\ignorespaces Trayectorias completas de dos sesiones de la prueba de campo}}{66}{figure.caption.21}%
+\contentsline {figure}{\numberline {15}{\ignorespaces Los cuatro modos en la grabación de las 14:05}}{68}{figure.caption.22}%
+\contentsline {figure}{\numberline {16}{\ignorespaces Percentil 90 del error a 30~s por sesión de prueba}}{71}{figure.caption.23}%
+\contentsline {figure}{\numberline {17}{\ignorespaces Corte del GPS en que la política reduce el error}}{72}{figure.caption.24}%
+\contentsline {figure}{\numberline {18}{\ignorespaces Corte del GPS en que la política aumenta el error}}{73}{figure.caption.25}%
 \addvspace {10\p@ }
 \addvspace {10\p@ }
 \addvspace {10\p@ }

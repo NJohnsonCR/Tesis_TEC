@@ -64,9 +64,9 @@
 \contentsline {section}{\numberline {4.1}Descripción del proceso de solución}{50}{section.4.1}%
 \contentsline {subsection}{\numberline {4.1.1}Requerimientos de la plataforma}{50}{subsection.4.1.1}%
 \contentsline {subsection}{\numberline {4.1.2}Arquitectura de la plataforma}{52}{subsection.4.1.2}%
-\contentsline {subsection}{\numberline {4.1.3}Aplicación móvil}{54}{subsection.4.1.3}%
-\contentsline {subsection}{\numberline {4.1.4}Interfaz de la plataforma}{55}{subsection.4.1.4}%
-\contentsline {subsection}{\numberline {4.1.5}Estimación de la escala métrica}{55}{subsection.4.1.5}%
+\contentsline {subsection}{\numberline {4.1.3}Aplicación móvil}{53}{subsection.4.1.3}%
+\contentsline {subsection}{\numberline {4.1.4}Interfaz de la plataforma}{54}{subsection.4.1.4}%
+\contentsline {subsection}{\numberline {4.1.5}Estimación de la escala métrica}{56}{subsection.4.1.5}%
 \contentsline {subsection}{\numberline {4.1.6}Corrección de la odometría visual}{57}{subsection.4.1.6}%
 \contentsline {subsection}{\numberline {4.1.7}Filtro de fusión}{58}{subsection.4.1.7}%
 \contentsline {subsection}{\numberline {4.1.8}Mecanismo de aprendizaje por refuerzo}{61}{subsection.4.1.8}%
@@ -81,7 +81,7 @@
 \contentsline {chapter}{\numberline {5}Conclusiones y recomendaciones}{75}{chapter.5}%
 \contentsline {section}{\numberline {5.1}Conclusiones}{75}{section.5.1}%
 \contentsline {section}{\numberline {5.2}Recomendaciones}{76}{section.5.2}%
-\contentsline {chapter}{Bibliograf\'{\i }a}{78}{chapter*.25}%
+\contentsline {chapter}{Bibliograf\'{\i }a}{78}{chapter*.26}%
 \contentsline {chapter}{\numberline {A}APENDICE 1: Implicaciones ambientales y de desarrollo sostenible}{82}{appendix.A}%
 \contentsline {section}{\numberline {A.1}Aspectos sociales}{82}{section.A.1}%
 \contentsline {section}{\numberline {A.2}Aspectos económicos}{83}{section.A.2}%

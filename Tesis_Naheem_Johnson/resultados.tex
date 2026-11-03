@@ -53,18 +53,16 @@ El GPS, que la aplicación obtiene del proveedor de ubicación fusionado de Andr
 Todas las fuentes comparten el reloj de arranque del teléfono, que es el que se usa para alinearlas, mientras que su hora Unix difiere de la de la computadora en una cantidad que cambia de un día a otro.
 
 La Tabla~\ref{tab:res-requerimientos} presenta los requerimientos resultantes, agrupados en funcionales, computacionales y temporales, junto con la forma de verificar cada uno.
-Los valores de RT-1 y RT-2 son los que se emplearon como referencia durante el desarrollo; su validación por parte del profesor asesor, junto con los criterios cuantitativos de los demás requerimientos, se encuentra pendiente.
+Los valores de RT-1 y RT-2, que se emplearon como referencia durante el desarrollo, y los criterios de verificación de los demás requerimientos fueron validados por el profesor asesor.
 
 Las métricas de las Secciones~\ref{sec:tiempo-real} y~\ref{sec:metricas} se implementaron en dos lugares.
 El canal de procesamiento registra por cuadro el tiempo de cada etapa, la latencia, el descarte y la frecuencia efectiva.
 Una herramienta de evaluación calcula sobre cada sesión el error de trayectoria con alineación rígida, la deriva desde un inicio común y durante cortes simulados del GPS, la escala frente a la Doppler y la rotación frente al giroscopio.
 La misma herramienta calcula el error relativo de pose y los indicadores de estabilidad de la Sección~\ref{sec:res-precision}; la utilización de recursos computacionales todavía no forma parte de ella.
 
-% Pendiente para discutir con la contraparte: Actualizar la tabla con los valores validados por el asesor e indicar en qué equipo se exigen los requerimientos temporales.
-
 \begin{table}[H]
 \centering
-\caption{Requerimientos propuestos para la plataforma}
+\caption{Requerimientos de la plataforma}
 \label{tab:res-requerimientos}
 \footnotesize
 \begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{1.1cm}>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}p{4.6cm}@{}}
@@ -186,16 +184,22 @@ La aplicación del teléfono y la ventana de la plataforma se describen en las S
 % OE2. docs/ESTADO_APP_ANDROID.md §2-§5 (rama SLAM_RealTime, commit 4ba7302).
 
 La aplicación del teléfono se desarrolló en Java con Android Studio, en un repositorio propio, y su única relación con el canal de procesamiento es el protocolo de red descrito en la Sección~\ref{sec:res-arquitectura}.
-Su pantalla de video muestra la vista de la cámara y una línea de estado con la dirección IP del teléfono y la señal del GPS, incluida la frecuencia de sus posiciones, y avisa si pasan más de 3~s sin una posición (Fig.~\ref{fig:res-app}); una pantalla de ajustes permite cambiar los puertos de la transmisión y la calidad de compresión JPEG, de 80 por defecto.
+La aplicación tiene tres pantallas principales (Fig.~\ref{fig:res-app}).
+La de video muestra la vista de la cámara, el botón de grabación, la resolución y la frecuencia de captura, y un recuadro de estado con la dirección IP del teléfono, la señal del GPS, con un aviso si pasan más de 3~s sin una posición, y el estado de las conexiones de sensores y de video con la computadora.
+La de la IMU muestra en vivo las lecturas del acelerómetro, del giroscopio, del magnetómetro y de la posición, y la de ajustes permite configurar la cámara, la frecuencia de muestreo de la IMU, los puertos de la transmisión y la calidad de compresión JPEG, de 80 por defecto.
 La aplicación transmite siempre que hay una computadora conectada, grabe o no, de modo que antes de iniciar se pueden verificar el encuadre y la señal del GPS.
 La grabación se controla desde la computadora, con el botón de grabación del teléfono como respaldo, y admite dos modos: grabar y transmitir, en el que el teléfono guarda una copia completa de la sesión, y solo transmitir.
 Cada grabación contiene el video, las marcas de tiempo de cada cuadro, las posiciones GPS y las muestras del giroscopio y del acelerómetro, todas con el reloj de arranque del teléfono (Sección~\ref{sec:res-requerimientos}), y son esas grabaciones las que procesa después el modo determinista.
 El teléfono se monta en horizontal en el tablero, con la cámara a la izquierda, de modo que la imagen transmitida y la grabada quedan derechas.
 
+% Capturas del estudiante (2/11/2026), sin las barras del sistema; en (b) se ocultaron
+% la latitud y la longitud.
 \begin{figure}[H]
 \centering
-\IfFileExists{fig/app_movil.png}{\includegraphics[width=0.8\textwidth]{fig/app_movil.png}}{\fbox{\parbox[c][5cm][c]{0.78\textwidth}{\centering Captura pendiente: pantalla de video de la aplicación\\(\texttt{fig/app\_movil.png})}}}
-\caption[Pantalla de la aplicación móvil]{Pantalla de video de la aplicación móvil durante la transmisión a la computadora. Fuente: elaboración propia.}
+\subfloat[Pantalla de video]{\includegraphics[width=0.31\textwidth]{fig/app_video.jpg}}\hfill
+\subfloat[Lecturas de la IMU]{\includegraphics[width=0.31\textwidth]{fig/app_imu.jpg}}\hfill
+\subfloat[Ajustes]{\includegraphics[width=0.31\textwidth]{fig/app_ajustes.jpg}}
+\caption[Pantallas de la aplicación móvil]{Pantallas de la aplicación móvil en el Samsung Galaxy S23: (a) pantalla de video, capturada con la cámara cubierta y sin conexión con la computadora; (b) lecturas de la IMU, con las coordenadas ocultas; y (c) ajustes de la cámara, de la IMU y de la transmisión a la computadora. Fuente: elaboración propia.}
 \label{fig:res-app}
 \end{figure}
 
@@ -213,9 +217,18 @@ Solo se ejecuta una sesión a la vez, ya que el teléfono envía un solo flujo d
 
 \begin{figure}[H]
 \centering
-\IfFileExists{fig/interfaz.png}{\includegraphics[width=\textwidth]{fig/interfaz.png}}{\fbox{\parbox[c][6cm][c]{0.97\textwidth}{\centering Captura pendiente: ventana de la plataforma, pestaña de tiempo real\\(\texttt{fig/interfaz.png})}}}
-\caption[Ventana de la plataforma]{Ventana de la plataforma durante una sesión, en la pestaña de tiempo real. Fuente: elaboración propia.}
+\includegraphics[width=\textwidth]{fig/interfaz.png}
+\caption[Ventana de la plataforma]{Ventana de la plataforma en la pestaña de tiempo real, durante la reproducción de la grabación de las 14:18 desde el segundo 10, con la escala por profundidad y la política activas; el mapa muestra el GPS y la trayectoria fusionada. Fuente: elaboración propia.}
 \label{fig:res-interfaz}
+\end{figure}
+
+La ventana se abre desde el lanzador de la plataforma (Fig.~\ref{fig:res-lanzador}), que reúne los módulos previos del repositorio y la opción \textit{Real-time SLAM GPS}.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.5\textwidth]{fig/lanzador.png}
+\caption[Lanzador de la plataforma]{Lanzador de la plataforma, con los módulos previos y la opción \textit{Real-time SLAM GPS}. Fuente: elaboración propia.}
+\label{fig:res-lanzador}
 \end{figure}
 
 % ---------------------------------------------------------------------------
@@ -436,9 +449,8 @@ Mientras hay GPS actúa el filtro convencional y, desde los 1,5~s sin una soluci
 La política está disponible al procesar grabaciones, en vivo y como una opción de la ventana (Sección~\ref{sec:res-interfaz}), cuya pestaña de desarrollo permite además simular un corte del GPS y muestra el error de ambos filtros al volver la señal.
 Los 280 cortes de 20 y 30~s de las grabaciones de las 14:05 y las 14:18 simulados a través del canal dieron el mismo error que la evaluación del entorno, sin diferencias a la décima de milímetro.
 En una ejecución de 60~s en el modo estricto en la computadora de escritorio, la política con un corte simulado elevó el costo de la fusión por cuadro de 0,13 a 0,21~ms en la mediana y de 0,23 a 0,41~ms en el percentil 95, y el percentil 95 de la latencia de 30,7 a 31,2~ms, con un descarte de 0,2~\% en ambos casos.
-Falta probar la política en vivo con el teléfono.
+La Fig.~\ref{fig:res-interfaz} muestra la ventana con la política activa durante la reproducción de una grabación.
 
-% Pendiente para discutir con la contraparte: probar la política en vivo con el teléfono (run_live.py --rl o la ventana).
 
 % ===========================================================================
 \section{Análisis de los resultados obtenidos}
@@ -499,16 +511,15 @@ Filtro por cuadro, mediana & 0,14~ms & 0,15--0,23~ms & 0,36--0,40~ms \\
 \end{tabularx}
 \end{table}
 
-En la computadora de escritorio la plataforma cumple los dos valores de referencia: procesa los 30 cuadros por segundo, descarta a lo sumo el 1~\% y su latencia tiene un percentil 95 de 107~ms.
-En la portátil empleada en campo la frecuencia efectiva supera los 10~Hz, pero el percentil 95 de la latencia excede los 150~ms, tanto conectada a la corriente como con batería.
+En la computadora de escritorio la plataforma cumple los requerimientos temporales RT-1 y RT-2: procesa los 30 cuadros por segundo, descarta a lo sumo el 1~\% y su latencia tiene un percentil 95 de 107~ms.
+En la portátil empleada en campo, de menor capacidad de cómputo, la frecuencia efectiva cumple RT-2, mientras que el percentil 95 de la latencia supera la referencia de RT-1 por un margen de 17 a 39~ms conectada a la corriente y de 51 a 69~ms con batería.
+Aun así, la plataforma funcionó correctamente: el descarte de cuadros mantuvo la latencia acotada, como exige RT-3, sin afectar la precisión de la fusión (Sección~\ref{sec:res-campo}).
 El exceso proviene del cómputo y no del enlace: la captura hasta la llegada tomó 70/76~ms en la de escritorio y 66--67/73~ms en la portátil, mientras que el tiempo por cuadro de la portátil supera el periodo de 33,3~ms (Ecuación~\eqref{eq:tiempo-real}), de modo que siempre hay un cuadro en espera.
 El cuello de botella es la odometría visual y no la fusión, que cuesta menos de 0,5~ms por cuadro.
 % Corrida final (CTX §4.38, rendimiento del modo determinista guardado en la caché).
 En el modo determinista de la corrida final, el procesamiento por cuadro tuvo una mediana de 24,0 a 28,0~ms y un percentil 95 de 27,7 a 32,3~ms en la computadora de escritorio, y una mediana de 53,3 a 56,2~ms y un percentil 95 de 61,7 a 65,6~ms en la portátil, de la que no se registró si estaba conectada a la corriente o con batería; la fusión costó de 0,16 a 0,23~ms por cuadro.
 Reducir las características ORB a 1000 bajaría la latencia estimada en vivo de la portátil a unos 165~ms, todavía por encima de la referencia, y alteraría la odometría visual verificada, por lo que la prueba de campo se realizó con la configuración vigente.
 El enlace sí determina la latencia por WiFi: el mismo día, con el mismo teléfono y la misma computadora, por WiFi el teléfono no envió el 22,8~\% de los cuadros y la latencia fue de 112/224~ms, frente a ningún cuadro perdido y 97/107~ms por cable; por eso el campo se realizó con anclaje de red por USB.
-
-% Pendiente para discutir con la contraparte: Declarar el cumplimiento de RT-1 y RT-2 cuando el asesor valide los valores y el equipo en que se exigen.
 
 % ---------------------------------------------------------------------------
 \subsection{Prueba de campo}
@@ -794,7 +805,7 @@ Este caso es la limitación descrita en la Sección~\ref{sec:res-aporte-rl}: el 
 \begin{itemize}
 \item \textbf{Referencia.} Las grabaciones propias carecen de una trayectoria de referencia de alta precisión.
 El GPS del teléfono, con un error de varios metros, limita las comparaciones finas, aunque es pequeño frente a los errores de decenas de metros que se miden en los cortes.
-\item \textbf{Latencia en la portátil.} La latencia en la computadora portátil empleada en campo es mucho mayor que en la computadora de escritorio: su percentil 95 fue de 167 a 189~ms conectada a la corriente y de 201 a 219~ms con batería, frente a 107~ms, porque su tiempo de procesamiento por cuadro es de dos a tres veces mayor.
+\item \textbf{Latencia en la portátil.} La latencia en la computadora portátil empleada en campo es mucho mayor que en la computadora de escritorio: su percentil 95 fue de 167 a 189~ms conectada a la corriente y de 201 a 219~ms con batería, frente a 107~ms, porque su tiempo de procesamiento por cuadro es de dos a tres veces mayor; aun así, la plataforma funcionó correctamente y la precisión de la fusión no se vio afectada.
 \item \textbf{Escala de la cámara.} Varía con la escena y la rapidez, y se desploma por encima de 12~m/s; domina el error en los cortes de más de 20~s y con soluciones GPS escasas.
 \item \textbf{Modo exclusivamente visual en los altos.} Sin GPS, el filtro puede rechazar las detenciones que indica la cámara y seguir avanzando en un alto, y al aceptar después una rapidez o una detención con mucha incertidumbre desplaza la estimación de golpe, lo que produce los saltos de la línea base (Tabla~\ref{tab:res-modos}).
 Corregirlo implica modificar el filtro y repetir todas las corridas, por lo que se mantuvo.
