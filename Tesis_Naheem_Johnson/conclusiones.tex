@@ -7,8 +7,9 @@
 %% específico (en qué consistía, qué se hizo con su subsección y si se cumplió) y uno
 %% de cierre con las limitaciones que anuncia las recomendaciones (5.2, corta).
 %% Grado de cumplimiento indicado por el estudiante: OE1 completado y validado por
-%% el asesor (su edición del 2/11/2026); OE2, OE3 y OE4 cumplidos; la utilización de
-%% recursos queda como trabajo futuro.
+%% el asesor (su edición del 2/11/2026); OE2, OE3 y OE4 cumplidos. Recursos y metas de
+%% precisión RP-1 a RP-4: CTX §4.39 (recursos medidos en la de escritorio, estimados en
+%% la portátil; las metas, validadas por el asesor según el estudiante, 14/11/2026).
 %%
 %% Convención de escritura: una oración por línea del archivo fuente.
 %% ---------------------------------------------------------------------------
@@ -27,10 +28,11 @@ Frente a la cámara sola, reduce el error de cientos o miles de metros a unos po
 La mayor parte de esa mejora se debe a la fusión del GPS y del giroscopio, mientras que el aprendizaje por refuerzo aporta una mejora moderada, concentrada en los peores casos de las pérdidas del GPS.
 Los cuatro objetivos específicos se cumplieron.
 
-% OE1: validado por el asesor (2/11/2026), con los mismos valores de RT-1 y RT-2.
+% OE1: validado por el asesor (2/11/2026), con los mismos valores de RT-1 y RT-2;
+% metas RP-1 a RP-4 también validadas (14/11/2026).
 \textbf{El objetivo 1} consistía en sintetizar un listado de requerimientos funcionales, computacionales y temporales para la operación en tiempo real, validado mediante criterio de experto.
 Se elaboró ese listado, con una forma de verificación para cada requerimiento, a partir de la literatura y de mediciones sobre el teléfono, ya que varias de sus características reales difieren de las nominales (subsección~\ref{sec:res-requerimientos}).
-También se definieron las métricas de evaluación (secciones~\ref{sec:tiempo-real} y~\ref{sec:metricas}), que después se usaron en la validación experimental.
+También se definieron las métricas de evaluación (secciones~\ref{sec:tiempo-real} y~\ref{sec:metricas}) y cuatro metas de precisión, que después se usaron en la validación experimental.
 Es decir, el objetivo se completó y se validó por parte del asesor.
 
 \textbf{El objetivo 2} consistía en diseñar una plataforma SLAM híbrida que combinara el procesamiento visual y los datos GPS para la localización en tiempo real.
@@ -48,8 +50,9 @@ Es decir, el objetivo se cumplió, y la política funciona integrada en el canal
 \textbf{El objetivo 4} consistía en valorar experimentalmente el desempeño del sistema por medio de métricas de precisión, estabilidad y rendimiento computacional.
 Se compararon cuatro modos de la plataforma sobre siete grabaciones en vehículo, con el GPS del teléfono como referencia (subsección~\ref{sec:res-precision}).
 Frente a la cámara sola, que es la línea base de SLAM exclusivamente visual, la configuración completa redujo el ATE de 2087 a 2,2~m y prácticamente eliminó los saltos de la estimación; además, la fusión rechazó los saltos y las ráfagas de un GPS degradado.
-En rendimiento, se midieron la latencia, la frecuencia efectiva y el tiempo de cada etapa (subsección~\ref{sec:res-tiempo-real}).
-Por lo tanto, el objetivo se cumplió, aunque la utilización de recursos computacionales no se midió y queda como trabajo futuro.
+Esa configuración cumplió también las cuatro metas de precisión en las siete grabaciones.
+En rendimiento, se midieron la latencia, la frecuencia efectiva, el tiempo de cada etapa y, en la computadora de escritorio, la utilización de recursos computacionales, que en la portátil se estimó (subsección~\ref{sec:res-tiempo-real}).
+Por lo tanto, el objetivo se cumplió.
 
 Las limitaciones de la subsección~\ref{sec:res-limitaciones} no impiden extraer estas conclusiones, pero sí restringen su alcance.
 La referencia de las grabaciones propias es el GPS del teléfono, por lo que las cifras miden la consistencia con un receptor de varios metros de error y no la exactitud absoluta de la plataforma; además, la escala de la cámara limita la estimación durante las pérdidas largas del GPS.
@@ -60,7 +63,7 @@ Las líneas de trabajo que se derivan de estas limitaciones se presentan en la s
 
 A partir de los resultados obtenidos, se plantean las siguientes recomendaciones para dar continuidad al trabajo realizado.
 
-Primero, se recomienda medir la utilización de recursos computacionales de la plataforma, es decir, el uso del procesador, de la tarjeta gráfica y de la memoria, en la computadora de escritorio y en la portátil, para completar la valoración del rendimiento computacional.
+Primero, se recomienda medir la utilización de recursos computacionales en la portátil empleada en campo, en la que solo se estimó a partir de lo medido en la computadora de escritorio, para completar la valoración del rendimiento computacional.
 
 Segundo, se recomienda contar con una trayectoria de referencia de mayor precisión para las grabaciones propias, por ejemplo con un receptor de posicionamiento de alta precisión instalado en el vehículo, ya que el GPS del teléfono no permite medir la exactitud absoluta de la plataforma.
 

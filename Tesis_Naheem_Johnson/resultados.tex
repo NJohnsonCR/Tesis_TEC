@@ -9,7 +9,8 @@
 %% Fuente de todas las cifras: docs/CONTEXTO.md y docs/ESTADO_APP_ANDROID.md
 %% de la rama SLAM_RealTime (commit 4ba7302, 30/10/2026; antes en scripts/rl/ y
 %% realtime/). Los comentarios "% CTX §x" indican la sección de CONTEXTO.md de
-%% donde sale cada dato.
+%% donde sale cada dato. Las metas RP-1 a RP-4 y la utilización de recursos salen de
+%% CTX §4.39 (commit 43204ed).
 %% Corrida final del OE4: evaluate.py --cache del 23/10/2026 (CTX §4.38;
 %% resultados/oe4/20261023_115221, modos.json y modos.csv), verificada el 1/11/2026
 %% con la caché del repositorio: tab:res-modos, fig:res-mapa-1405, las medianas del
@@ -52,13 +53,18 @@ Cada cuadro tarda de 60 a 75~ms en llegar a la aplicación y, por cable, de 66 a
 El GPS, que la aplicación obtiene del proveedor de ubicación fusionado de Android, entrega una solución por segundo en el vehículo, con su velocidad Doppler y una antigüedad mediana de 0,4 a 0,5~s, y el giroscopio y el acelerómetro entregan unas 53 muestras por segundo.
 Todas las fuentes comparten el reloj de arranque del teléfono, que es el que se usa para alinearlas, mientras que su hora Unix difiere de la de la computadora en una cantidad que cambia de un día a otro.
 
-La Tabla~\ref{tab:res-requerimientos} presenta los requerimientos resultantes, agrupados en funcionales, computacionales y temporales, junto con la forma de verificar cada uno.
-Los valores de RT-1 y RT-2, que se emplearon como referencia durante el desarrollo, y los criterios de verificación de los demás requerimientos fueron validados por el profesor asesor.
+La Tabla~\ref{tab:res-requerimientos} presenta los requerimientos resultantes, agrupados en funcionales, computacionales y temporales, y las metas de precisión, junto con la forma de verificar cada uno.
+Los valores de RT-1 y RT-2, que se emplearon como referencia durante el desarrollo, los de las metas de precisión y los criterios de verificación de los demás requerimientos fueron validados por el profesor asesor.
+% CTX §4.39: metas propuestas después de medir; anclas externas, no lo obtenido.
+% Metas RP-1 a RP-4 validadas por el asesor (confirmado por el estudiante, 14/11/2026).
+Las metas de precisión RP-1 a RP-4 se propusieron después de las mediciones, por lo que se anclan en referencias externas y no en los resultados obtenidos: RP-1, en el error típico de un receptor GPS basado en código, de 3 a 5~m (Sección~\ref{sec:gps-movil}), del que la fusión no debería separarse más; RP-2, en que el error no se acumule con el tiempo, a diferencia de la odometría visual; y RP-3 y RP-4, en las alternativas sin GPS y sin cámara.
 
 Las métricas de las Secciones~\ref{sec:tiempo-real} y~\ref{sec:metricas} se implementaron en dos lugares.
 El canal de procesamiento registra por cuadro el tiempo de cada etapa, la latencia, el descarte y la frecuencia efectiva.
 Una herramienta de evaluación calcula sobre cada sesión el error de trayectoria con alineación rígida, la deriva desde un inicio común y durante cortes simulados del GPS, la escala frente a la Doppler y la rotación frente al giroscopio.
-La misma herramienta calcula el error relativo de pose y los indicadores de estabilidad de la Sección~\ref{sec:res-precision}; la utilización de recursos computacionales todavía no forma parte de ella.
+La misma herramienta calcula el error relativo de pose y los indicadores de estabilidad de la Sección~\ref{sec:res-precision}.
+% CTX §4.39: realtime/resources.py (2/11/2026), muestreo cada 1 s; p50/p95/máx en metrics.json.
+Además, el canal de procesamiento registra en cada sesión la utilización de recursos computacionales del proceso, muestreada cada segundo: el uso del procesador, la memoria RAM y la memoria de la tarjeta gráfica.
 
 \begin{table}[H]
 \centering
@@ -83,6 +89,11 @@ RC-2 & Mantener el costo de la fusión y de la política despreciable frente al 
 RT-1 & Latencia de la captura al resultado con percentil 95 menor que 150~ms. & Latencia medida con el reloj del teléfono. \\
 RT-2 & Frecuencia efectiva de al menos 10~Hz. & Ecuación~\eqref{eq:descarte}. \\
 RT-3 & Latencia acotada ante sobrecarga, mediante el descarte de cuadros. & Cola de una posición (Fig.~\ref{fig:descarte}). \\
+\addlinespace
+RP-1 & Con GPS, ATE frente al GPS del teléfono de a lo sumo 5~m en cada grabación. & ATE sin alinear de cada grabación (Tabla~\ref{tab:res-modos}). \\
+RP-2 & Con GPS, crecimiento del error de a lo sumo 1~m/min y error final de a lo sumo el 1~\% de lo recorrido. & Crecimiento del error y error final de cada grabación. \\
+RP-3 & ATE al menos 10 veces menor que el del modo exclusivamente visual. & Comparación del cuarto objetivo. \\
+RP-4 & En los cortes del GPS de 30~s, mediana del error al volver menor que la de extrapolar la última velocidad del GPS. & Cortes simulados de 30~s en cada grabación. \\
 \bottomrule
 \end{tabularx}
 \end{table}
@@ -462,7 +473,7 @@ Esta sección analiza los resultados frente a los objetivos específicos, con la
 La comparación de los cuatro modos de la Sección~\ref{sec:res-precision} proviene de la corrida final, realizada el 23 de octubre sobre las siete grabaciones en el modo determinista.
 Las demás cifras provienen de las sesiones en vivo de la prueba de campo, de corridas deterministas sobre las grabaciones y de bancos de prueba construidos sobre ellas, con el código vigente entre el 7 y el 12 de octubre; los valores de la configuración elegida a 30~s de la Tabla~\ref{tab:res-filtro} se reprodujeron en la corrida final.
 
-% Trabajo futuro (decisión del 1/11/2026): medir la utilización de recursos computacionales (CPU, GPU y memoria).
+% Utilización de recursos (CTX §4.39): medida en la de escritorio y estimada en la portátil (Sección 4.2.1).
 
 \begin{table}[H]
 \centering
@@ -520,6 +531,16 @@ El cuello de botella es la odometría visual y no la fusión, que cuesta menos d
 En el modo determinista de la corrida final, el procesamiento por cuadro tuvo una mediana de 24,0 a 28,0~ms y un percentil 95 de 27,7 a 32,3~ms en la computadora de escritorio, y una mediana de 53,3 a 56,2~ms y un percentil 95 de 61,7 a 65,6~ms en la portátil, de la que no se registró si estaba conectada a la corriente o con batería; la fusión costó de 0,16 a 0,23~ms por cuadro.
 Reducir las características ORB a 1000 bajaría la latencia estimada en vivo de la portátil a unos 165~ms, todavía por encima de la referencia, y alteraría la odometría visual verificada, por lo que la prueba de campo se realizó con la configuración vigente.
 El enlace sí determina la latencia por WiFi: el mismo día, con el mismo teléfono y la misma computadora, por WiFi el teléfono no envió el 22,8~\% de los cuadros y la latencia fue de 112/224~ms, frente a ningún cuadro perdido y 97/107~ms por cable; por eso el campo se realizó con anclaje de red por USB.
+
+% CTX §4.39. Escritorio, medido: replay estricto (al ritmo real, descarta como en vivo) con
+% escala, EKF con giroscopio y RL; 4500 cuadros (150 s); 14:05 dos veces y 14:18 desde el
+% segundo 380; muestreo externo cada 0,5 s sin los primeros 20 s; CPU p50 438/438/433 % de
+% un hilo, RSS p50 1576/1576/1578 MiB, GPU 790 MiB. Portátil: estimado, no medido
+% (decisión del estudiante, 8/11/2026): 4,4 x 2 x 19/30 conectada, 4,4 x 3,2 x 12/30 con batería.
+La utilización de recursos computacionales se midió aparte, en la computadora de escritorio, en tres reproducciones de 150~s de las grabaciones de las 14:05 y las 14:18 al ritmo real, con el descarte de cuadros como en vivo y con todos los módulos activos: la escala por profundidad, el filtro con el giroscopio y la política.
+El proceso ocupó en la mediana entre 433 y 438~\% de un hilo, es decir, unos 4,4 de los 12 hilos del procesador, entre 1576 y 1578~MiB de RAM y 790~MiB de memoria de la tarjeta gráfica, sin crecer durante las corridas.
+En la portátil la utilización no se midió, sino que se estimó a partir de lo medido en la de escritorio: como la memoria no depende de la velocidad del equipo, se estima en unos 1,6~GB de RAM y 0,8 de los 4~GB de la tarjeta, y el uso del procesador se estimó escalando los 4,4 hilos por la razón entre los tiempos por cuadro y entre las frecuencias efectivas de las dos computadoras (Tabla~\ref{tab:res-tiempo-real}), lo que da, como orden de magnitud, de 5 a 6 de sus 8 hilos.
+El recurso limitante de la portátil es, por lo tanto, el procesador y no la memoria: como su tiempo por cuadro supera el periodo de 33,3~ms, la plataforma ocupa todo el procesador disponible y el exceso se traduce en el descarte de cuadros, sin que la latencia crezca sin límite (RT-3).
 
 % ---------------------------------------------------------------------------
 \subsection{Prueba de campo}
@@ -670,6 +691,13 @@ Ruido, saltos y pérdidas combinados & 27,8 & 52,4 & 19,2 & 55,6 \\
 La fusión rechaza los saltos sueltos y las ráfagas, con un percentil 95 de 4 a 6~m frente a 65 a 77~m del GPS solo, y con ruido blanco de 5 y 10~m su error queda entre el 44 y el 67~\% del que tiene el GPS solo.
 El error correlado de tipo multitrayecto, en cambio, no se distingue de un movimiento real y pasa casi intacto.
 Con soluciones escasas el resultado depende otra vez de la escala de la cámara: en la sesión de las 14:55 la fusión queda cerca del GPS solo o lo mejora, mientras que en la de las 15:05, más rápida, queda peor.
+
+% CTX §4.39: metas RP-1 a RP-4 contra el modo "todo" de la corrida final (§4.38).
+\textbf{Metas de precisión.}
+La configuración completa cumple las cuatro metas de precisión de la Tabla~\ref{tab:res-requerimientos} en las siete grabaciones (Tabla~\ref{tab:res-modos}).
+Su ATE fue de 1,6 a 4,0~m, dentro de los 5~m de RP-1, y su error creció de $-0{,}1$ a 0,6~m/min, con un error final de 0,0 a 0,4~\% de lo recorrido, dentro de RP-2.
+Su ATE fue de 115 a 2111 veces menor que el de la cámara sola, frente al factor de 10 de RP-3, y en los cortes de 30~s la mediana del error al volver, de 15,7 a 101~m, fue menor en cada grabación que la de extrapolar la última velocidad del GPS, de 53,8 a 160~m, como exige RP-4.
+Como la referencia es el GPS del teléfono y no una trayectoria de referencia de alta precisión, estas metas miden cuánto se separa la fusión del GPS y cuánto mejora sobre las alternativas sin GPS y sin cámara, y no la exactitud absoluta de la plataforma.
 
 % ---------------------------------------------------------------------------
 \subsection{Aporte del aprendizaje por refuerzo}
