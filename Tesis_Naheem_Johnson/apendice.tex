@@ -2,8 +2,9 @@
 %% apendice.tex
 %%
 %% Apéndice A: implicaciones ambientales y de desarrollo sostenible (obligatorio
-%% según los Lineamientos V4.1; estructura del TFG de ejemplo). Apéndices B y C:
-%% sin contenido.
+%% según los Lineamientos V4.1; estructura del TFG de ejemplo). Apéndice B:
+%% instructivo de instalación y ejecución (estructura del TFG de ejemplo).
+%% Apéndice C: sin contenido.
 %%
 %% Convención de escritura: una oración por línea del archivo fuente.
 %% ---------------------------------------------------------------------------
@@ -33,7 +34,7 @@ Para ello debe comunicar la incertidumbre de su estimación, de modo que quien l
 \section{Aspectos económicos}
 
 \textbf{Identificación y análisis:}
-La plataforma se construyó con herramientas gratuitas o de código abierto, como Python, OpenCV, PyTorch y Android Studio, y con el modelo de profundidad Depth Anything~V2 \cite{yang2024depthanything}, y se ejecuta sin conexión a internet (requerimiento RC-1), de modo que no depende de servicios de pago en la nube.
+La plataforma se construyó con herramientas gratuitas o de código abierto, como Python, OpenCV, PyTorch, Android Studio y la aplicación MARS Logger \cite{huai2019mars}, y con el modelo de profundidad Depth Anything~V2 \cite{yang2024depthanything}, y se ejecuta sin conexión a internet (requerimiento RC-1), de modo que no depende de servicios de pago en la nube.
 Los sensores son los de un teléfono de consumo, en lugar de receptores de posicionamiento de alta precisión o de sensores LiDAR.
 El costo principal es el cómputo: la plataforma requiere una tarjeta gráfica NVIDIA, y la portátil empleada en campo, de menor capacidad, procesa cada cuadro de dos a tres veces más lento que la computadora de escritorio, con una latencia mayor.
 
@@ -50,13 +51,14 @@ Ejecutar la plataforma en equipos de menor costo exigiría optimizar la odometr�
 La plataforma usa datos y modelos de terceros con condiciones propias.
 El conjunto KITTI \cite{geiger2012kitti}, empleado en los estudios de la segunda fase, se publica bajo la licencia Creative Commons Atribución-NoComercial-CompartirIgual 3.0 y para uso académico \cite{kitti_web}, por lo que los resultados obtenidos con él no pueden explotarse comercialmente.
 El modelo Depth Anything~V2 se distribuye bajo la licencia Apache~2.0 en su variante pequeña y bajo una licencia no comercial en las de mayor tamaño \cite{depthanything_repo}; la plataforma usa una variante pequeña ajustada para profundidad métrica en exteriores, cuya licencia debe confirmarse antes de cualquier uso comercial.
+La aplicación móvil deriva de MARS Logger, cuyo proyecto se distribuye bajo la licencia GPL-3.0 \cite{marslogger_repo}, que la aplicación hereda, por lo que cualquier distribución de ella debe conservar esa licencia y poner a disposición su código fuente.
 Las grabaciones propias contienen las posiciones GPS de los recorridos y video de vías públicas en el que pueden aparecer personas y placas de vehículos, y en Costa Rica cualquier dato relativo a una persona física identificada o identificable es un dato personal \cite{ley8968}.
 
 \textbf{Relación con los ODS:}
 se relaciona de forma indirecta con el ODS 16 (paz, justicia e instituciones sólidas), por el respeto a la propiedad intelectual y a la privacidad en el manejo de los datos.
 
 \textbf{Proyecciones:}
-una publicación abierta de la plataforma, de sus grabaciones o de sus resultados exigirá anonimizar los rostros y las placas en el video, valorar si las trayectorias revelan datos personales, como lugares de residencia o de trabajo, y respetar la licencia no comercial de KITTI.
+una publicación abierta de la plataforma, de sus grabaciones o de sus resultados exigirá anonimizar los rostros y las placas en el video, valorar si las trayectorias revelan datos personales, como lugares de residencia o de trabajo, y respetar la licencia no comercial de KITTI y la licencia GPL-3.0 de la aplicación.
 
 \section{Aspectos ambientales}
 
@@ -100,10 +102,223 @@ se relaciona de forma limitada con el ODS 3 (salud y bienestar), en su meta de r
 \textbf{Proyecciones:}
 una versión futura debería acompañarse de un procedimiento de pruebas en vía con funciones definidas para el conductor y el operador, y de una interfaz que no requiera atención durante la conducción.
 
-\chapter{APENDICE B}
+% Apéndice B: instructivo de instalación y ejecución, con la estructura del TFG de
+% ejemplo (requisitos, estructura, instalación, configuración, ejecución, uso y
+% problemas frecuentes). Fuentes: readme.md, setup.sh y requirements.txt del
+% repositorio Slam_GPS_Design (rama SLAM_RealTime, commit 43204ed); CTX §13-§15;
+% README.md de Slam_GPS_Design_App (rama develop, commit 5f2047f); los textos de la
+% ventana y del lanzador (live_window.py, interfaz.py), que están en inglés.
+\chapter{Instructivo de instalación y ejecución}
 \label{appendix:apendiceB}
 
+Este apéndice describe cómo instalar la plataforma en una computadora con Linux, instalar la aplicación en el teléfono y ejecutar una sesión, en vivo o sobre una grabación.
+Se incluye porque ninguno de los dos programas se distribuye como un paquete instalable: el canal de procesamiento se ejecuta desde su repositorio y la aplicación se compila e instala en el teléfono desde el suyo (subsecciones~\ref{sec:res-app} y~\ref{sec:res-interfaz}).
 
+Estos son los proyectos en \textbf{GitHub}:
+
+\begin{itemize}
+\item Canal de procesamiento, en la rama \texttt{SLAM\_RealTime}:\newline \url{https://github.com/NJohnsonCR/Slam_GPS_Design}
+\item Aplicación móvil, en la rama \texttt{develop}:\newline \url{https://github.com/NJohnsonCR/Slam_GPS_Design_App}
+\end{itemize}
+
+\section{Requisitos}
+
+\begin{itemize}
+\item Una computadora con Linux Mint~22 o Ubuntu~24.04, que incluyen Python~3.12, con unos 12~GB libres y acceso a internet durante la instalación; después, la plataforma funciona sin conexión.
+\item Una tarjeta gráfica NVIDIA con el controlador 560 o más reciente. Es opcional: sin ella, el modelo de profundidad se ejecuta en el procesador y la escala se actualiza con menor frecuencia.
+\item Un teléfono con Android~6.0 o superior; la plataforma se probó con un Samsung Galaxy~S23.
+\item Un cable USB para conectar el teléfono a la computadora mediante anclaje de red.
+\item Para compilar la aplicación, el JDK~17, el SDK de Android y la herramienta \texttt{adb}. Con el JDK~21, o con el que incluye Android Studio, el proyecto no compila.
+\end{itemize}
+
+\section{Estructura del proyecto}
+
+El repositorio del canal de procesamiento contiene, entre otros:
+
+\begin{itemize}
+\item \texttt{setup.sh}: guion que instala el ambiente.
+\item \texttt{requirements.txt}: versiones fijas de las bibliotecas de Python.
+\item \texttt{interfaz.py}: lanzador de la plataforma (Fig.~\ref{fig:res-lanzador}).
+\item \texttt{LMS/LMS\_RL\_ORB\_GPS/realtime/}: canal de procesamiento en tiempo real, con la recepción de los datos del teléfono, la odometría visual, la escala por profundidad, la fusión, la ventana y la evaluación; la política de aprendizaje por refuerzo está en \texttt{rl/}.
+\item \texttt{LMS/LMS\_RL\_ORB\_GPS/docs/}: documentación del desarrollo.
+\item \texttt{resultados/realtime/}: sesiones guardadas.
+\end{itemize}
+
+Las grabaciones no forman parte del repositorio; se copian en la carpeta \texttt{mobile\_data/}, una subcarpeta por grabación.
+
+La aplicación está basada en MARS Logger~\cite{huai2019mars,marslogger_repo}, cuyos archivos se conservan en su ubicación original:
+
+\begin{itemize}
+\item \texttt{app/src/main/java/edu/osu/pcv/marslogger/}: captura, sensores e interfaz; la transmisión a la computadora está en \texttt{streaming/}.
+\item \texttt{tools/}: programas de ejemplo para la computadora, que reciben el video y los sensores y controlan la grabación.
+\end{itemize}
+
+\section{Instalación del canal de procesamiento}
+
+\begin{enumerate}
+\item Verificar el controlador de la tarjeta gráfica: \texttt{nvidia-smi} debe mostrar la tarjeta y una versión 560 o más reciente.
+Si no, instalarlo desde el administrador de controladores del sistema y reiniciar; con el arranque seguro (\textit{Secure Boot}) activo, se debe registrar la clave del módulo al reiniciar.
+
+\item Clonar el repositorio y cambiar a la rama de la plataforma:
+\begin{small}
+\begin{verbatim}
+git clone https://github.com/NJohnsonCR/Slam_GPS_Design.git
+cd Slam_GPS_Design
+git checkout SLAM_RealTime
+\end{verbatim}
+\end{small}
+
+\item Ejecutar el guion de instalación, con internet:
+\begin{small}
+\begin{verbatim}
+chmod +x setup.sh
+./setup.sh
+\end{verbatim}
+\end{small}
+El guion instala los paquetes del sistema (Python~3.12, tkinter y \texttt{adb}), para lo cual pide la contraseña de administrador; crea el ambiente virtual \texttt{venv/} con las versiones de \texttt{requirements.txt}, descarga el modelo de profundidad, de unos 100~MB, y revisa la tarjeta gráfica.
+Debe terminar con los mensajes \texttt{GPU disponible: <tarjeta>} y \texttt{Entorno configurado correctamente.}
+Se puede volver a ejecutar sin problema.
+\end{enumerate}
+
+\section{Instalación de la aplicación}
+
+\begin{enumerate}
+\item Clonar el repositorio de la aplicación, en la rama \texttt{develop}:
+\begin{small}
+\begin{verbatim}
+git clone https://github.com/NJohnsonCR/Slam_GPS_Design_App.git
+cd Slam_GPS_Design_App
+git checkout develop
+\end{verbatim}
+\end{small}
+
+\item Activar en el teléfono la depuración por USB, conectarlo a la computadora y aceptar la autorización; \texttt{adb devices} debe mostrarlo como \texttt{device}.
+
+\item Compilar la aplicación e instalarla, con el teléfono desbloqueado, ya que de lo contrario Play Protect rechaza la instalación:
+\begin{small}
+\begin{verbatim}
+JAVA_HOME=/ruta/al/jdk-17 ./gradlew assembleFdroidDebug
+adb install -r app/build/outputs/apk/fdroid/debug/app-fdroid-debug.apk
+\end{verbatim}
+\end{small}
+
+\item En los ajustes de la aplicación, sección \textit{Streaming to the PC}, conservar los puertos 5000 y 5001, que son los que usa la ventana de la plataforma, y la calidad JPEG de 80.
+\end{enumerate}
+
+\section{Conexión del teléfono}
+
+El teléfono actúa como servidor y la computadora se conecta a él, por lo que ambos deben estar en la misma red.
+Se recomienda el anclaje de red por USB, con el que se realizó la prueba de campo, porque por WiFi el teléfono deja de enviar parte de los cuadros y la latencia aumenta (subsección~\ref{sec:res-tiempo-real}).
+Los pasos son:
+
+\begin{enumerate}
+\item Montar el teléfono en horizontal en el tablero, con la cámara a la izquierda, y conectarlo por cable a la computadora.
+
+\item Activar en el teléfono el anclaje de red por USB.
+En la computadora, \texttt{ip -4 addr} debe mostrar una interfaz nueva, \texttt{usb0} o \texttt{enx...}, en la misma red que el teléfono.
+
+\item Abrir la aplicación en la pantalla de video, que muestra la dirección IP del teléfono y si hay señal de GPS.
+
+\item Desde la raíz del repositorio del canal de procesamiento, verificar que llegan el video, el GPS y las mediciones inerciales:
+\begin{small}
+\begin{verbatim}
+source venv/bin/activate
+python -m LMS.LMS_RL_ORB_GPS.realtime.phone_check <IP del teléfono>
+\end{verbatim}
+\end{small}
+Debe terminar con el mensaje \texttt{Todo llega, en el mismo reloj.}
+\end{enumerate}
+
+\section{Ejecución}
+
+\begin{enumerate}
+\item Desde la raíz del repositorio, con el ambiente virtual activo, abrir el lanzador:
+\begin{small}
+\begin{verbatim}
+source venv/bin/activate
+python interfaz.py
+\end{verbatim}
+\end{small}
+
+\item Elegir \textit{Real-time SLAM GPS} para abrir la ventana de la plataforma (Fig.~\ref{fig:res-interfaz}).
+La ventana también se puede abrir directamente:
+\begin{small}
+\begin{verbatim}
+python -m LMS.LMS_RL_ORB_GPS.realtime.live_window
+\end{verbatim}
+\end{small}
+
+\item Sin el teléfono, el modo en vivo se puede probar con el teléfono simulado, que transmite una grabación con el mismo protocolo de la aplicación; en la ventana se usa entonces la IP \texttt{127.0.0.1}:
+\begin{small}
+\begin{verbatim}
+python -m LMS.LMS_RL_ORB_GPS.realtime.phone_simulator \
+    mobile_data/<carpeta> --start 380 --duration 120
+\end{verbatim}
+\end{small}
+
+\item Una sesión en vivo también se puede ejecutar desde la consola, sin la ventana; \texttt{--record} graba también en el teléfono, \texttt{--scale depth} activa la escala por profundidad y \texttt{--rl}, la política:
+\begin{small}
+\begin{verbatim}
+python -m LMS.LMS_RL_ORB_GPS.realtime.run_live <IP del teléfono> \
+    --record --scale depth --rl
+\end{verbatim}
+\end{small}
+\end{enumerate}
+
+\section{Uso}
+
+\begin{enumerate}
+\item En la pestaña \textit{Real time}, elegir la fuente: \textit{Live phone}, con la IP del teléfono en \textit{Phone IP} y, si se desea una copia de la sesión en el teléfono, la opción \textit{Also record on the phone}; o \textit{Recording (replay)}, con la carpeta de la grabación, elegida con \textit{Choose\dots}, y el segundo de inicio en \textit{From second}.
+
+\item En \textit{Options}, activar la escala métrica (\textit{Metric scale (depth model)}), ajustar la franja inferior enmascarada (\textit{Bottom mask}), de 25~\% con el teléfono en el tablero, de modo que la línea amarilla del video cubra el capó, y activar, si se desea, la política (\textit{RL}).
+
+\item Presionar \textit{Start}.
+La sección \textit{Status} muestra el estado del video, del GPS, de la IMU y de la fusión, y el mapa, el GPS y la trayectoria fusionada.
+La fusión arranca cuando el vehículo recorre 20~m a más de 3~m/s.
+
+\item Presionar \textit{Stop}.
+La sesión se guarda en \texttt{resultados/realtime/}, en una carpeta con el tipo de sesión, la fecha y la hora, con la trayectoria por cuadro (\texttt{frames.csv}), el GPS, las mediciones inerciales y las métricas (\texttt{metrics.json}), incluida la utilización de recursos.
+
+\item Si se grabó en el teléfono, la ventana indica la carpeta de la grabación (\textit{Recorded on the phone}), que se copia a la computadora con \texttt{adb}:
+\begin{small}
+\begin{verbatim}
+adb pull /sdcard/Android/data/edu.osu.pcv.marslogger/files/data/\
+<carpeta> mobile_data/
+\end{verbatim}
+\end{small}
+\end{enumerate}
+
+La pestaña \textit{Development} agrega el corte simulado del GPS (\textit{Cut the GPS}) y dibuja en el mapa las soluciones ocultas y el filtro convencional junto a la política (subsección~\ref{sec:res-interfaz}).
+La estimación debe interpretarse con cautela: sin GPS el error crece con el tiempo, y en los cortes de 30~s la mediana del error al volver el GPS llega a 101~m (subsección~\ref{sec:res-precision}), por lo que la plataforma no debe usarse como única fuente de posición para conducir.
+
+\section{Problemas frecuentes}
+
+\begin{itemize}
+\item \textbf{\texttt{setup.sh} avisa que hay GPU, pero que la versión de torch no corre en ella.}
+La versión de torch debe terminar en \texttt{+cu126}, la que fija \texttt{requirements.txt}; en un ambiente anterior, \texttt{./setup.sh --sin-apt} la reemplaza.
+
+\item \textbf{\texttt{setup.sh} avisa que no hay GPU utilizable.}
+Revisar con \texttt{nvidia-smi} que el controlador esté cargado y, con el arranque seguro activo, que se haya registrado la clave del módulo.
+Sin la tarjeta gráfica, la plataforma funciona con la escala más lenta.
+
+\item \textbf{\texttt{phone\_check} no se conecta al video o el teléfono no responde.}
+La aplicación no está en la pantalla de video, la IP es incorrecta, los equipos no están en la misma red o se cambiaron los puertos en los ajustes.
+
+\item \textbf{\texttt{phone\_check} no recibe posiciones GPS.}
+Bajo techo, el GPS tarda; al aire libre, la señal llega unos minutos después de abrir la aplicación.
+
+\item \textbf{No llegan las mediciones inerciales.}
+La aplicación instalada es una versión anterior; se debe instalar la de la rama \texttt{develop}.
+
+\item \textbf{La ventana no abre (\texttt{No module named tkinter}).}
+Falta el paquete \texttt{python3-tk}, que se instala con \texttt{sudo apt install python3-tk}.
+
+\item \textbf{El modelo de profundidad no carga sin internet.}
+Ejecutar \texttt{./setup.sh} con internet, que lo descarga en \verb|~/.cache/huggingface|.
+
+\item \textbf{La fusión no arranca.}
+El vehículo no ha recorrido 20~m a más de 3~m/s; a muy baja velocidad, el filtro no arranca (subsección~\ref{sec:res-campo}).
+\end{itemize}
 
 \chapter{APENDICE C}
 \label{appendix:apendiceC}

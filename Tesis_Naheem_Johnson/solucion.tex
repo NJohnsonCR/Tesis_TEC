@@ -162,7 +162,7 @@ Dado que un menor error de escala no garantiza una mejor trayectoria, las altern
 La alternativa seleccionada se integró después en la plataforma, en un hilo propio que no detiene el procesamiento principal.
 
 \textbf{Aplicación móvil y protocolo de red.}
-En paralelo con el canal de procesamiento se desarrolló, en Java y con el entorno Android Studio, una aplicación para Android que adquiere el video, las posiciones GPS y las mediciones inerciales del teléfono.
+En paralelo con el canal de procesamiento se desarrolló, en Java y con el entorno Android Studio, una aplicación para Android que adquiere el video, las posiciones GPS y las mediciones inerciales del teléfono, a partir de la aplicación de código abierto MARS Logger~\cite{huai2019mars}.
 Su desarrollo siguió fases propias: compilación y ejecución en el teléfono, medición de la frecuencia del GPS, registro del GPS en archivo, transmisión del GPS, transmisión del video y control remoto de la grabación.
 La aplicación y el canal de procesamiento residen en repositorios separados y se comunican únicamente a través de un protocolo de red definido para el proyecto: el video se transmite por TCP junto con los parámetros intrínsecos de la cámara y la marca de tiempo de cada cuadro, mientras que las posiciones GPS, el estado y las órdenes de control viajan por UDP.
 Definir esa interfaz como único punto de unión permite desarrollar y verificar cada lado por separado.
@@ -268,7 +268,7 @@ Cálculo y análisis & NumPy, SciPy, pandas y scikit-learn para el cálculo num�
 \addlinespace
 Interfaz & Tkinter, para la ventana que inicia, supervisa y detiene las sesiones. \\
 \addlinespace
-Aplicación móvil & Aplicación propia para Android, desarrollada en Java con Android Studio, en un repositorio separado. \\
+Aplicación móvil & Aplicación para Android basada en MARS Logger \cite{huai2019mars}, desarrollada en Java con Android Studio, en un repositorio separado. \\
 \addlinespace
 Datos & Secuencias del conjunto KITTI \cite{geiger2012kitti}, con trayectoria de referencia de alta precisión; grabaciones propias en vehículo, la mayoría realizadas con la aplicación, que incluyen video, posiciones GPS con velocidad Doppler y mediciones inerciales con un reloj común. \\
 \addlinespace

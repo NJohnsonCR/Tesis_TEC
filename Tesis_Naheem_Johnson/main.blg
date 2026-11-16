@@ -18,44 +18,44 @@ A level-1 auxiliary file: conclusiones.aux
 The style file: sty/plainurl.bst
 A level-1 auxiliary file: apendice.aux
 Database file #1: literatura.bib
-You've used 35 entries,
+You've used 37 entries,
             2363 wiz_defined-function locations,
-            778 strings with 12336 characters,
-and the built_in function-call counts, 13433 in all, are:
-= -- 1627
-> -- 587
+            788 strings with 12726 characters,
+and the built_in function-call counts, 14014 in all, are:
+= -- 1691
+> -- 612
 < -- 6
-+ -- 238
-- -- 198
-* -- 787
-:= -- 2252
-add.period$ -- 132
-call.type$ -- 35
-change.case$ -- 203
++ -- 249
+- -- 206
+* -- 813
+:= -- 2349
+add.period$ -- 138
+call.type$ -- 37
+change.case$ -- 213
 chr.to.int$ -- 0
-cite$ -- 35
-duplicate$ -- 432
-empty$ -- 962
-format.name$ -- 198
-if$ -- 2985
+cite$ -- 37
+duplicate$ -- 453
+empty$ -- 1014
+format.name$ -- 206
+if$ -- 3116
 int.to.chr$ -- 0
-int.to.str$ -- 35
-missing$ -- 33
-newline$ -- 205
-num.names$ -- 70
-pop$ -- 222
+int.to.str$ -- 37
+missing$ -- 34
+newline$ -- 215
+num.names$ -- 74
+pop$ -- 241
 preamble$ -- 1
-purify$ -- 169
+purify$ -- 177
 quote$ -- 0
-skip$ -- 582
+skip$ -- 608
 stack$ -- 0
-substring$ -- 635
-swap$ -- 93
+substring$ -- 646
+swap$ -- 96
 text.length$ -- 6
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 128
+type$ -- 136
 warning$ -- 0
-while$ -- 108
-width$ -- 37
-write$ -- 432
+while$ -- 112
+width$ -- 39
+write$ -- 452

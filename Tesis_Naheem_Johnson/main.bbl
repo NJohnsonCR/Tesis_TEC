@@ -64,6 +64,11 @@ Richard Hartley and Andrew Zisserman.
 \newblock Cambridge University Press, 2nd edition, 2004.
 \newblock ISBN 978-0-521-54051-3.
 
+\bibitem{huai2019mars}
+Jianzhu Huai, Yujia Zhang, and Alper Yilmaz.
+\newblock The mobile {AR} sensor logger for {Android} and {iOS} devices.
+\newblock In {\em 2019 {IEEE} {SENSORS}}, October 2019.
+
 \bibitem{tec_lineamientos_tfg}
 {Instituto Tecnológico de Costa Rica, Escuela de Ingeniería en Computadores}.
 \newblock Lineamientos para los trabajos finales de graduación, licenciatura en ingeniería en computadores, curso ce-5601.
@@ -103,6 +108,11 @@ Ra{\'u}l Mur-Artal, J.~M.~M. Montiel, and Juan~D. Tard{\'o}s.
 \newblock {ORB-SLAM}: A versatile and accurate monocular {SLAM} system.
 \newblock {\em {IEEE} {T}ransactions on Robotics}, 31(5):1147--1163, 2015.
 \newblock \url{https://doi.org/10.1109/TRO.2015.2463671}.
+
+\bibitem{marslogger_repo}
+{PCV Lab, The Ohio State University}.
+\newblock Mobile {AR} sensor ({MARS}) logger, 2022.
+\newblock \foreignlanguage{spanish}{Repositorio de código, licencia GPL-3.0. [En línea]. Disponible en:} \url{https://github.com/OSUPCVLab/mobile-ar-sensor-logger}.
 
 \bibitem{rosten2006fast}
 Edward Rosten and Tom Drummond.

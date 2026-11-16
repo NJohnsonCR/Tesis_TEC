@@ -194,7 +194,10 @@ La aplicación del teléfono y la ventana de la plataforma se describen en las S
 \label{sec:res-app}
 % OE2. docs/ESTADO_APP_ANDROID.md §2-§5 (rama SLAM_RealTime, commit 4ba7302).
 
-La aplicación del teléfono se desarrolló en Java con Android Studio, en un repositorio propio, y su única relación con el canal de procesamiento es el protocolo de red descrito en la Sección~\ref{sec:res-arquitectura}.
+% README.md de Slam_GPS_Design_App (develop, 5f2047f), "Cambios respecto de MARS Logger" y "Estructura".
+La aplicación del teléfono se desarrolló en Java con Android Studio, en un repositorio propio, a partir de MARS Logger~\cite{huai2019mars}, una aplicación de código abierto que graba el video de la cámara y las mediciones inerciales del teléfono sincronizados con un mismo reloj.
+De MARS Logger provienen la captura de la cámara, el registro de los sensores y la interfaz; en este proyecto se agregaron la transmisión del video, del GPS y de las mediciones inerciales a la computadora, con el estado de cada conexión en la pantalla de video, el control de la grabación desde la computadora y los ajustes de la transmisión, y se modificó el registro del GPS para guardar su velocidad en el mismo reloj que la cámara y la IMU.
+Su única relación con el canal de procesamiento es el protocolo de red descrito en la Sección~\ref{sec:res-arquitectura}.
 La aplicación tiene tres pantallas principales (Fig.~\ref{fig:res-app}).
 La de video muestra la vista de la cámara, el botón de grabación, la resolución y la frecuencia de captura, y un recuadro de estado con la dirección IP del teléfono, la señal del GPS, con un aviso si pasan más de 3~s sin una posición, y el estado de las conexiones de sensores y de video con la computadora.
 La de la IMU muestra en vivo las lecturas del acelerómetro, del giroscopio, del magnetómetro y de la posición, y la de ajustes permite configurar la cámara, la frecuencia de muestreo de la IMU, los puertos de la transmisión y la calidad de compresión JPEG, de 80 por defecto.
